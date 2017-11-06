@@ -1,0 +1,47 @@
+tools:
+do;
+    declare NULL literally '0';
+    declare FALSE literally '0';
+    declare TRUE literally '1';
+
+    str$eq: procedure(s1, s2) byte public;
+        declare s1 address;
+        declare s2 address;
+        do while s1(0) = s2(0) and s1(0) <> NULL and s2(0) <> NULL;
+            s1 = s1 + 1;
+            s2 = s2 + 1;
+        end;
+        if s1 = NULL and s2 = NULL then
+            return TRUE;
+        else
+            return FALSE;
+    end str$eq;
+            
+
+    str$to$int: procedure(s) byte public;
+        declare s address;
+        declare n byte initial(0);
+        do while s(0) <> NULL;
+            n = n * 10 + s(0) - '0';
+            s = s + 1;
+        end;
+        return n;
+    end str$to$int;
+
+    declare mem$ptr address initial(0);
+    declare MEM$SZ literally '0100h';
+    declare mem$buf(MEM$SZ) byte;
+
+    /* Allocates memory from mem$buf. */
+    /* Returns address of allocated space of n bytes. */
+    /* If not enough memory, returns 0 */
+    mem$alloc: procedure(n) address public;
+        declare n byte;
+        declare res address;
+        if mem$ptr + n > MEM$SZ then
+            return 0;
+        res = .mem$buf(mem$ptr);
+        mem$ptr = mem$ptr + n;
+        return res;
+    end mem$alloc;
+end tools;
