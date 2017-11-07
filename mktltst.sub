@@ -1,0 +1,5 @@
+plmx tools.plm; C+ M-
+plmx tooltest.plm; C+
+m80 =tools
+m80 =tooltest
+link tooltest,tools,k:iolib[s],k:rlib[s]
