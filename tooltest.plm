@@ -1,0 +1,25 @@
+tool$test:
+do;
+    pr$buf: procedure(a) external;
+        declare a address;
+    end pr$buf;
+
+    str$eq: procedure(ps1, ps2) byte external;
+        declare ps1 address;
+        declare ps2 address;
+    end str$eq;    
+
+    declare s1(5) byte data('abc', '$', 0);
+    declare s2(5) byte data('abcd', '$', 0);
+
+    if str$eq(.s1, .s2) then
+        call pr$buf(.('equal$'));
+    else
+        call pr$buf(.('not equal$'));
+
+    if str$eq(.('abc', 0), .('abc', 0)) then
+        call pr$buf(.('equal$'));
+    else
+        call pr$buf(.('not equal$'));
+
+end tool$test;

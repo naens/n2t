@@ -1,27 +1,33 @@
 tools:
 do;
-    declare NULL literally '0';
-    declare FALSE literally '0';
-    declare TRUE literally '1';
+    pr$buf: procedure (addr) external;
+        declare addr address;
+    end pr$buf;
 
-    str$eq: procedure(s1, s2) byte public;
-        declare s1 address;
-        declare s2 address;
-        do while s1(0) = s2(0) and s1(0) <> NULL and s2(0) <> NULL;
-            s1 = s1 + 1;
-            s2 = s2 + 1;
+    wr$con: procedure (ch) external;
+        declare ch byte;
+    end wr$con;
+
+    str$eq: procedure(p$s1, p$s2) byte public;
+        declare p$s1 address;
+        declare s1 based p$s1 byte;
+        declare p$s2 address;
+        declare s2 based p$s2 byte;
+        declare i byte;
+        i = 0;
+        do while s1(i) = s2(i) and s1(i) <> 0 and s2(i) <> 0;
+            i = i + 1;
         end;
-        if s1 = NULL and s2 = NULL then
-            return TRUE;
+        if s1(i) = 0 and s2(i) = 0 then
+            return 1;
         else
-            return FALSE;
+            return 0;
     end str$eq;
-            
 
     str$to$int: procedure(s) byte public;
         declare s address;
         declare n byte initial(0);
-        do while s(0) <> NULL;
+        do while s(0) <> 0;
             n = n * 10 + s(0) - '0';
             s = s + 1;
         end;
