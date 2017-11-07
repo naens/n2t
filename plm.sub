@@ -1,0 +1,7 @@
+erase $1.mac
+erase $1.rel
+erase $1.com
+
+plmx $1.plm; C+
+m80 =$1
+link $1,k:iolib[s],k:rlib[s]
