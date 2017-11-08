@@ -24,6 +24,18 @@ do;
             return 0;
     end str$eq;
 
+    str$cpy: procedure(p$src, p$dest, len) public;
+        declare p$src address;
+        declare p$dest address;
+        declare len byte;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i byte;
+        do i = 0 to len - 1;
+            dest(i) = src(i);
+        end;
+    end str$cpy;
+
     str$num: procedure(p$s) address public;
         declare p$s address;
         declare s based p$s byte;
