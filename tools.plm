@@ -24,15 +24,41 @@ do;
             return 0;
     end str$eq;
 
-    str$to$int: procedure(s) byte public;
-        declare s address;
-        declare n byte initial(0);
+    str$num: procedure(p$s) address public;
+        declare p$s address;
+        declare s based p$s byte;
+        declare n address;
+        n=0;
         do while s(0) <> 0;
             n = n * 10 + s(0) - '0';
             s = s + 1;
         end;
         return n;
-    end str$to$int;
+    end str$num;
+
+    pr$digit: procedure(n) public;
+        declare n byte;
+        n = n mod 10;
+        call wr$con(n + '0');
+    end pr$digit;
+
+    pr$num: procedure(n) public;
+        declare n address;
+        declare a(5) byte;
+        declare i byte;
+        i = 0;
+        if n = 0 then
+            call pr$digit(0);
+        do while n > 0;
+            a(i) = n mod 10;
+            n = n / 10;
+            i = i + 1;
+        end;
+        do while i > 0;
+            call pr$digit(a(i-1));
+            i = i - 1;
+        end;
+    end;
 
     declare mem$ptr address initial(0);
     declare MEM$SZ literally '0100h';
