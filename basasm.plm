@@ -1,0 +1,51 @@
+bas$asm:
+do;
+    pr$buf: procedure(a) external;
+        declare a address;
+    end pr$buf;
+
+    wr$con: procedure(c) external;
+       declare c byte;
+    end wr$con;
+
+    nmout: procedure (v, b, l, ba, w) external;
+        declare (v, ba) address;
+        declare (b, l, w) byte;
+    end nmout;
+
+    open$file: procedure byte external;
+    end open$file;
+
+    file$close: procedure byte external;
+    end file$close;
+
+    read$token: procedure(pbuf) byte external;
+        declare pbuf address;
+    end read$token;
+
+    declare buf(128) byte;
+    declare type byte;
+
+    if open$file = 0 then
+    do;
+        type = read$token(.buf);
+        do while type <> 0;
+	    call wr$con(type);
+            call wr$con(':');
+            call pr$buf(.buf);
+            type = read$token(.buf);
+            call wr$con(0DH);
+            call wr$con(0AH);
+        end;
+        if type = 0 then
+        do;
+            if file$close <> 0 then
+                call pr$buf(.('ERROR CLOSING FILE$'));
+        end;
+        else
+            call pr$buf(.('ERROR READING FILE$'));
+    end;
+    else
+        call pr$buf(.('ERROR OPENING THE FILE$'));
+
+end bas$asm;
