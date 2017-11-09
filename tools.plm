@@ -48,6 +48,28 @@ do;
         return n;
     end str$num;
 
+    pr0str: procedure(p$str) public;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i byte;
+        i = 0;
+        do while str(i) <> 0;
+            call wr$con(str(i));
+            i = i + 1;
+        end;
+    end pr0str;
+
+    str0len: procedure(p$str) byte public;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i byte;
+        i = 0;
+        do while str(i) <> 0;
+            i = i + 1;
+        end;
+        return i;
+    end str0len;
+
     pr$digit: procedure(n) public;
         declare n byte;
         n = n mod 10;

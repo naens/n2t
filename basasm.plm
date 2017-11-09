@@ -5,8 +5,12 @@ do;
     end pr$buf;
 
     wr$con: procedure(c) external;
-       declare c byte;
+        declare c byte;
     end wr$con;
+
+    pr0str: procedure(p$str) external;
+        declare p$str address;
+    end pr0str;
 
     nmout: procedure (v, b, l, ba, w) external;
         declare (v, ba) address;
@@ -19,23 +23,86 @@ do;
     file$close: procedure byte external;
     end file$close;
 
+    get$fn: procedure(p$buf) external;
+        declare p$buf address;
+    end get$fn;
+
     read$token: procedure(pbuf) byte external;
         declare pbuf address;
     end read$token;
 
+    a$instr: procedure(p$src, p$dest) external;
+        declare (p$src, p$dest) address;
+    end a$instr;
+
+    c$instr: procedure(p$src, p$dest) external;
+        declare (p$src, p$dest) address;
+    end c$instr;
+
+
+    openw: procedure(fcb, scnt, stat) external;
+        declare (fcb, scnt, stat) address;
+    end openw;
+    declare (scnt, dstat) address;
+    closw: procedure(fcb, sbuff, scnt, stat) external;
+        declare (fcb, sbuff, scnt, stat) address;
+    end closw;
+    declare sbuff(128) byte;
+    dwlin: procedure(fcb, sbuff, scnt, buf, cnt, stat) external;
+        declare (fcb, sbuff, scnt, buf, cnt, stat) address;
+    end dwlin;
     declare buf(128) byte;
     declare type byte;
+    declare out(17) byte;
+    declare wfcb(33) byte;
+    declare cnt byte;
+    dwchr: procedure(fcb, sbuff, scnt, chr, stat) external;
+        declare (fcb, sbuff, scnt, chr, stat) address;
+    end dwchr;
 
+    wfcb(0) = 0;
+    call get$fn(.wfcb(1));
+    wfcb(9) = 'H';
+    wfcb(10) = 'C';
+    wfcb(11) = 'K';
+/*
+    call openw (.wfcb, .scnt, .dstat);
+    if dstat = 0 then
+    do;
+        declare txt(12) byte data('0123456789ab');
+        cnt = 5;
+        call dwchr(.wfcb, .sbuff, .scnt, .txt(10), .dstat);
+        call dwlin (.wfcb, .sbuff, .scnt, .txt, .cnt, .dstat);
+        if dstat = 0 then
+            call closw(.wfcb, .sbuff, .scnt, .dstat);
+    end;
+*/
     if open$file = 0 then
     do;
         type = read$token(.buf);
         do while type <> 0;
+            call pr$buf(.('    $'));
 	    call wr$con(type);
             call wr$con(':');
-            call pr$buf(.buf);
+            call wr$con(09H);
+            call pr0str(.buf);
+            call wr$con(09H);
+            if type = 'A' then
+            do;
+                call a$instr(.buf, .out);
+                call pr0str(.out);
+            end;
+            else if type = 'C' then
+            do;
+                call c$instr(.buf, .out);
+                call pr0str(.out);
+            end;
+            else if type = 'L' then
+            do;
+                ;
+            end;
+            call pr$buf(.(0DH, 0AH, '$'));
             type = read$token(.buf);
-            call wr$con(0DH);
-            call wr$con(0AH);
         end;
         if type = 0 then
         do;
@@ -47,5 +114,4 @@ do;
     end;
     else
         call pr$buf(.('ERROR OPENING THE FILE$'));
-
 end bas$asm;
