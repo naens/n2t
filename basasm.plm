@@ -39,45 +39,33 @@ do;
         declare (p$src, p$dest) address;
     end c$instr;
 
+    opw$fn: procedure(pfn) byte external;
+        declare pfn address;
+    end opwfn;
 
-    openw: procedure(fcb, scnt, stat) external;
-        declare (fcb, scnt, stat) address;
-    end openw;
-    declare (scnt, dstat) address;
-    closw: procedure(fcb, sbuff, scnt, stat) external;
-        declare (fcb, sbuff, scnt, stat) address;
-    end closw;
-    declare sbuff(128) byte;
-    dwlin: procedure(fcb, sbuff, scnt, buf, cnt, stat) external;
-        declare (fcb, sbuff, scnt, buf, cnt, stat) address;
-    end dwlin;
+    fwstr: procedure(pfn) byte external;
+        declare pfn address;
+    end fwstr;
+
+    fwln: procedure(pfn) byte external;
+        declare pfn address;
+    end fwln;
+
+    clwf: procedure byte external;
+    end clwf;
+
+
     declare buf(128) byte;
     declare type byte;
     declare out(17) byte;
-    declare wfcb(33) byte;
-    declare cnt byte;
-    dwchr: procedure(fcb, sbuff, scnt, chr, stat) external;
-        declare (fcb, sbuff, scnt, chr, stat) address;
-    end dwchr;
+    declare fn(11) byte;
 
-    wfcb(0) = 0;
-    call get$fn(.wfcb(1));
-    wfcb(9) = 'H';
-    wfcb(10) = 'C';
-    wfcb(11) = 'K';
-/*
-    call openw (.wfcb, .scnt, .dstat);
-    if dstat = 0 then
-    do;
-        declare txt(12) byte data('0123456789ab');
-        cnt = 5;
-        call dwchr(.wfcb, .sbuff, .scnt, .txt(10), .dstat);
-        call dwlin (.wfcb, .sbuff, .scnt, .txt, .cnt, .dstat);
-        if dstat = 0 then
-            call closw(.wfcb, .sbuff, .scnt, .dstat);
-    end;
-*/
-    if open$file = 0 then
+    call get$fn(.fn);
+    fn(8) = 'H';
+    fn(9) = 'C';
+    fn(10) = 'K';
+
+    if opw$fn(.fn) = 0 and open$file = 0 then
     do;
         type = read$token(.buf);
         do while type <> 0;
@@ -91,11 +79,13 @@ do;
             do;
                 call a$instr(.buf, .out);
                 call pr0str(.out);
+                call fwln(.out);
             end;
             else if type = 'C' then
             do;
                 call c$instr(.buf, .out);
                 call pr0str(.out);
+                call fwln(.out);
             end;
             else if type = 'L' then
             do;
@@ -114,4 +104,6 @@ do;
     end;
     else
         call pr$buf(.('ERROR OPENING THE FILE$'));
+    if clwf <> 0 then
+        call pr$buf(.('ERROR CLOSING WRITE FILE$'));
 end bas$asm;
