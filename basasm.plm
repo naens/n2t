@@ -54,7 +54,7 @@ do;
     clwf: procedure byte external;
     end clwf;
 
-    init$table: procedure external
+    init$table: procedure external;
     end init$table;
 
     declare buf(128) byte;

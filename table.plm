@@ -37,7 +37,7 @@ do;
     declare table (TAB$SZ) address;
 
     init$table: procedure public;
-        declare i byte;
+        declare i address;
         do i = 0 to TAB$SZ - 1;
             table(i) = 0;
         end;

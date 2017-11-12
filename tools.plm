@@ -36,6 +36,21 @@ do;
         end;
     end str$cpy;
 
+    contains: procedure(p$str, c) byte public;
+        declare p$str address;
+        declare c byte;
+        declare str based p$str byte;
+        declare i address;
+        i = 0;
+        do while str(i) <> 0 and str(i) <> c;
+            i = i + 1;
+        end;
+        if str(i) = c then
+            return 1;
+        else
+            return 0;
+     end contains;
+
     str0cpy: procedure(p$src, p$dest) public;
         declare p$src address;
         declare p$dest address;
@@ -72,7 +87,7 @@ do;
     end str0len;
 
     declare mem$ptr address initial(0);
-    declare MEM$SZ literally '01000h';
+    declare MEM$SZ literally '08000h';
     declare mem$buf(MEM$SZ) byte;
 
     /* Allocates memory from mem$buf. */
@@ -82,7 +97,10 @@ do;
         declare n byte;
         declare res address;
         if mem$ptr + n > MEM$SZ then
+        do;
+            call pr$buf(.('ERROR: NO MEMORY!', 0DH, 0AH, '$'));
             return 0FFFFH;
+        end;
         res = .mem$buf(mem$ptr);
         mem$ptr = mem$ptr + n;
         return res;

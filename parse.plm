@@ -4,6 +4,10 @@ do;
         declare a address;
     end pr$buf;
 
+    pr0str: procedure(a) external;
+        declare a address;
+    end pr0str;
+
     wr$con: procedure(c) external;
        declare c byte;
     end wr$con;
@@ -31,9 +35,14 @@ do;
         declare len byte;
     end str$cpy;
 
-    str0len: procedure(p$str) byte external;
+    str0len: procedure(p$str) address external;
         declare p$str address;
     end str0len;
+
+    contains: procedure(p$str, c) address external;
+        declare p$str address;
+        declare c byte;
+    end contains;
 
     numin: procedure (buffer) address external;
         declare buffer address;
@@ -70,7 +79,7 @@ do;
 
     numeric: procedure(c) byte;
         declare c byte;
-        if c >= '0' and c < '9' then
+        if c >= '0' and c <= '9' then
             return 1;
         else
             return 0;
@@ -170,7 +179,7 @@ do;
         return 0;
     end read$token;
 
-    a$instr: procedure(p$src, p$dest) public;
+    a$instr: procedure(p$src, p$dest) address public;
         declare (p$src, p$dest) address;
         declare src based p$src byte;
         declare dest based p$dest byte;
@@ -183,13 +192,15 @@ do;
             do;
                 value = var$count;
                 var$count = var$count + 1;
-                call tab$put(.src, value);
+                if tab$put(.src, value) <> 0 then
+                    return 0FFFFH;
             end;
         end;
         else
             value = numin(.p$src);
         call nmout(value, 2, '0', p$dest, 16);
         dest(16) = 0;
+        return 0;
     end a$instr;
 
     fill$dest: procedure(p$src, p$dest) public;
@@ -226,9 +237,9 @@ do;
         declare (p$src, p$dest) address;
         declare src based p$src byte;
         declare dest based p$dest byte;
-        declare len byte;
+        declare len address;
         len = str0len(.src);
-        if src(0) = 'M' or (len = 3 and src(2) = 'M') then
+        if contains(.src, 'M') then
             dest(0) = '1';
         if len = 1 then
             call fc1(p$src, p$dest);
@@ -259,7 +270,7 @@ do;
             dest(1), dest(0), dest(2) = '1';
     end fill$jump;
 
-    c$instr: procedure(p$src, p$dest) public;
+    c$instr: procedure(p$src, p$dest) address public;
         declare (p$src, p$dest) address;
         declare src based p$src byte;
         declare dest based p$dest byte;
@@ -291,5 +302,6 @@ do;
         else
             call fill$comp(.src(s), .dest(3));
         dest(16) = 0;
+        return 0;
     end c$instr;
 end parse;
