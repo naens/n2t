@@ -1,2 +1,4 @@
 #+TITLE: n2t
-Programs done for the nand2tetris
+Subprojects for nand2tetris course
+
+Now contains the assembler for the nand2tetris CPU.
