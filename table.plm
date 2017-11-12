@@ -33,7 +33,7 @@ do;
         declare n address;
     end mem$alloc;
 
-    declare TAB$SZ literally '4';
+    declare TAB$SZ literally '8';
     declare table (TAB$SZ) address;
 
     init$table: procedure public;
@@ -111,8 +111,8 @@ do;
         do while pnode <> 0;
             call pr0str(node.key);
             call wr$con(':');
-            call nmout(node.val, 10, '0', .buf, 3);
-            buf(3) = '$';
+            call nmout(node.val, 10, '0', .buf, 5);
+            buf(5) = '$';
             pnode = node.next;
             call pr$buf(.buf);
             call wr$con(' ');

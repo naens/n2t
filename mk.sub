@@ -6,6 +6,7 @@ plmx fwrite.plm; C+ M-
 plmx basasm.plm; C+
 plmx tooltest.plm; C+
 plmx tabtest.plm; C+
+plmx hackasm.plm; C+
 m80 =tools
 m80 =table
 m80 =parse
@@ -14,6 +15,8 @@ m80 =fc
 m80 =basasm
 m80 =tooltest
 m80 =tabtest
+m80 =hackasm
 link tooltest,tools,k:iolib[s],k:rlib[s]
-link basasm,fc,parse,fwrite,tools,k:iolib[s],k:rlib[s]
 link tabtest,tools,table,k:iolib[s],k:rlib[s]
+link basasm,fc,parse,fwrite,table,tools,k:iolib[s],k:rlib[s]
+link hackasm,fc,parse,fwrite,table,tools,k:iolib[s],k:rlib[s]

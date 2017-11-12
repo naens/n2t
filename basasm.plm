@@ -54,6 +54,8 @@ do;
     clwf: procedure byte external;
     end clwf;
 
+    init$table: procedure external
+    end init$table;
 
     declare buf(128) byte;
     declare type byte;
@@ -64,6 +66,8 @@ do;
     fn(8) = 'H';
     fn(9) = 'C';
     fn(10) = 'K';
+
+    call init$table;
 
     if opw$fn(.fn) = 0 and open$file = 0 then
     do;
