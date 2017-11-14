@@ -1,8 +1,13 @@
 #!/bin/sh
-plmxdir="../plmx"
+plmx="../plmx.zip"
 addenv ()
 {
-    cp $plmxdir/* .
+    unzip -oq $plmx
+}
+
+plmxfiles()
+{
+    zipinfo -1 $plmx
 }
 
 delenv ()
@@ -16,7 +21,7 @@ delenv ()
     local file1='/tmp/.file$1'
     local file2='/tmp/.file$2'
     ls -1 | sort > $file1
-    ls -1 $plmxdir | sort > $file2
+    plmxfiles | sort > $file2
     local files=$(comm -1 $file1 $file2)
     rm -f $files $file1 $file2
 }
@@ -26,7 +31,7 @@ deltemp ()
     local file1='/tmp/.file$1'
     local file2='/tmp/.file$2'
     ls -1 | grep 'mac\|rel\|sym\|$$$' | sort > $file1
-    ls -1 $plmxdir | sort > $file2
+    plmxfiles | sort > $file2
     local files=$(comm -23 $file1 $file2)
     rm -f $files $file1 $file2
 }
