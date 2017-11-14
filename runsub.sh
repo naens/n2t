@@ -23,9 +23,9 @@ IFS=$'\n'
 for line in $lines; do
     line=$(echo $line | sed -e 's/[\x01-\x1f]//g')
     echo "$line"
-    echo "(Y/n)"
     if [ "$interactive" = "true" ]
     then
+        echo "(Y/n)"
         read answer
         if [ "$answer" = "y" -o "$answer" = "" ]
         then
