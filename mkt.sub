@@ -1,7 +1,0 @@
-plmx tools.plm; C+ M-
-plmx table.plm; C+ M-
-plmx tabtest.plm; C+
-m80 =tools
-m80 =table
-m80 =tabtest
-link tabtest,tools,table,k:iolib[s],k:rlib[s]
