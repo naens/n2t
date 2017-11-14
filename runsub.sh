@@ -13,16 +13,16 @@ else
     interactive=false
 fi
 
-lines=""
-while IFS='' read -r line || [ -n "$line" ]; do
-    lines="$lines$line"$'\n'
-done < "$fn"
-
-OLDIFS=$IFS
-IFS=$'\n'
-for line in $lines; do
+IFS='
+'
+for line in $(cat $fn)
+do
+    if [ -z "$line" ]
+    then
+        continue
+    fi
     line=$(echo $line | sed -e 's/[\x01-\x1f]//g')
-    echo "$line"
+    echo line="#$line#"
     if [ "$interactive" = "true" ]
     then
         echo "(Y/n)"
@@ -37,6 +37,5 @@ for line in $lines; do
         cpm "$line"
     fi
 done
-IFS=$OLDIFS
 
-rm *.'$$$'
+rm -f *.'$$$'

@@ -18,22 +18,20 @@ delenv ()
         echo "Action cannot be done from plmx"
         return 1
     fi
-    local file1='/tmp/.file$1'
-    local file2='/tmp/.file$2'
+    file1='/tmp/.file$1'
+    file2='/tmp/.file$2'
     ls -1 | sort > $file1
     plmxfiles | sort > $file2
-    local files=$(comm -1 $file1 $file2)
-    rm -f $files $file1 $file2
+    rm -f $(comm -1 "$file1" "$file2") $file1 $file2
 }
 
 deltemp ()
 {
-    local file1='/tmp/.file$1'
-    local file2='/tmp/.file$2'
+    file1='/tmp/.file$1'
+    file2='/tmp/.file$2'
     ls -1 | grep 'mac\|rel\|sym\|$$$' | sort > $file1
     plmxfiles | sort > $file2
-    local files=$(comm -23 $file1 $file2)
-    rm -f $files $file1 $file2
+    rm -f $(comm -23 "$file1" "$file2") $file1 $file2
 }
 
 # remove the '1A's at the end of cp/m text file
