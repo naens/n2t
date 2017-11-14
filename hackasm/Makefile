@@ -3,18 +3,21 @@ all: addenv
 	@echo "cpm basasm \$$1" > basasm
 	@echo "cpm hackasm \$$1" > hackasm
 	@source ../fun.sh && deltemp
+	@source ../fun.sh && delenv
 	@chmod +x basasm hackasm
 
 basasm: addenv
 	@source ../fun.sh && ../runsub.sh mkb
 	@echo "cpm basasm \$$1" > basasm
 	@source ../fun.sh && deltemp
+	@source ../fun.sh && delenv
 	@chmod +x basasm
 
 hackasm: addenv
 	@source ../fun.sh && ../runsub.sh mkh
 	@echo "cpm hackasm \$$1" > hackasm
 	@source ../fun.sh && deltemp
+	@source ../fun.sh && delenv
 	@chmod +x hackasm
 
 addenv:
@@ -25,4 +28,4 @@ delenv:
 
 clean: delenv
 	@source ../fun.sh && deltemp
-	@rm -f basasm basasm.com hackasm hackasm.com tabtest.com tooltest.com
+	@rm -f hackasm basasm *.com
