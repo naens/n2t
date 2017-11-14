@@ -27,6 +27,21 @@ have this extension.  I used emacs in order to find the name of ~.PLM~ files
 and I replaced them with ~.DAT~.  Not sure whether it's the best choice for
 the extension.  Perhaps I should have chosen ~.OVR~.
 
+* Requirements
+ * Linux
+ * GNU coreutils (comm, sort)
+ * sed
+ * zipinfo
+ * [[https://github.com/jhallen/cpm][github.com/jhallen/cpm]] with binaries in ~$PATH~
+
+* Usage
+ * Clone the repository
+ * ~cd~ to a subproject that you would like to test or to run. 
+ * There should be a Makefile, which you can use running ~make~.  And so, the most
+ compete version of the subpackage is compiled.  The command should also create linux
+ executable scripts which you can run to test the compiled program.
+ * You can remove compiled files with ~make clean~.
+
 * Subprojects
 ** hackasm
 The assembler for the nand2tetris CPU.
