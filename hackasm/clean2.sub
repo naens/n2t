@@ -1,0 +1,4 @@
+erase *.tok
+erase *.rom
+erase *.ram
+erase XX*.*

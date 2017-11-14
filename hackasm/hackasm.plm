@@ -1,0 +1,171 @@
+hack$asm:
+do;
+    pr$buf: procedure(a) external;
+        declare a address;
+    end pr$buf;
+
+    wr$con: procedure(c) external;
+        declare c byte;
+    end wr$con;
+
+    pr0str: procedure(p$str) external;
+        declare p$str address;
+    end pr0str;
+
+    nmout: procedure (v, b, l, ba, w) external;
+        declare (v, ba) address;
+        declare (b, l, w) byte;
+    end nmout;
+
+    open$file: procedure byte external;
+    end open$file;
+
+    file$close: procedure byte external;
+    end file$close;
+
+    get$fn: procedure(p$buf) external;
+        declare p$buf address;
+    end get$fn;
+
+    read$token: procedure(pbuf) byte external;
+        declare pbuf address;
+    end read$token;
+
+    a$instr: procedure(p$src, p$dest) address external;
+        declare (p$src, p$dest) address;
+    end a$instr;
+
+    c$instr: procedure(p$src, p$dest) address external;
+        declare (p$src, p$dest) address;
+    end c$instr;
+
+    opw$fn: procedure(pfn) byte external;
+        declare pfn address;
+    end opwfn;
+
+    fwstr: procedure(pfn) byte external;
+        declare pfn address;
+    end fwstr;
+
+    fwln: procedure(pfn) byte external;
+        declare pfn address;
+    end fwln;
+
+    clwf: procedure byte external;
+    end clwf;
+
+    init$table: procedure external;
+    end init$table;
+
+    tab$put: procedure(k, v) external;
+        declare (k, v) address;
+    end tab$put;
+
+    tab$get: procedure(k) address external;
+        declare k address;
+    end tab$get;
+
+    pr$tab: procedure external;
+    end pr$tab;
+
+    add$builtin: procedure;
+        call tab$put(.('R0', 0), 0);
+        call tab$put(.('R1', 0), 1);
+        call tab$put(.('R2', 0), 2);
+        call tab$put(.('R3', 0), 3);
+        call tab$put(.('R4', 0), 4);
+        call tab$put(.('R5', 0), 5);
+        call tab$put(.('R6', 0), 6);
+        call tab$put(.('R7', 0), 7);
+        call tab$put(.('R8', 0), 8);
+        call tab$put(.('R9', 0), 9);
+        call tab$put(.('R10', 0), 10);
+        call tab$put(.('R11', 0), 11);
+        call tab$put(.('R12', 0), 12);
+        call tab$put(.('R13', 0), 13);
+        call tab$put(.('R14', 0), 14);
+        call tab$put(.('R15', 0), 15);
+        call tab$put(.('SCREEN', 0), 16384);
+        call tab$put(.('KBD', 0), 24576);
+        call tab$put(.('SP', 0), 0);
+        call tab$put(.('LCL', 0), 1);
+        call tab$put(.('ARG', 0), 2);
+        call tab$put(.('THIS', 0), 3);
+        call tab$put(.('THAT', 0), 4);
+    end add$builtin;
+
+    pass1: procedure byte;
+        declare c address;
+        declare buf(128) byte;
+        declare type byte;
+        c = 0;
+        if open$file <> 0 then
+            return 0FFH;
+        type = read$token(.buf);
+        do while type <> 0;
+            if type = 'A' or type = 'C' then
+                c = c + 1;
+            else if type = 'L' then
+            do;
+                call tab$put(.buf, c);
+            end;
+            type = read$token(.buf);
+        end;
+        if file$close <> 0 then
+            return 0FFH;
+        return 0;
+    end pass1;
+
+    declare buf(128) byte;
+    declare type byte;
+    declare out(17) byte;
+    declare fn(11) byte;
+
+    call get$fn(.fn);
+    fn(8) = 'H';
+    fn(9) = 'C';
+    fn(10) = 'K';
+
+    call init$table;
+    call add$builtin;
+    if pass1 <> 0 then
+        goto er;
+
+    if opw$fn(.fn) = 0 and open$file = 0 then
+    do;
+        type = read$token(.buf);
+        do while type <> 0;
+            if type = 'A' then
+            do;
+                if a$instr(.buf, .out) <> 0 then
+                    goto er;
+                call fwln(.out);
+            end;
+            else if type = 'C' then
+            do;
+                if c$instr(.buf, .out) <> 0 then
+                    goto er;
+                call fwln(.out);
+            end;
+            type = read$token(.buf);
+        end;
+        if type = 0 then
+        do;
+            if file$close <> 0 then
+                call pr$buf(.('ERROR CLOSING FILE$'));
+        end;
+        else
+            call pr$buf(.('ERROR READING FILE$'));
+    end;
+    else
+        call pr$buf(.('ERROR OPENING THE FILE$'));
+    if clwf <> 0 then
+        call pr$buf(.('ERROR CLOSING WRITE FILE$'));
+
+ok:
+    call pr$buf(.('OK', 0DH, 0AH, '$'));
+    goto done;
+er:
+    call pr$buf(.('ERROR', 0DH, 0AH, '$'));
+done:
+end hack$asm;

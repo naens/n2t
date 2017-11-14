@@ -1,0 +1,108 @@
+tools:
+do;
+    pr$buf: procedure (addr) external;
+        declare addr address;
+    end pr$buf;
+
+    wr$con: procedure (ch) external;
+        declare ch byte;
+    end wr$con;
+
+    str0eq: procedure(p$s1, p$s2) byte public;
+        declare p$s1 address;
+        declare s1 based p$s1 byte;
+        declare p$s2 address;
+        declare s2 based p$s2 byte;
+        declare i address;
+        i = 0;
+        do while s1(i) = s2(i) and s1(i) <> 0 and s2(i) <> 0;
+            i = i + 1;
+        end;
+        if s1(i) = 0 and s2(i) = 0 then
+            return 1;
+        else
+            return 0;
+    end str0eq;
+
+    str$cpy: procedure(p$src, p$dest, len) public;
+        declare p$src address;
+        declare p$dest address;
+        declare len byte;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i byte;
+        do i = 0 to len - 1;
+            dest(i) = src(i);
+        end;
+    end str$cpy;
+
+    contains: procedure(p$str, c) byte public;
+        declare p$str address;
+        declare c byte;
+        declare str based p$str byte;
+        declare i address;
+        i = 0;
+        do while str(i) <> 0 and str(i) <> c;
+            i = i + 1;
+        end;
+        if str(i) = c then
+            return 1;
+        else
+            return 0;
+     end contains;
+
+    str0cpy: procedure(p$src, p$dest) public;
+        declare p$src address;
+        declare p$dest address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i address;
+        i = 0;
+        do while src(i) <> 0;
+            dest(i) = src(i);
+            i = i + 1;
+        end;
+    end str0cpy;
+
+    pr0str: procedure(p$str) public;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i address;
+        i = 0;
+        do while str(i) <> 0;
+            call wr$con(str(i));
+            i = i + 1;
+        end;
+    end pr0str;
+
+    str0len: procedure(p$str) address public;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i address;
+        i = 0;
+        do while str(i) <> 0;
+            i = i + 1;
+        end;
+        return i;
+    end str0len;
+
+    declare mem$ptr address initial(0);
+    declare MEM$SZ literally '08000h';
+    declare mem$buf(MEM$SZ) byte;
+
+    /* Allocates memory from mem$buf. */
+    /* Returns address of allocated space of n bytes. */
+    /* If not enough memory, returns 0 */
+    mem$alloc: procedure(n) address public;
+        declare n byte;
+        declare res address;
+        if mem$ptr + n > MEM$SZ then
+        do;
+            call pr$buf(.('ERROR: NO MEMORY!', 0DH, 0AH, '$'));
+            return 0FFFFH;
+        end;
+        res = .mem$buf(mem$ptr);
+        mem$ptr = mem$ptr + n;
+        return res;
+    end mem$alloc;
+end tools;

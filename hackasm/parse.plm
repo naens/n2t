@@ -1,0 +1,307 @@
+parse:
+do;
+    pr$buf: procedure(a) external;
+        declare a address;
+    end pr$buf;
+
+    pr0str: procedure(a) external;
+        declare a address;
+    end pr0str;
+
+    wr$con: procedure(c) external;
+       declare c byte;
+    end wr$con;
+
+    openr: procedure(fcb, scnt, stat) external;
+        declare (fcb, scnt, stat) address;
+    end openr;
+
+    drlin: procedure(fcb, sbuf, scnt, txt, cnt, stat) external;
+        declare (fcb, sbuf, scnt, txt, cnt, stat) address;
+    end drlin;
+
+    closr: procedure(fcb, stat) external;
+        declare (fcb, stat) address;
+    end closr;
+
+    str0eq: procedure(p$s1, p$s2) byte external;
+        declare p$s1 address;
+        declare p$s2 address;
+    end str0eq;
+
+    str$cpy: procedure(p$src, p$dest, len) external;
+        declare p$src address;
+        declare p$dest address;
+        declare len byte;
+    end str$cpy;
+
+    str0len: procedure(p$str) address external;
+        declare p$str address;
+    end str0len;
+
+    contains: procedure(p$str, c) address external;
+        declare p$str address;
+        declare c byte;
+    end contains;
+
+    numin: procedure (buffer) address external;
+        declare buffer address;
+    end numin;
+
+    nmout: procedure (v, b, l, ba, w) external;
+        declare (v, ba) address;
+        declare (b, l, w) byte;
+    end nmout;
+
+    tab$get: procedure (k) address external;
+        declare k address;
+    end tab$get;
+
+    tab$put: procedure (k, v) address external;
+        declare (k, v) address;
+    end tab$put;
+
+    is$space: procedure(c) byte;
+        declare c byte;
+        if c = 20H or c = 09H then
+            return 1;
+        else
+            return 0;
+    end is$space;
+
+    printable: procedure(c) byte;
+        declare c byte;
+        if c > 20H and c < 7FH then
+            return 1;
+        else
+            return 0;
+    end printable;
+
+    numeric: procedure(c) byte;
+        declare c byte;
+        if c >= '0' and c <= '9' then
+            return 1;
+        else
+            return 0;
+    end numeric;
+
+    label$len: procedure(pl) byte;
+        declare pl address;
+        declare l based pl byte;
+        declare r byte;
+        r = 0;
+        do while l(r) <> ')' and printable(l(r));
+            r = r + 1;
+        end;
+        return r;
+    end label$len;
+
+    pr$len: procedure(p$l) byte;
+        declare p$l address;
+        declare l based p$l byte;
+        declare r byte;
+        r = 0;
+        do while printable(l(r));
+            r = r + 1;
+        end;
+        return r;
+    end pr$len;
+
+    declare ptfcb address data (005CH);
+    declare tfcb based ptfcb byte;
+    declare ptbuff address data (0080H);
+    declare tbuff based ptbuff byte;
+
+    declare scnt address;
+    declare dstat address;
+
+    open$file: procedure byte public;
+        call openr(.tfcb, .scnt, .dstat);
+        return dstat;
+    end open$file;
+
+    file$close: procedure byte public;
+        call closr(.tfcb, .dstat);
+        return dstat;
+    end file$close;
+
+    get$fn: procedure(p$buf) public;
+        declare p$buf address;
+        declare b based p$buf byte;
+        declare i byte;
+        do i = 0 to 7;
+            b(i) = tfcb(i + 1);
+        end;
+        b(8) = 0;
+    end get$fn;
+
+    read$token: procedure(pbuf) byte public;
+        declare pbuf address;
+        declare buf based pbuf byte;
+        declare count address;
+        declare line (128) byte;
+        declare i byte;
+        declare len byte;
+        call drlin(.tfcb, .tbuff, .scnt, .line, .count, .dstat);
+        if dstat <> 0 then
+            return 0;
+        do while dstat = 0;
+            i = 0;
+            do while is$space(line(i));
+                i = i + 1;
+            end;
+            if line(i) <> '/' and i < count - 2 then
+            do;
+                if line(i) = '(' then
+                do;
+                    len = label$len(.line(i + 1));
+                    call str$cpy(.line(i + 1), .buf, len);
+                    buf(len) = 0;
+                    return 'L';
+                end;
+                else if line(i) = '@' then
+                do;
+                    len = pr$len(.line(i + 1));
+                    call str$cpy(.line(i + 1), .buf, len);
+                    buf(len) = 0;
+                    return 'A';
+                end;
+                else
+                do;
+                    len = pr$len(.line(i));
+                    call str$cpy(.line(i), .buf, len);
+                    buf(len) = 0;
+                    return 'C';
+                end;
+            end;
+            call drlin(.tfcb, .tbuff, .scnt, .line, .count, .dstat);
+        end;
+        return 0;
+    end read$token;
+
+    a$instr: procedure(p$src, p$dest) address public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare value address;
+        declare var$count address initial (16);
+        if not numeric(src(0)) then
+        do;
+            value = tab$get(.src);
+            if value = 0FFFFH then
+            do;
+                value = var$count;
+                var$count = var$count + 1;
+                if tab$put(.src, value) <> 0 then
+                    return 0FFFFH;
+            end;
+        end;
+        else
+            value = numin(.p$src);
+        call nmout(value, 2, '0', p$dest, 16);
+        dest(16) = 0;
+        return 0;
+    end a$instr;
+
+    fill$dest: procedure(p$src, p$dest) public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i byte;
+        i = 0;
+        do while src(i) <> 0;
+            if src(i) = 'A' then
+                dest(0) = '1';
+            else if src(i) = 'D' then
+                dest(1) = '1';
+            else if src(i) = 'M' then
+                dest(2) = '1';
+            i = i + 1;
+        end;
+        src(i) = '$';
+    end fill$dest;
+
+    fc1: procedure(p$src, p$dest) external;
+        declare (p$src, p$dest) address;
+    end fc1;
+
+    fc2: procedure(p$src, p$dest) external;
+        declare (p$src, p$dest) address;
+    end fc2;
+
+    fc3: procedure(p$src, p$dest) external;
+        declare (p$src, p$dest) address;
+    end fc3;
+
+    fill$comp: procedure(p$src, p$dest) public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare len address;
+        len = str0len(.src);
+        if contains(.src, 'M') then
+            dest(0) = '1';
+        if len = 1 then
+            call fc1(p$src, p$dest);
+        else if len = 2 then
+            call fc2(p$src, p$dest);
+        else if len = 3 then
+            call fc3(p$src, p$dest);
+    end fill$comp;
+
+    fill$jump: procedure(p$src, p$dest) public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i byte;
+        if str0eq(.src, .('JGT', 0)) then
+            dest(2) = '1';
+        else if str0eq(.src, .('JEQ', 0)) then
+            dest(1) = '1';
+        else if str0eq(.src, .('JLT', 0)) then
+            dest(0) = '1';
+        else if str0eq(.src, .('JGE', 0)) then
+            dest(1), dest(2) = '1';
+        else if str0eq(.src, .('JNE', 0)) then
+            dest(2), dest(0) = '1';
+        else if str0eq(.src, .('JLE', 0)) then
+            dest(1), dest(0) = '1';
+        else if str0eq(.src, .('JMP', 0)) then
+            dest(1), dest(0), dest(2) = '1';
+    end fill$jump;
+
+    c$instr: procedure(p$src, p$dest) address public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i byte;
+        declare s byte;
+        declare j byte;
+        i, s, j = 0;
+        dest(0), dest(1), dest(2) = '1';
+        call nmout(0, 2, '0', .dest(3), 13);
+        do while printable(src(i));
+            if src(i) = '=' then
+            do;
+                src(i) = 0;
+                call fill$dest(.src(s), .dest(10));
+                s = i + 1;
+            end;
+            else if src(i) = ';' then
+            do;
+                src(i) = 0;
+                call fill$comp(.src(s), .dest(3));
+                s = i + 1;
+                j = 1;
+            end;
+            i = i + 1;
+        end;
+        src(i) = 0;
+        if j then
+            call fill$jump(.src(s), .dest(13));
+        else
+            call fill$comp(.src(s), .dest(3));
+        dest(16) = 0;
+        return 0;
+    end c$instr;
+end parse;

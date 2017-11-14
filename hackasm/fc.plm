@@ -1,0 +1,62 @@
+fc:
+do;
+
+    str0eq: procedure(p$src, p$dest) byte external;
+        declare (p$src, p$dest) address;
+    end str0eq;
+
+    fc1: procedure(p$src, p$dest) public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        if str0eq(.src, .('0', 0)) then
+            dest(1), dest(3), dest(5) = '1';
+        else if str0eq(.src, .('1', 0)) then
+            dest(1), dest(2), dest(3), dest(4), dest(5), dest(6) = '1';
+        else if str0eq(.src, .('D', 0)) then
+            dest(3), dest(4) = '1';
+        else if str0eq(.src, .('A', 0)) or str0eq(.src, .('M', 0)) then
+            dest(1), dest(2) = '1';
+    end fc1;
+
+
+    fc2: procedure(p$src, p$dest) public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        if str0eq(.src, .('-1', 0)) then
+            dest(1), dest(2), dest(3), dest(5) = '1';
+        else if str0eq(.src, .('!D', 0)) then
+            dest(3), dest(4), dest(6) = '1';
+        else if str0eq(.src, .('!A', 0)) or str0eq(.src, .('!M', 0)) then
+            dest(1), dest(2), dest(6) = '1';
+        else if str0eq(.src, .('-D', 0)) then
+            dest(3), dest(4), dest(5), dest(6) = '1';
+        else if str0eq(.src, .('-A', 0)) or str0eq(.src, .('-M', 0)) then
+            dest(1), dest(2), dest(5), dest(6) = '1';
+    end fc2;
+
+    fc3: procedure(p$src, p$dest) public;
+        declare (p$src, p$dest) address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        if str0eq(.src, .('D+1', 0)) then
+            dest(2), dest(3), dest(4), dest(5), dest(6) = '1';
+        else if str0eq(.src, .('A+1', 0)) or str0eq(.src, .('M+1', 0)) then
+            dest(1), dest(2), dest(4), dest(5), dest(6) = '1';
+        else if str0eq(.src, .('D-1', 0)) then
+            dest(3), dest(4), dest(5) = '1';
+        else if str0eq(.src, .('A-1', 0)) or str0eq(.src, .('M-1', 0)) then
+            dest(1), dest(2), dest(5) = '1';
+        else if str0eq(.src, .('D+A', 0)) or str0eq(.src, .('D+M', 0)) then
+            dest(5) = '1';
+        else if str0eq(.src, .('D-A', 0)) or str0eq(.src, .('D-M', 0)) then
+            dest(2), dest(5), dest(6) = '1';
+        else if str0eq(.src, .('A-D', 0)) or str0eq(.src, .('M-D', 0)) then
+            dest(4), dest(5), dest(6) = '1';
+        else if str0eq(.src, .('D&A', 0)) or str0eq(.src, .('D&M', 0)) then
+            ;
+        else if str0eq(.src, .('D|A', 0)) or str0eq(.src, .('D|M', 0)) then
+            dest(2), dest(4), dest(6) = '1';
+    end fc3;
+end fc;

@@ -1,0 +1,137 @@
+table:
+do;
+    pr$buf: procedure (a) external;
+        declare a address;
+    end pr$buf;
+
+    wr$con: procedure (c) external;
+        declare c byte;
+    end wr$con;
+
+    nmout: procedure (v, b, lc, buf, w) external;
+        declare (v, buf) address;
+        declare (b, lc, w) byte;
+    end nmout;
+
+    pr0str: procedure (a) external;
+        declare a address;
+    end pr0str;
+
+    str0eq: procedure (p1, p2) byte external;
+        declare (p1, p2) address;
+    end str0eq;
+
+    str0len: procedure (p) address external;
+        declare p address;
+    end str0len;
+
+    str0cpy: procedure (p1, p2) external;
+        declare (p1, p2) address;
+    end str0cpy;
+
+    mem$alloc: procedure (n) address external;
+        declare n address;
+    end mem$alloc;
+
+    declare TAB$SZ literally '8';
+    declare table (TAB$SZ) address;
+
+    init$table: procedure public;
+        declare i address;
+        do i = 0 to TAB$SZ - 1;
+            table(i) = 0;
+        end;
+    end init$table;
+
+    hash: procedure(p$str) address;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i address;
+        declare result address;
+        result = 0;
+        i = 0;
+        do while str(i) <> 0;
+            result = result * 13 + str(i);
+            i = i + 1;
+        end;
+        return result;
+    end hash;
+
+    tab$get: procedure(key) address public;
+        declare key address;
+        declare p$node address;
+        declare node based p$node structure (
+            key address, value address, next address);
+        declare h address;
+        h = hash(key);
+        p$node = table(h mod TAB$SZ);
+        do while (p$node <> 0) and (not str0eq(key, node.key));
+            p$node = node.next;
+        end;
+        if p$node = 0 then
+            return 0FFFFH;
+        else
+            return node.value;
+    end tab$get;
+
+    tab$put: procedure(key, val) address public;
+        declare key address;
+        declare val address;
+        declare h address;
+        declare pnew address;
+        declare new based pnew structure (
+            key address, val address, next address);
+        declare keycpy address;
+        declare keylen address;
+    
+        keylen = str0len(key);
+        keycpy = mem$alloc(keylen + 1);
+        if keycpy = 0FFFFH then
+            return 0FFFFH;
+        call str0cpy(key, keycpy);
+    
+        h = hash(key);
+        pnew = mem$alloc(size(new));
+        if pnew = 0FFFFH then
+            return 0FFFFH;
+    
+        new.key = keycpy;
+        new.val = val;
+        new.next = table(h mod TAB$SZ);
+        table(h mod TAB$SZ) = pnew;
+
+        return 0;
+    end tab$put;
+
+    pr$list: procedure (p$node) public;
+        declare p$node address;
+        declare node based p$node structure (
+            key address, val address, next address);
+        declare buf (8) byte;
+        do while pnode <> 0;
+            call pr0str(node.key);
+            call wr$con(':');
+            call nmout(node.val, 10, '0', .buf, 5);
+            buf(5) = '$';
+            pnode = node.next;
+            call pr$buf(.buf);
+            call wr$con(' ');
+        end;
+        call pr$buf(.(0DH, 0AH, '$'));
+    end pr$list;
+
+    pr$table: procedure public;
+        declare i address;
+        declare buf (8) byte;
+        call pr$buf(.('BEGIN TABLE PRINT', 0DH, 0AH, '$'));
+        buf(3) = '$';
+        do i = 0 to TAB$SZ - 1;
+            call pr$buf(.(' [', '$'));
+            call nmout(i, 10, '0', .buf, 3);
+            call pr$buf(.buf);
+            call pr$buf(.(']: ', '$'));
+            call pr$list(table(i));
+        end;
+        call pr$buf(.('END TABLE PRINT', 0DH, 0AH, '$'));
+    end pr$table;
+end table;
