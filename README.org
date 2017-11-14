@@ -37,9 +37,9 @@ the extension.  Perhaps I should have chosen ~.OVR~.
 * Usage
  * Clone the repository
  * ~cd~ to a subproject that you would like to test or to run. 
- * There should be a Makefile, which you can use running ~make~.  And so, the most
- compete version of the subpackage is compiled.  The command should also create linux
- executable scripts which you can run to test the compiled program.
+ * There should be a Makefile, which you can use running ~make~.
+And so, the most compete version of the subpackage is compiled.  The command should also create linux
+executable scripts which you can run to test the compiled program.
  * You can remove compiled files with ~make clean~.
 
 * Subprojects
