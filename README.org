@@ -1,4 +1,47 @@
 #+TITLE: n2t
 Subprojects for nand2tetris course
 
-Now contains the assembler for the nand2tetris CPU.
+* Description
+In this project I put my solutions for Nand To Tetris.  I use the PLMX
+compiler.
+
+For this repository I use the [[https://github.com/jhallen/cpm][jhallen's
+CP/M environment]] because it is required that the subprojects be buildable
+from command line with Makefiles and executable from command line.  So I
+can't just use an emulator and make and test inside.  The executable files
+must be usable from linux.  That's exacly what jhallen's cpm does.  It runs
+an emulator, but reads from and writes to the current directory.
+
+Unfortunately it supports only one directory (mapped to A: drive).  So in
+order to compile I must have the compiler and the project in the same
+directory.  This is something that I think should be avoid, so I created
+bash script to copy the compiler files from ~plmx.zip~ to the project
+directory and to remove them when they are not needed.
+
+I had to modify the ~plmx~ binaries in order to rename files with the ~plm~
+extension.  PLMX used this extension for overlay files.  But I prefer to use
+the ~plm~ extension for PL/M source code files.  I am not the only one who
+does it, for example many CP/M source files heve the ~plm~ extension and
+PL/M examples from [[http://www.autometer.de/unix4fun/z80pack/][z80pack]] also
+have this extension.  I used emacs in order to find the name of ~.PLM~ files
+and I replaced them with ~.DAT~.  Not sure whether it's the best choice for
+the extension.  Perhaps I should have chosen ~.OVR~.
+
+* Subprojects
+** hackasm
+The assembler for the nand2tetris CPU.
+
+In two versions:
+ - basasm: without variables nor symbols
+ - hackasm: with variables and symbols
+
+The assembler reads a Hack assembly file and produces a text file containing
+a string representation of two binary bytes per line.  	It means that the
+output file contains characters ~0~ and ~1~ and ~CRLF~ between lines.  And
+each line is 16 characters (representing 2 bytes).
+
+The input file has the extension ~asm~ and the ouput is ~hck~ because CP/M
+doesn't like extensions with more than 3 characters.
+
+** VM Translator
+/not done yet/
