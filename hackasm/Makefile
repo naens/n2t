@@ -2,6 +2,7 @@ all: addenv
 	@source ../fun.sh && ../runsub.sh mk
 	@echo "cpm basasm \$$1" > basasm
 	@echo "cpm hackasm \$$1" > hackasm
+	@source ../fun.sh && deltemp
 	@chmod +x basasm hackasm
 
 basasm: addenv
