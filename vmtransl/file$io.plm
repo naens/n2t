@@ -1,0 +1,43 @@
+file$io:
+do;
+$include (glob.lit)
+
+    /* returns the name of the file from the command line
+     * the string is followed by a 0 */
+    arg$fn: procedure (p$buf) address public;
+        declare p$buf address;
+    end arg$fn;
+
+    /* opens a file with F$READ or F$WRITE mode
+     * maximum 255 files can be open
+     * each file can only be open for reading or writing
+     * returns the file id < 0FFH on success and 0FFH on error */
+    file$open: procedure (p$fn, mode) byte public;
+        declare p$fn address;
+        declare mode byte;
+    end file$open;
+
+    /* reads a line from file and puts it in area pointed by p$buf
+     * max is the maximum number of characters write in buf
+     * returns 0 on success and 0FFH on error */
+    file$read: procedure (f$id, p$buf, max) byte public;
+        declare f$id byte;
+        declare p$buf address;
+        declare max address;
+    end file$read;
+
+    /* writes a line to a files and then writes CRLF to the file
+     * the string in p$str must be terminated by a byte of value 00H
+     * returns 0 on success and 0FFH on error */
+    file$write: procedure (f$id, p$str) byte public;
+        declare f$id byte;
+        declare p$str address;
+    end file$write;
+
+    /* closes the file and writes the rest if needed
+     * returns 0 on success and 0FFH on error */
+    file$close: procedure (f$id) byte public;
+        declare f$id byte;
+    end file$close;
+    
+end file$io;
