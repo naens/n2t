@@ -1,0 +1,28 @@
+strings:
+do;
+
+    s$cmp: procedure(p$s1, p$s2) byte public;
+        declare (p$s1, p$s2) address;
+        declare s1 based p$s1 byte;
+        declare s2 based p$s2 byte;
+        declare i address;
+        i = 0;
+        do while s1(i) <> 0 and s2(i) <> 0 and s1(i) = s2(i);
+            i = i + 1;
+        end;
+        return s1 - s2;
+    end s$cmp;
+
+    s$cpy: procedure(p$src, p$dest, sz) public;
+        declare (p$src, p$dest) address;
+        declare sz address;
+        declare src based p$src byte;
+        declare dest based p$dest byte;
+        declare i address;
+        do while i < sz - 1 and src(i) <> 0;
+            dest(i) = src(i);
+        end;
+        dest(i) = 0;
+    end s$cpy;
+
+end strings;
