@@ -1,0 +1,95 @@
+files:
+do;
+
+$include (glob.lit)
+
+    declare max$id byte initial (0);
+    declare ftab(255) structure(valid byte, mode byte, p$buf address);
+
+    /* returns the name of the file from the command line
+     * the string is followed by a 0 */
+    arg$fn: procedure (p$buf) address public;
+        declare p$buf address;
+        declare buf based p$buf byte;
+        declare p$tfcb address data (005CH);
+        declare tfcb based p$tfcb byte;
+        declare (i, j) byte;
+        i = 0;
+        j = 1;
+        do while j <= 8 and tfcb(j) <> ' ';
+            buf(i) = tfcb(j);
+            i = i + 1;
+            j = j + 1;
+        end;
+        j = 8;
+        buf(i) = '.';
+        i = i + 1;
+        do while j <= 11 and tfcb(j) <> ' ';
+            buf(i) = tfcb(j);
+            i = i + 1;
+            j = j + 1;
+        end;
+        buf(i) = 0;
+    end arg$fn;
+
+    declare BUF$SZ literally '1000H';
+    declare buf(BUF$SZ) byte;
+    declare buf$i address initial (0);
+    buf$alloc: procedure address;
+        buf$i = buf$i + 80H;
+        if buf$i + 80H > BUF$SZ then
+            return 0FFFFH;
+        return .buf(buf$i);
+    end buf$alloc;
+
+    /* opens a file with F$READ or F$WRITE mode
+     * maximum 255 files can be open
+     * each file can only be open for reading or writing
+     * returns the file id < 0FFH on success and 0FFH on error */
+    file$open: procedure (p$fn, mode) byte public;
+        declare p$fn address;
+        declare mode byte;
+        declare p$buf address;
+        declare i byte;
+        i = 0;
+        if max$id = 255 then
+            return 0FFH;
+        p$buf = buf$alloc;
+        if p$buf = 0FFFFH then
+            return 0FFH;
+        do while i < max$id and ftab(i).valid;
+            i = i + 1;
+        end;
+        if i = max$id then
+            max$id = i + 1;
+        ftab(i).valid = 1;
+        ftab(i).mode = mode;
+        ftab(i).p$buf = p$buf;
+        return 0;
+    end file$open;
+
+    /* reads a line from file and puts it in area pointed by p$buf
+     * max is the maximum number of characters write in buf
+     * returns 0 on success and 0FFH on error */
+    file$read: procedure (f$id, p$buf, max) byte public;
+        declare f$id byte;
+        declare p$buf address;
+        declare max address;
+    end file$read;
+
+    /* writes a line to a files and then writes CRLF to the file
+     * the string in p$str must be terminated by a byte of value 00H
+     * returns 0 on success and 0FFH on error */
+    file$write: procedure (f$id, p$str) byte public;
+        declare f$id byte;
+        declare p$str address;
+    end file$write;
+
+    /* closes the file and writes the rest if needed
+     * returns 0 on success and 0FFH on error */
+    file$close: procedure (f$id) byte public;
+        declare f$id byte;
+        ftab(f$id) = 0;
+    end file$close;
+    
+end files;
