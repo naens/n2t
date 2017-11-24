@@ -1,6 +1,10 @@
 strings:
 do;
 
+    wr$con: procedure (c) external;
+        declare c byte;
+    end wr$con;
+
     s$cmp: procedure(p$s1, p$s2) byte public;
         declare (p$s1, p$s2) address;
         declare s1 based p$s1 byte;
@@ -24,5 +28,36 @@ do;
         end;
         dest(i) = 0;
     end s$cpy;
+
+    chr$find: procedure (chr, p$str) address;
+        declare chr byte;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i byte;
+        do while str(i) <> 0 and str(i) <> chr;
+            i = i + 1;
+        end;
+        if str(i) = chr then
+            return i;
+        else
+            return 0FFFFH;
+    end chr$find;
+
+    pr$str: procedure (p$str) address public;
+        declare p$str address;
+        declare str based p$str byte;
+        declare i address;
+        i = 0;
+        do while str(i) <> 0;
+            call wr$con(str(i));
+            i = i + 1;
+        end;
+    end pr$str;
+
+    pr$ln: procedure (p$ln) address public;
+        declare p$ln address;
+        call pr$str(p$ln);
+        call pr$str(.(0DH, 0AH, 0));
+    end pr$ln;
 
 end strings;
