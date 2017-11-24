@@ -3,93 +3,284 @@ do;
 
 $include (glob.lit)
 
+    openr: procedure(fcb, scnt, stat) external;
+        declare (fcb, scnt, stat) address;
+    end openr;
+
+    drlin: procedure(fcb, sbuf, scnt, txt, cnt, stat) external;
+        declare (fcb, sbuf, scnt, txt, cnt, stat) address;
+    end drlin;
+
+    closr: procedure(fcb, stat) external;
+        declare (fcb, stat) address;
+    end closr;
+
+    open: procedure(fcb) byte external;
+        declare fcb address;
+    end open;
+
+    make: procedure(fcb) byte external;
+        declare fcb address;
+    end make;
+
+    wr$dsk: procedure(fcb) byte external;
+        declare fcb address;
+    end wr$dsk;
+                
+    close: procedure(fcb) byte external;
+        declare fcb address;
+    end close;
+
+    stdma: procedure(buf) external;
+        declare buf address;
+    end stdma;
+
+    wr$con: procedure (b) external;
+        declare b byte;
+    end wr$con;
+
+    nmout: procedure (v, b, lc, ba, w) external;
+        declare (v, ba) address;
+        declare (b, lc, w) byte;
+    end nmout;
+
+    pr$str: procedure (p$ln) external;
+        declare p$ln address;
+    end pr$str;
+
+    pr$ln: procedure (p$ln) external;
+        declare p$ln address;
+    end pr$ln;
+
     declare max$id byte initial (0);
-    declare ftab(255) structure(valid byte, mode byte, p$buf address);
+    declare ftab(255) structure(valid byte, cnt byte, fcb (33) byte,
+                                mode byte, p$dma address);
+
+    declare p$tfcb address data (005CH);
+    declare tfcb based p$tfcb byte;
+    declare p$tbuf address data (0080H);
+    declare tbuf based p$tbuf byte;
 
     /* returns the name of the file from the command line
      * the string is followed by a 0 */
-    arg$fn: procedure (p$buf) address public;
-        declare p$buf address;
-        declare buf based p$buf byte;
-        declare p$tfcb address data (005CH);
-        declare tfcb based p$tfcb byte;
+    arg$fn: procedure (p$fn, n) public;
+        declare p$fn address;
+        declare n byte;
+        declare fn based p$fn byte;
+        declare p$fcb address;
+        declare fcb based p$fcb byte;
         declare (i, j) byte;
-        i = 0;
+        p$fcb = p$tfcb + n * 10H;
+        if fcb(0) <> 0 then
+        do;
+            fn(0) = fcb(0) - 1 + 'A';
+            fn(1) = ':';
+            i = 2;
+        end;
+        else
+        do;
+            i = 0;
+        end;
         j = 1;
-        do while j <= 8 and tfcb(j) <> ' ';
-            buf(i) = tfcb(j);
+        do while j <= 8 and fcb(j) <> ' ';
+            fn(i) = fcb(j);
             i = i + 1;
             j = j + 1;
         end;
-        j = 8;
-        buf(i) = '.';
-        i = i + 1;
-        do while j <= 11 and tfcb(j) <> ' ';
-            buf(i) = tfcb(j);
+        j = 9;
+        if fcb(j) <> ' ' then
+        do;
+            fn(i) = '.';
             i = i + 1;
-            j = j + 1;
+            do while j <= 11 and fcb(j) <> ' ';
+                fn(i) = fcb(j);
+                i = i + 1;
+                j = j + 1;
+            end;
         end;
-        buf(i) = 0;
+        fn(i) = 0;
     end arg$fn;
 
-    declare BUF$SZ literally '1000H';
-    declare buf(BUF$SZ) byte;
-    declare buf$i address initial (0);
-    buf$alloc: procedure address;
-        buf$i = buf$i + 80H;
-        if buf$i + 80H > BUF$SZ then
-            return 0FFFFH;
-        return .buf(buf$i);
-    end buf$alloc;
+    declare BBUF$SZ literally '1000H';
+    declare bbuf(BBUF$SZ) byte;
+
+    make$fcb: procedure (p$fn, p$fcb);
+        declare (p$fn, p$fcb) address;
+        declare fn based p$fn byte;
+        declare fcb based p$fcb byte;
+        declare (i, j) byte;
+        if fn(1) = ':' then
+        do;
+            i = 2;
+            fcb(0) = fn(0) - 'A' + 1;
+        end;
+        else
+        do;
+            i = 0;
+            fcb(0) = 0;
+        end;
+        j = 1;
+        do while fn(i) <> '.' and fn(i) <> 0;
+            fcb(j) = fn(i);
+            i = i + 1;
+            j = j + 1;
+        end;
+        do while j < 9;
+            fcb(j) = ' ';
+            j = j + 1;
+        end;
+        if fn(i) <> 0 then
+            i = i + 1;
+        do while fn(i) <> 0;
+            fcb(j) = fn(i);
+            i = i + 1;
+            j = j + 1;
+        end;
+        do while j < 12;
+            fcb(j) = ' ';
+            j = j + 1;
+        end;
+    end make$fcb;
+        
 
     /* opens a file with F$READ or F$WRITE mode
      * maximum 255 files can be open
      * each file can only be open for reading or writing
      * returns the file id < 0FFH on success and 0FFH on error */
-    file$open: procedure (p$fn, mode) byte public;
+    f$op: procedure (p$fn, mode) byte public;
         declare p$fn address;
         declare mode byte;
-        declare p$buf address;
+        declare p$dma address;
         declare i byte;
+        declare dstat address;
         i = 0;
         if max$id = 255 then
             return 0FFH;
-        p$buf = buf$alloc;
-        if p$buf = 0FFFFH then
+        if mode <> F$READ and mode <> F$WRITE then
             return 0FFH;
         do while i < max$id and ftab(i).valid;
             i = i + 1;
         end;
+        p$dma = .bbuf(i * 80H);
+        if (i + 1) * 80H >= BBUF$SZ then
+            return 0FFH;
+
         if i = max$id then
-            max$id = i + 1;
+            max$id = max$id + 1;
         ftab(i).valid = 1;
+        call make$fcb(p$fn, .ftab(i).fcb);
+        ftab(i).cnt = 0;
         ftab(i).mode = mode;
-        ftab(i).p$buf = p$buf;
-        return 0;
-    end file$open;
+        ftab(i).p$dma = p$dma;
+        if mode = F$READ then
+            call openr(.ftab(i).fcb, .ftab(i).cnt, .dstat);
+        else if mode = F$WRITE then
+        do;
+            dstat = open(.ftab(i).fcb);
+            if dstat <> 0 then
+                return 0FFH;
+        end;
+        return i;
+    end f$op;
 
     /* reads a line from file and puts it in area pointed by p$buf
-     * max is the maximum number of characters write in buf
-     * returns 0 on success and 0FFH on error */
-    file$read: procedure (f$id, p$buf, max) byte public;
+     * returns count on success and 0FFFFH on error 0FFFEH on EOF
+     */
+    f$rd: procedure (f$id, p$buf) address public;
         declare f$id byte;
         declare p$buf address;
-        declare max address;
-    end file$read;
+        declare count address;
+        declare dstat address;
+        declare buf based p$buf byte;
+        if ftab(f$id) = 0 or ftab(f$id).mode <> F$READ then
+            return 0FFFFH;
+        call drlin(.ftab(f$id).fcb, ftab(f$id).p$dma,
+            .ftab(f$id).cnt, p$buf, .count, .dstat);
+
+        if dstat = 1 then
+            return count - 2;
+        else if dstat <> 0FFH then
+            return count - 2;
+        else if count = 0 then
+            return 0FFFFH;
+        else
+        do;
+            do while buf(count - 1) = 1AH;
+                count = count - 1;
+            end;
+            buf(count) = 0;
+            return count;
+        end;
+    end f$rd;
+
+    f$wr: procedure (f$id, p$str) byte public;
+        declare f$id byte;
+        declare p$str address;
+        declare str based p$str byte;
+        declare p$dma address;
+        declare dma based p$dma byte;
+        declare i byte;
+        if ftab(f$id) <> F$WRITE then
+            return 0FFH;
+        i = 0;
+        p$dma = ftab(f$id).p$dma;
+        call stdma(.dma);
+        do while str(i) <> 0 and i < 128;
+            dma(ftab(f$id).cnt) = str(i);
+            ftab(f$id).cnt = ftab(f$id).cnt + 1;
+            if ftab(f$id).cnt = 128 then
+            do;
+                if wr$dsk(.ftab(f$id).fcb) <> 0 then
+                    return 0FFH;
+                ftab(f$id).cnt = 0;
+            end;
+            i = i + 1;
+        end;
+        return 0;
+    end f$wr;
 
     /* writes a line to a files and then writes CRLF to the file
      * the string in p$str must be terminated by a byte of value 00H
      * returns 0 on success and 0FFH on error */
-    file$write: procedure (f$id, p$str) byte public;
+    f$wln: procedure (f$id, p$str) byte public;
         declare f$id byte;
         declare p$str address;
-    end file$write;
-
+        if f$wr(f$id, p$str) = 0 then
+            return f$wr(f$id, .(0DH, 0AH, 0));
+        else
+            return 0FFH;
+    end f$wln;
+    
     /* closes the file and writes the rest if needed
      * returns 0 on success and 0FFH on error */
-    file$close: procedure (f$id) byte public;
+    f$cl: procedure (f$id) byte public;
         declare f$id byte;
-        ftab(f$id) = 0;
-    end file$close;
-    
+        declare dstat address;
+        declare p$dma address;
+        declare dma based p$dma byte;
+        if ftab(f$id) = 0 then
+            return 0FFH;
+        if ftab(f$id) = F$READ then
+        do;
+            call closr(ftab(f$id).p$dma, .dstat);
+            if dstat = 0 then
+                ftab(f$id) = 0;
+            return dstat;
+        end;
+        else
+        do;
+            call stdma(ftab(f$id).p$dma);
+            if ftab(f$id).cnt > 0 then
+            do;
+                p$dma = ftab(f$id).p$dma;
+                do while ftab(f$id).cnt < 128;
+                    dma(ftab(f$id).cnt) = 01AH;
+                    ftab(f$id).cnt = ftab(f$id).cnt + 1;
+                end;
+                if wr$dsk(.ftab(f$id).fcb) <> 0 then
+                    return 0FFH;
+            end;
+            return close(.ftab(f$id).fcb);
+        end;
+    end f$cl;
 end files;
