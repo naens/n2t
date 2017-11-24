@@ -1,0 +1,17 @@
+erase files.mac
+erase files.rom
+erase files.ram
+erase files.rel
+erase files.sym
+
+erase strings.mac
+erase strings.rom
+erase strings.ram
+erase strings.rel
+erase strings.sym
+
+erase ftest.mac
+erase ftest.rom
+erase ftest.ram
+erase ftest.rel
+erase ftest.sym

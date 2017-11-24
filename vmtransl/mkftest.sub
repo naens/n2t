@@ -1,0 +1,11 @@
+clean
+
+plmx strings.plm; M- C+ I-
+plmx files.plm; M- C+ I-
+plmx ftest.plm; C+ I-
+
+m80 =strings
+m80 =files
+m80 =ftest
+
+link ftest,strings,files,k:iolib[s],k:rlib[s]
