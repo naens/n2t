@@ -1,0 +1,113 @@
+f$test:
+do;
+
+$include (glob.lit)
+
+    nmout: procedure (val, base, lc, ba, width) external;
+        declare (val, ba) address;
+        declare (base, lc, width) byte;
+    end nmout;
+
+    wr$con: procedure (b) external;
+        declare b byte;
+    end wr$con;
+
+    pr$str: procedure (p$str) external;
+        declare p$str address;
+    end pr$str;
+
+    pr$ln: procedure (p$ln) external;
+        declare p$ln address;
+    end pr$ln;
+
+    arg$fn: procedure (p$fn, n) external;
+        declare p$fn address;
+        declare n byte;
+    end arg$fn;
+
+    f$op: procedure (p$fn, mode) byte external;
+        declare p$fn address;
+        declare mode byte;
+    end f$op;
+
+    f$cl: procedure (f$id) byte external;
+        declare f$id byte;
+    end f$cl;
+
+    f$rd: procedure (f$id, p$buf) address external;
+        declare f$id byte;
+        declare p$buf address;
+    end f$rd;
+
+    test$args: procedure;
+        declare fn(15) byte;
+        declare i byte;
+        call arg$fn(.fn, 0);
+        i = 1;
+        do while fn(0) >= 'A' and fn(0) <= 'Z' and i < 9;
+            call pr$str(.('File ', 0));
+            call wr$con(i + '0');
+            call pr$str(.(': <', 0));
+            call pr$str(.fn);
+            call pr$ln(.('>', 0));
+            call arg$fn(.fn, i);
+            i = i + 1;
+        end;
+        call wr$con(fn(0));
+    end test$args;
+
+    test$read: procedure;
+        declare fn1(15) byte;
+        declare fn2(15) byte;
+        declare i byte;
+        declare (f1, f2) byte;
+        declare buf(128) byte;
+        declare buf1(128) byte;
+        declare buf2(128) byte;
+        declare (cnt1, cnt2) address;
+
+        call arg$fn(.fn1, 0);
+        call pr$ln(.fn1);
+        f1 = f$op(.fn1, F$READ);
+        if f1 = 0FFH then
+            return;
+
+        call arg$fn(.fn2, 1);
+        call pr$ln(.fn2);
+        f2 = f$op(.fn2, F$READ);
+        if f2 = 0FFH then
+            return;
+
+        cnt1 = f$rd(f1, .buf1);
+        cnt2 = f$rd(f2, .buf2);
+
+        do while cnt1 < 0FFFEH or cnt2 < 0FFFEH;
+            if cnt1 < 0FFFEH then
+            do;
+                buf1(cnt1) = 0;
+                call pr$ln(.buf1);
+                cnt1 = f$rd(f1, .buf1);
+            end;
+            if cnt2 < 0FFFEH then
+            do;
+                buf2(cnt2) = 0;
+                call pr$ln(.buf2);
+                cnt2 = f$rd(f2, .buf2);
+            end;
+        end;
+
+        if f$cl(f1) <> 0 then
+            return;
+        call pr$ln(.('close1:ok', 0));
+        if f$cl(f2) <> 0 then
+            return;
+        call pr$ln(.('close2:ok', 0));
+    end test$read;
+
+/*
+    call test$args;
+*/
+
+    call test$read;
+    
+end f$test;
