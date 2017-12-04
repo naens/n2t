@@ -15,3 +15,11 @@ erase ftest.rom
 erase ftest.ram
 erase ftest.rel
 erase ftest.sym
+erase ftest.com
+
+erase parser.mac
+erase parser.rom
+erase parser.ram
+erase parser.rel
+erase parser.sym
+
