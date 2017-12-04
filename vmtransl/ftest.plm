@@ -56,6 +56,41 @@ $include (glob.lit)
         call wr$con(fn(0));
     end test$args;
 
+    read1: procedure;
+        declare fn(15) byte;
+        declare i byte;
+        declare f byte;
+        declare buf(128) byte;
+        declare cnt address;
+
+        call arg$fn(.fn, 0);
+        call pr$ln(.fn);
+        f = f$op(.fn, F$READ);
+        if f = 0FFH then
+            return;
+
+        cnt = f$rd(f, .buf);
+        i = 0;
+        do while i < 8 and cnt <> 0FFFEH and cnt <> 0FFFFH;
+            if cnt < 0FFFEH then
+            do;
+                buf(cnt) = 0;
+                call pr$ln(.buf);
+                call pr$ln(.('------', 0));
+                cnt = f$rd(f, .buf);
+            end;
+            if cnt = 0FFFEH then
+                call  pr$ln(.('EOF', 0));
+            if cnt = 0FFFFH then
+                call  pr$ln(.('ERR', 0));
+            i = i + 1;
+        end;
+        if f$cl(f) <> 0 then
+            return;
+        call pr$ln(.('ok', 0));
+    end read1;
+
+
     test$read: procedure;
         declare fn1(15) byte;
         declare fn2(15) byte;
@@ -85,13 +120,19 @@ $include (glob.lit)
             if cnt1 < 0FFFEH then
             do;
                 buf1(cnt1) = 0;
-                call pr$ln(.buf1);
+                call wr$con('[');
+                call pr$str(.buf1);
+                call wr$con(']');
+                call pr$ln(.(0));
                 cnt1 = f$rd(f1, .buf1);
             end;
             if cnt2 < 0FFFEH then
             do;
                 buf2(cnt2) = 0;
-                call pr$ln(.buf2);
+                call wr$con('{');
+                call pr$str(.buf2);
+                call wr$con('}');
+                call pr$ln(.(0));
                 cnt2 = f$rd(f2, .buf2);
             end;
         end;
@@ -106,6 +147,10 @@ $include (glob.lit)
 
 /*
     call test$args;
+*/
+
+/*
+    call read1;
 */
 
     call test$read;

@@ -184,7 +184,7 @@ $include (glob.lit)
     end f$op;
 
     /* reads a line from file and puts it in area pointed by p$buf
-     * returns count on success and 0FFFFH on error 0FFFEH on EOF
+     * returns count on success and 0FFFFH on error and 0FFFFEH on EOF
      */
     f$rd: procedure (f$id, p$buf) address public;
         declare f$id byte;
@@ -192,25 +192,32 @@ $include (glob.lit)
         declare count address;
         declare dstat address;
         declare buf based p$buf byte;
+        declare dbg (32) byte;
         if ftab(f$id) = 0 or ftab(f$id).mode <> F$READ then
             return 0FFFFH;
         call drlin(.ftab(f$id).fcb, ftab(f$id).p$dma,
             .ftab(f$id).cnt, p$buf, .count, .dstat);
-
-        if dstat = 1 then
+/*
+        call nmout(dstat, 16, '0', .dbg, 4);
+        dbg(4) = '_';
+        call nmout(count, 16, '0', .dbg(5), 4);
+        dbg(9) = 0;
+        call pr$ln(.dbg);
+*/
+        if dstat <> 0 and count = 0 then /* dstat if 1 or 0FFH */
+            return 0FFFEH;
+        else if (dstat = 0 or dstat = 1) and count >=2 then
             return count - 2;
-        else if dstat <> 0FFH then
-            return count - 2;
-        else if count = 0 then
-            return 0FFFFH;
-        else
+        else if dstat = 0FFH then
         do;
-            do while buf(count - 1) = 1AH;
+            do while count <> 0 and buf(count - 1) <= 1AH;
                 count = count - 1;
             end;
             buf(count) = 0;
             return count;
         end;
+        else
+            return 0FFFFH;
     end f$rd;
 
     f$wr: procedure (f$id, p$str) byte public;
