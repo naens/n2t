@@ -39,6 +39,11 @@ $include (glob.lit)
         declare p$buf address;
     end f$rd;
 
+    f$wln: procedure (f$id, p$str) byte external;
+        declare f$id byte;
+        declare p$str address;
+    end f$wln;
+
     test$args: procedure;
         declare fn(15) byte;
         declare i byte;
@@ -145,6 +150,42 @@ $include (glob.lit)
         call pr$ln(.('close2:ok', 0));
     end test$read;
 
+    test$copy: procedure;
+        declare fn1(15) byte;
+        declare fn2(15) byte;
+        declare i byte;
+        declare (f1, f2) byte;
+        declare buf(128) byte;
+        declare cnt address;
+
+        call arg$fn(.fn1, 0);
+        call pr$ln(.fn1);
+        f1 = f$op(.fn1, F$READ);
+        if f1 = 0FFH then
+            return;
+
+        call arg$fn(.fn2, 1);
+        call pr$ln(.fn2);
+        f2 = f$op(.fn2, F$WRITE);
+        call wr$con('1');
+        if f2 = 0FFH then
+            return;
+        call wr$con('2');
+
+        cnt = f$rd(f1, .buf);
+        do while cnt < 0FFFEH;
+            buf(cnt) = 0;
+            call pr$ln(.buf);
+            call f$wln(f2, .buf);
+            cnt = f$rd(f1, .buf);
+        end;
+        if f$cl(f1) <> 0 then
+            return;
+        if f$cl(f2) <> 0 then
+            return;
+        call pr$ln(.('ok', 0));
+    end test$copy;
+
 /*
     call test$args;
 */
@@ -153,6 +194,10 @@ $include (glob.lit)
     call read1;
 */
 
+/*
     call test$read;
-    
+*/
+
+    call test$copy;    
+
 end f$test;

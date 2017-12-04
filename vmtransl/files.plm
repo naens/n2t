@@ -176,9 +176,14 @@ $include (glob.lit)
             call openr(.ftab(i).fcb, .ftab(i).cnt, .dstat);
         else if mode = F$WRITE then
         do;
-            dstat = open(.ftab(i).fcb);
-            if dstat <> 0 then
-                return 0FFH;
+            if open(.ftab(i).fcb) = 0FFH then
+            do;
+                if make(.ftab(i).fcb) = 0FFH then
+                do;
+                    call wr$con('E');
+                    return 0FFH;
+                end;
+            end;
         end;
         return i;
     end f$op;
@@ -227,11 +232,11 @@ $include (glob.lit)
         declare p$dma address;
         declare dma based p$dma byte;
         declare i byte;
-        if ftab(f$id) <> F$WRITE then
+        if ftab(f$id).mode <> F$WRITE then
             return 0FFH;
         i = 0;
         p$dma = ftab(f$id).p$dma;
-        call stdma(.dma);
+        call stdma(p$dma);
         do while str(i) <> 0 and i < 128;
             dma(ftab(f$id).cnt) = str(i);
             ftab(f$id).cnt = ftab(f$id).cnt + 1;
@@ -246,7 +251,7 @@ $include (glob.lit)
         return 0;
     end f$wr;
 
-    /* writes a line to a files and then writes CRLF to the file
+    /* writes a line to a file and then writes CRLF to the file
      * the string in p$str must be terminated by a byte of value 00H
      * returns 0 on success and 0FFH on error */
     f$wln: procedure (f$id, p$str) byte public;
@@ -276,10 +281,10 @@ $include (glob.lit)
         end;
         else
         do;
-            call stdma(ftab(f$id).p$dma);
+            p$dma = ftab(f$id).p$dma;
+            call stdma(p$dma);
             if ftab(f$id).cnt > 0 then
             do;
-                p$dma = ftab(f$id).p$dma;
                 do while ftab(f$id).cnt < 128;
                     dma(ftab(f$id).cnt) = 01AH;
                     ftab(f$id).cnt = ftab(f$id).cnt + 1;
