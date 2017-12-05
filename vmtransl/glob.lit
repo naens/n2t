@@ -3,7 +3,7 @@ declare F$READ literally '0';
 declare F$WRITE literally '1';
 
 /* parser constants */
-declare C$ARITHMETIC literally '0';
+declare C$ARITHM literally '0';
 declare C$PUSH literally '1';
 declare C$POP literally '2';
 declare C$LABEL literally '3';
@@ -11,3 +11,4 @@ declare C$GOTO literally '4';
 declare C$IF literally '5';
 declare C$RETURN literally '6';
 declare C$CALL literally '7';
+declare C$ILLEGAL literally '255';
