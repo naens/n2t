@@ -1,0 +1,8 @@
+vmtransl:
+do;
+
+$include (glob.lit)
+
+$include (extfun.plm)
+
+end;
