@@ -3,19 +3,10 @@ do;
 
 $include (glob.lit)
 
-    f$op: procedure (p$fn, mode) byte external;
-        declare p$fn address;
-        declare mode byte;
-    end f$op;
-
-    f$rd: procedure external;
-    end f$rd;
-
-    f$cl: procedure (f$id) external;
-        declare f$id byte;
-    end f$cl;
+$include (extfun.plm)
 
     /* state variables */
+    declare fi$id byte;
     declare cmd byte;     /* constant representing the commmand */
     declare a1 (64) byte;  /* argument 1 */
     declare a2 (64) byte;  /* argument a2 */
@@ -23,14 +14,114 @@ $include (glob.lit)
     /* opens the file, returns 0 on success */
     parser$init: procedure (p$fn) byte public;
         declare p$fn address;
-        declare fn based p$fn byte;
-        return f$open(p$fn, F$READ);
+        fi$id = f$op(p$fn, F$READ);
+        if fi$id = 0 then
+            return 0;
+        else
+            return 0FFH;
     end parser$init;
+
+    legal$char: procedure (c) byte;
+        declare c byte;
+        return (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9');
+    end legal$char;
+
+    /* find next legal character */
+    legal: procedure (p$str, start, len) byte;
+        declare p$str address;
+        declare (start, len) byte;
+        declare str based p$str byte;
+        declare i byte;
+        i = start;
+        do while i < len and not legal$char(str(i));
+            i = i + 1;
+        end;
+        return i;
+    end legal;
+
+    illegal: procedure (p$str, start, len) byte;
+        declare p$str address;
+        declare (start, len) byte;
+        declare str based p$str byte;
+        declare i byte;
+        i = start;
+        do while i < len and legal$char(str(i));
+            i = i + 1;
+        end;
+        return i;
+    end illegal;
+
+    get$cmd: procedure (p$str) byte;
+        declare p$str address;
+        if s$cmp(p$str, .('add', 0)) = 0 or s$cmp(p$str, .('sub', 0)) = 0
+        or s$cmp(p$str, .('neg', 0)) = 0
+        or s$cmp(p$str, .('eq', 0)) = 0 or s$cmp(p$str, .('gt', 0)) = 0
+        or s$cmp(p$str, .('lt', 0)) = 0
+        or s$cmp(p$str, .('and', 0)) = 0 or s$cmp(p$str, .('or', 0)) = 0
+        or s$cmp(p$str, .('not', 0)) = 0 then
+            return C$ARITHM;
+        else if s$cmp(p$str, .('push')) = 0 then
+            return C$PUSH;
+        else if s$cmp(p$str, .('pop')) = 0 then
+            return C$POP;
+        else
+            return C$ILLEGAL;
+    end get$cmd;
+
 
     /* reads one command and fills cmd, a1 and a2
      * returns 0 if a command has been read
      * returns 0FFH on EOF (and closes the file) */
     advance: procedure byte public;
+        declare found$line byte;
+        declare cnt address;
+        declare buf (128) byte;
+        declare i byte;
+        declare j byte;
+        found$line = 0;
+        if fi$id = 0FFH then
+            return 0FFH;
+        do while not found$line;
+            cnt = f$rd(fi$id, .buf);
+            if cnt = 0FFFFH then
+            do;
+                fi$id = 0FFH;
+                return 0FFH;
+            end;
+            else if cnt = 0 then
+                cnt = f$rd(fi$id, .buf);
+            else if cnt < 128 then
+            do;
+                i = legal(.buf, 0, cnt);
+                if i = cnt then
+                    cnt = f$rd(fi$id, .buf);
+                else if i < cnt then
+                do;
+                    found$line = 1;
+                    j = illegal(.buf, i, cnt);
+                    buf(j) = 0;
+                    cmd = get$cmd(.buf(i));
+                    if cmd <> C$ARITHM then
+                    do;
+                        i = legal(.buf, j, cnt);
+                        j = illegal(.buf, i, cnt);
+                    end;
+                    call s$cpy(.buf(i), .a1, j - i);
+                    a1(j - i) = 0;
+                    i = legal(.buf, j, cnt);
+                    j = illegal(.buf, i, cnt);
+                    call s$cpy(.buf(i), .a2, j - i);
+                    a2(j - i) = 0;
+                end;
+            end;
+            else if cnt = 0FFFEH then
+            do;
+                call f$cl(fi$id);
+                fi$id = 0FFH;
+                return 0FFH;
+            end;
+        end;
+        return 0;
     end advance;
 
     command$type: procedure byte public;
