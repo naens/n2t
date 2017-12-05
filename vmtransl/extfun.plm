@@ -1,0 +1,49 @@
+nmout: procedure (val, base, lc, ba, width) external;
+    declare (val, ba) address;
+    declare (base, lc, width) byte;
+end nmout;
+
+wr$con: procedure (b) external;
+    declare b byte;
+end wr$con;
+
+pr$str: procedure (p$str) external;
+    declare p$str address;
+end pr$str;
+
+pr$ln: procedure (p$ln) external;
+    declare p$ln address;
+end pr$ln;
+
+arg$fn: procedure (p$fn, n) external;
+    declare p$fn address;
+    declare n byte;
+end arg$fn;
+
+f$op: procedure (p$fn, mode) byte external;
+    declare p$fn address;
+    declare mode byte;
+end f$op;
+
+f$cl: procedure (f$id) byte external;
+    declare f$id byte;
+end f$cl;
+
+f$rd: procedure (f$id, p$buf) address external;
+    declare f$id byte;
+    declare p$buf address;
+end f$rd;
+
+f$wln: procedure (f$id, p$str) byte external;
+    declare f$id byte;
+    declare p$str address;
+end f$wln;
+
+s$cmp: procedure (p$str1, p$str2) byte external;
+    declare (p$str1, p$str2) address;
+end s$cmp;
+
+s$cpy: procedure (p$src, p$dest, sz) external;
+    declare (p$src, p$dest) address;
+    declare sz address;
+end s$cpy;
