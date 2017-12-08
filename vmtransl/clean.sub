@@ -23,3 +23,9 @@ erase parser.ram
 erase parser.rel
 erase parser.sym
 
+erase vmtransl.mac
+erase vmtransl.rom
+erase vmtransl.ram
+erase vmtransl.rel
+erase vmtransl.sym
+erase vmtransl.com
