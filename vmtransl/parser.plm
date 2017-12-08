@@ -12,19 +12,44 @@ $include (extfun.plm)
     declare a2 (64) byte;  /* argument a2 */
 
     /* opens the file, returns 0 on success */
-    parser$init: procedure (p$fn) byte public;
+    mk$parser: procedure (p$fn) byte public;
         declare p$fn address;
+        call pr$ln(.('file open...', 0));
         fi$id = f$op(p$fn, F$READ);
         if fi$id = 0 then
+        do;
+            call pr$ln(.('file open ok', 0));
             return 0;
+        end;
         else
+        do;
+            call pr$ln(.('file open error', 0));
             return 0FFH;
-    end parser$init;
+        end;
+    end mk$parser;
 
     legal$char: procedure (c) byte;
         declare c byte;
         return (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9');
     end legal$char;
+
+    is$printable: procedure (c) byte;
+        declare c byte;
+        return c > ' ' and c < 07FH;
+    end is$printable;
+
+    /* find next printable character */
+    printable: procedure (p$str, start, len) byte;
+        declare p$str address;
+        declare (start, len) byte;
+        declare str based p$str byte;
+        declare i byte;
+        i = start;
+        do while i < len and not is$printable(str(i));
+            i = i + 1;
+        end;
+        return i;
+    end printable;
 
     /* find next legal character */
     legal: procedure (p$str, start, len) byte;
@@ -65,7 +90,7 @@ $include (extfun.plm)
         else if s$cmp(p$str, .('pop')) = 0 then
             return C$POP;
         else
-            return C$ILLEGAL;
+            return C$NO$CMD;
     end get$cmd;
 
 
@@ -83,19 +108,16 @@ $include (extfun.plm)
             return 0FFH;
         do while not found$line;
             cnt = f$rd(fi$id, .buf);
-            if cnt = 0FFFFH then
+            if cnt = 0FFFFH or cnt = 0FFFEH then
             do;
+                call f$cl(fi$id);
                 fi$id = 0FFH;
                 return 0FFH;
             end;
-            else if cnt = 0 then
-                cnt = f$rd(fi$id, .buf);
-            else if cnt < 128 then
+            else if cnt <> 0 and cnt < 128 then
             do;
-                i = legal(.buf, 0, cnt);
-                if i = cnt then
-                    cnt = f$rd(fi$id, .buf);
-                else if i < cnt then
+                i = printable(.buf, 0, cnt);
+                if i < cnt then
                 do;
                     found$line = 1;
                     j = illegal(.buf, i, cnt);
@@ -113,12 +135,6 @@ $include (extfun.plm)
                     call s$cpy(.buf(i), .a2, j - i);
                     a2(j - i) = 0;
                 end;
-            end;
-            else if cnt = 0FFFEH then
-            do;
-                call f$cl(fi$id);
-                fi$id = 0FFH;
-                return 0FFH;
             end;
         end;
         return 0;
