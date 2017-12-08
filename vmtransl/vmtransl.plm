@@ -5,4 +5,86 @@ $include (glob.lit)
 
 $include (extfun.plm)
 
+    advance: procedure byte external;
+    end advance;
+
+    command$type: procedure byte external;
+    end command$type;
+
+    arg$1: procedure address external;
+    end arg$1;
+
+    arg$2: procedure address external;
+    end arg$2;
+
+    mk$parser: procedure (p$fn) byte external;
+        declare p$fn address;
+    end mk$parser;
+    
+
+    declare in$fn(13) byte;
+    declare out$fn(13) byte;
+
+    /* get input file name from arguments */
+    call arg$fn(.in$fn, 0);
+
+    call pr$str(.('Read from file: ', 0));
+    call pr$ln(.in$fn);
+
+    /* TODO: create output file name */
+/*
+    call pr$str(.('Write to file: ', 0));
+    call pr$ln(.out$fn);
+*/
+
+    /* initialize parser */
+    call pr$ln(.('parser init...', 0));
+    if mk$parser(.in$fn) = 0FFH then
+        goto error;
+
+    call pr$ln(.('parser init ok', 0));
+
+    /* TODO: initialize code writer */
+/*
+    if mk$cwriter <> 0 then
+        goto error;
+*/    
+
+    /* read the file */
+    do while advance = 0;
+        /* TODO: write code */
+        if command$type = C$ARITHM then
+        do;
+            call pr$ln(.('arithm', 0));
+        /*
+            if cmd$arithm(arg$1) <> 0 then
+                goto error;
+        */
+        end;
+        if command$type = C$PUSH then
+        do;
+            call pr$ln(.('push', 0));
+        /*
+            if cmd$push(arg$1, arg$2) <> 0 then
+                goto error;
+        */
+        end;
+        if command$type = C$POP then
+        do;
+            call pr$ln(.('pop', 0));
+        /*
+            if cmd$pop(arg$1, arg$2) <> 0 then
+                goto error;
+        */
+        end;
+    end;
+
+    call pr$ln(.('Finished', 0));
+    goto terminate;
+
+error:
+    call pr$ln(.('Error', 0));
+
+terminate:
+
 end;
