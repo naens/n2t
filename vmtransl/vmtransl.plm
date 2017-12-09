@@ -20,22 +20,47 @@ $include (extfun.plm)
     mk$parser: procedure (p$fn) byte external;
         declare p$fn address;
     end mk$parser;
-    
+
+    mk$cwriter: procedure (p$fn) byte external;
+        declare p$fn address;
+    end mk$cwriter;
+
+    cmd$arithm: procedure (p$op) byte external;
+        declare p$op address;
+    end cmd$arithm;
+
+    cmd$push: procedure (p$a1, p$a2) byte external;
+        declare (p$a1, p$a2) address;
+    end cmd$push;
+
+    cmd$pop: procedure (p$a1, p$a2) byte external;
+        declare (p$a1, p$a2) address;
+    end cmd$pop;
+
+    end$write: procedure byte external;
+    end end$write;
+
+    mk$out$fn: procedure (p$in, p$out);
+        declare (p$in, p$out) address;
+        declare in based p$in byte;
+        declare out based p$out byte;
+        declare i byte;
+        i = 0;
+        do while in(i) <> 0 and in(i) <> '.' and i < 8;
+            out(i) = in(i);
+            i = i + 1;
+        end;
+        out(i) = '.';
+        call s$cpy(.('ASM', 0), .out(i + 1), 3);
+    end mk$out$fn;
 
     declare in$fn(13) byte;
     declare out$fn(13) byte;
 
     /* get input file name from arguments */
     call arg$fn(.in$fn, 0);
-
     call pr$str(.('Read from file: ', 0));
     call pr$ln(.in$fn);
-
-    /* TODO: create output file name */
-/*
-    call pr$str(.('Write to file: ', 0));
-    call pr$ln(.out$fn);
-*/
 
     /* initialize parser */
     call pr$ln(.('parser init...', 0));
@@ -44,40 +69,37 @@ $include (extfun.plm)
 
     call pr$ln(.('parser init ok', 0));
 
-    /* TODO: initialize code writer */
-/*
-    if mk$cwriter <> 0 then
+    /* create output file name */
+    call mk$out$fn(.in$fn, .out$fn);
+    call pr$str(.('Write to file: ', 0));
+    call pr$ln(.out$fn);
+
+    /* initialize code writer */
+    if mk$cwriter(.out$fn) <> 0 then
         goto error;
-*/    
+
+    call pr$ln(.('writer init ok', 0));
 
     /* read the file */
     do while advance = 0;
-        /* TODO: write code */
         if command$type = C$ARITHM then
         do;
-            call pr$ln(.('arithm', 0));
-        /*
             if cmd$arithm(arg$1) <> 0 then
                 goto error;
-        */
         end;
         if command$type = C$PUSH then
         do;
-            call pr$ln(.('push', 0));
-        /*
             if cmd$push(arg$1, arg$2) <> 0 then
                 goto error;
-        */
         end;
         if command$type = C$POP then
         do;
-            call pr$ln(.('pop', 0));
-        /*
             if cmd$pop(arg$1, arg$2) <> 0 then
                 goto error;
-        */
         end;
     end;
+    if end$write <> 0 then
+        goto error;
 
     call pr$ln(.('Finished', 0));
     goto terminate;
