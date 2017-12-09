@@ -1,0 +1,52 @@
+cwriter:
+do;
+
+$include (glob.lit)
+
+$include (extfun.plm)
+
+    declare f$id byte;
+
+    mk$cwriter: procedure (p$fn) byte public;
+        declare p$fn address;
+        call pr$str(.('mk$cwriter: ', 0));
+        call pr$ln(p$fn);
+        /* TODO: open file, save id */
+        return 0;
+    end mk$cwriter;
+
+    cmd$arithm: procedure (p$op) byte public;
+        declare p$op address;
+        call pr$str(.('cmd$arithm: ', 0));
+        call pr$ln(p$op);
+        /* TODO: write arithm */
+        return 0;
+    end cmd$arithm;
+
+    cmd$push: procedure (p$a1, p$a2) byte public;
+        declare (p$a1, p$a2) address;
+        call pr$str(.('cmd$push: ', 0));
+        call pr$str(p$a1);
+        call wr$con(',');
+        call pr$ln(p$a2);
+        /* TODO: write push */
+        return 0;
+    end cmd$push;
+
+    cmd$pop: procedure (p$a1, p$a2) byte public;
+        declare (p$a1, p$a2) address;
+        call pr$str(.('cmd$pop: ', 0));
+        call pr$str(p$a1);
+        call wr$con(',');
+        call pr$ln(p$a2);
+        /* TODO: write pop */
+        return 0;
+    end cmd$pop;
+
+    end$write: procedure byte public;
+        call pr$ln(.('end$write', 0));
+        /* TODO: open close file */
+        return 0;
+    end end$write;
+
+end cwriter;

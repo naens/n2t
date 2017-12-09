@@ -23,6 +23,12 @@ erase parser.ram
 erase parser.rel
 erase parser.sym
 
+erase cwriter.mac
+erase cwriter.rom
+erase cwriter.ram
+erase cwriter.rel
+erase cwriter.sym
+
 erase vmtransl.mac
 erase vmtransl.rom
 erase vmtransl.ram
