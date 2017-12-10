@@ -225,7 +225,7 @@ $include (glob.lit)
             return 0FFFFH;
     end f$rd;
 
-    f$wr: procedure (f$id, p$str) byte public;
+    f$wstr: procedure (f$id, p$str) byte public;
         declare f$id byte;
         declare p$str address;
         declare str based p$str byte;
@@ -249,7 +249,7 @@ $include (glob.lit)
             i = i + 1;
         end;
         return 0;
-    end f$wr;
+    end f$wstr;
 
     /* writes a line to a file and then writes CRLF to the file
      * the string in p$str must be terminated by a byte of value 00H
@@ -257,12 +257,21 @@ $include (glob.lit)
     f$wln: procedure (f$id, p$str) byte public;
         declare f$id byte;
         declare p$str address;
-        if f$wr(f$id, p$str) = 0 then
-            return f$wr(f$id, .(0DH, 0AH, 0));
+        if f$wstr(f$id, p$str) = 0 then
+            return f$wstr(f$id, .(0DH, 0AH, 0));
         else
             return 0FFH;
     end f$wln;
     
+    f$wch: procedure (f$id, ch) byte public;
+        declare f$id byte;
+        declare ch byte;
+        declare str (2) byte;
+        str(0) = ch;
+        str(1) = 0;
+        return f$wstr(f$id, .str);
+    end f$wch;
+
     /* closes the file and writes the rest if needed
      * returns 0 on success and 0FFH on error */
     f$cl: procedure (f$id) byte public;

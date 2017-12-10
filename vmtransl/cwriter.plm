@@ -11,42 +11,155 @@ $include (extfun.plm)
         declare p$fn address;
         call pr$str(.('mk$cwriter: ', 0));
         call pr$ln(p$fn);
-        /* TODO: open file, save id */
+        f$id = f$op(p$fn, F$WRITE);
         return 0;
     end mk$cwriter;
+
+    wr$unary: procedure (p$op);
+        declare p$op address;
+        call f$wstr(f$id, .('// unary ', 0));
+        call f$wln(f$id, p$op);
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('A=M-1', 0));
+        if s$cmp(p$op, .('neg', 0)) = 0then
+            call f$wln(f$id, .('M=-M', 0));
+        else if s$cmp(p$op, .('not', 0)) = 0 then
+            call f$wln(f$id, .('M=!M', 0));
+        call f$wln(f$id, .(0));
+    end wr$unary;
+
+    wr$binary: procedure (p$op);
+        declare p$op address;
+        call f$wstr(f$id, .('// binary ', 0));
+        call f$wln(f$id, p$op);
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('M=M-1', 0));
+        call f$wln(f$id, .('A=M', 0));
+        call f$wln(f$id, .('D=M', 0));
+        call f$wln(f$id, .('A=A-1', 0));
+        if s$cmp(p$op, .('add', 0)) = 0 then
+            call f$wln(f$id, .('M=M+D', 0));
+        else if s$cmp(p$op, .('sub', 0)) = 0 then
+            call f$wln(f$id, .('M=M-D', 0));
+        else if s$cmp(p$op, .('and', 0)) = 0 then
+            call f$wln(f$id, .('M=M&D', 0));
+        else if s$cmp(p$op, .('or', 0)) = 0 then
+            call f$wln(f$id, .('M=M|D', 0));
+        call f$wln(f$id, .(0));
+    end wr$binary;
+
+    wr$relation: procedure (p$op);
+        declare p$op address;
+        declare n address initial (0);
+        declare n$str (5) byte;
+        declare buf (32) byte;
+        call nmout(5, n, '0', n$str, 4);
+        n$str(4) = 0;
+        call f$wstr(f$id, .('// relational ', 0));
+        call f$wln(f$id, p$op);
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('M=M-1', 0));
+        call f$wln(f$id, .('A=M', 0));
+        call f$wln(f$id, .('D=M', 0));
+        call f$wln(f$id, .('A=A-1', 0));
+        call f$wln(f$id, .('D=M-D', 0));
+        /* @M1 */
+        call f$wch(f$id, '@');
+        call f$wstr(f$id, .('relat.m1.', 0));
+        call f$wln(f$id, .n$str);
+        if s$cmp(p$op, .('eq', 0)) = 0 then
+            call f$wln(f$id, .('D;JEQ', 0));
+        else if s$cmp(p$op, .('gt', 0)) = 0 then
+            call f$wln(f$id, .('D;JGT', 0));
+        else if s$cmp(p$op, .('lt', 0)) = 0 then
+            call f$wln(f$id, .('D;JLT', 0));
+        call f$wln(f$id, .('M=0', 0));
+        /* @END */
+        call f$wch(f$id, '@');
+        call f$wstr(f$id, .('relat.end.', 0));
+        call f$wln(f$id, .n$str);
+        call f$wln(f$id, .('0;JMP', 0));
+        /* (M1) */
+        call f$wch(f$id, '(');
+        call f$wstr(f$id, .('relat.m1.', 0));
+        call f$wstr(f$id, .n$str);
+        call f$wch(f$id, ')');
+        call f$wln(f$id, .('M=1', 0));
+        /* (END) */
+        call f$wch(f$id, '(');
+        call f$wstr(f$id, .('relat.end.', 0));
+        call f$wstr(f$id, .n$str);
+        call f$wch(f$id, ')');
+        call f$wln(f$id, .(0));
+        n = n + 1;
+    end wr$relation;
 
     cmd$arithm: procedure (p$op) byte public;
         declare p$op address;
         call pr$str(.('cmd$arithm: ', 0));
         call pr$ln(p$op);
-        /* TODO: write arithm */
+        call f$wln(f$id, .('arithm', 0));
+        if s$cmp(p$op, .('neg', 0)) = 0
+                or s$cmp(p$op, .('not', 0)) = 0 then
+            call wr$unary(p$op);
+        else if s$cmp(p$op, .('eq', 0)) = 0
+                or s$cmp(p$op, .('lt', 0)) = 0
+                or s$cmp(p$op, .('gt', 0)) = 0 then
+            call wr$relation(p$op);
+        else
+            call wr$binary(p$op);
         return 0;
     end cmd$arithm;
 
     cmd$push: procedure (p$a1, p$a2) byte public;
         declare (p$a1, p$a2) address;
+
         call pr$str(.('cmd$push: ', 0));
         call pr$str(p$a1);
-        call wr$con(',');
+        call wr$con(' ');
         call pr$ln(p$a2);
-        /* TODO: write push */
+
+        call f$wstr(f$id, .('// push ', 0));
+        call f$wstr(f$id, p$a1);
+        call f$wstr(f$id, .(' ', 0));
+        call f$wln(f$id, p$a2);
+        /* TODO: put value in D */
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('A=M', 0));
+        call f$wln(f$id, .('M=D', 0));
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('M=M+1', 0));
+        call f$wln(f$id, .(0));
         return 0;
     end cmd$push;
 
     cmd$pop: procedure (p$a1, p$a2) byte public;
         declare (p$a1, p$a2) address;
+
         call pr$str(.('cmd$pop: ', 0));
         call pr$str(p$a1);
-        call wr$con(',');
+        call wr$con(' ');
         call pr$ln(p$a2);
-        /* TODO: write pop */
+
+        call f$wstr(f$id, .('// pop ', 0));
+        call f$wstr(f$id, p$a1);
+        call f$wstr(f$id, .(' ', 0));
+        call f$wln(f$id, p$a2);
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('M=M-1', 0));
+        call f$wln(f$id, .('A=M', 0));
+        call f$wln(f$id, .('D=M', 0));
+        /* TODO: put value from D into a memory location */
+        call f$wln(f$id, .(0));
         return 0;
     end cmd$pop;
 
     end$write: procedure byte public;
         call pr$ln(.('end$write', 0));
-        /* TODO: open close file */
-        return 0;
+        if f$cl(f$id) = 0 then
+            return 0;
+        else
+            return 0FFH;
     end end$write;
 
 end cwriter;

@@ -34,10 +34,20 @@ f$rd: procedure (f$id, p$buf) address external;
     declare p$buf address;
 end f$rd;
 
+f$wstr: procedure (f$id, p$str) byte external;
+    declare f$id byte;
+    declare p$str address;
+end f$wstr;
+
 f$wln: procedure (f$id, p$str) byte external;
     declare f$id byte;
     declare p$str address;
 end f$wln;
+
+f$wch: procedure (f$id, ch) byte external;
+    declare f$id byte;
+    declare ch byte;
+end f$wch;
 
 s$cmp: procedure (p$str1, p$str2) byte external;
     declare (p$str1, p$str2) address;
