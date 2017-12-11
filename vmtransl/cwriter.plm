@@ -111,6 +111,33 @@ $include (extfun.plm)
         return 0;
     end cmd$arithm;
 
+    wln$segm: procedure (p$segm);
+        declare p$segm address;
+        if s$cmp(p$segm, .('local', 0)) = 0 then
+            call f$wln(f$id, .('LCL', 0));
+        else if s$cmp(p$segm, .('argument', 0)) = 0 then
+            call f$wln(f$id, .('ARG', 0));
+        else if s$cmp(p$segm, .('this', 0)) = 0 then
+            call f$wln(f$id, .('THIS', 0));
+        else if s$cmp(p$segm, .('that', 0)) = 0 then
+            call f$wln(f$id, .('THAT', 0));
+    end wln$segm;
+
+    w$module: procedure;
+        declare buf(16) byte;
+        declare i byte;
+        /* TODO: get module name */
+        call arg$fn(.buf, 0);
+        i = 0;
+        /* TODO: make lowercase without extension */
+        do while buf(i) <> 0 and buf(i) <> '.' and i < 8;
+            buf(i) = lowercase(buf(i));
+            i = i + 1;
+        end;
+        buf(i) = 0;
+        call f$wstr(f$id, .buf);
+    end w$module;
+
     cmd$push: procedure (p$a1, p$a2) byte public;
         declare (p$a1, p$a2) address;
 
@@ -123,7 +150,50 @@ $include (extfun.plm)
         call f$wstr(f$id, p$a1);
         call f$wstr(f$id, .(' ', 0));
         call f$wln(f$id, p$a2);
-        /* TODO: put value in D */
+
+        /* put value in D */
+        if s$cmp(p$a1, .('pointer', 0)) = 0 then
+        do;
+            if s$cmp(p$a2, .('0', 0)) = 0 then
+                call f$wln(f$id, .('@THIS', 0));
+            else
+                call f$wln(f$id, .('@THAT', 0));
+            call f$wln(f$id, .('D=M', 0));
+        end;
+        else if s$cmp(p$a1, .('static', 0)) = 0 then
+        do;
+            call f$wch(f$id, '@');
+            call w$module;
+            call f$wch(f$id, '.');
+            call f$wln(f$id, p$a2);
+            call f$wln(f$id, .('D=M', 0));
+        end;
+        else if s$cmp(p$a1, .('constant', 0)) = 0 then
+        do;
+            call f$wch(f$id, '@');
+            call f$wln(f$id, p$a2);
+            call f$wln(f$id, .('D=A', 0));
+        end;
+        else
+        do;
+            if s$cmp(p$a1, .('temp', 0)) = 0 then
+            do;
+                call f$wln(f$id, .('@5', 0));
+                call f$wln(f$id, .('D=A', 0));
+            end;
+            else
+            do;
+                call f$wch(f$id, '@');
+                call wln$segm(p$a1);
+                call f$wln(f$id, .('D=M', 0));
+            end;
+            call f$wch(f$id, '@');
+            call f$wln(f$id, p$a2);
+            call f$wln(f$id, .('A=A+D', 0));
+            call f$wln(f$id, .('D=M', 0));
+        end;
+
+        /* push D into stack */
         call f$wln(f$id, .('@SP', 0));
         call f$wln(f$id, .('A=M', 0));
         call f$wln(f$id, .('M=D', 0));
@@ -145,11 +215,57 @@ $include (extfun.plm)
         call f$wstr(f$id, p$a1);
         call f$wstr(f$id, .(' ', 0));
         call f$wln(f$id, p$a2);
+
+        /* put value to pop into D */
         call f$wln(f$id, .('@SP', 0));
         call f$wln(f$id, .('M=M-1', 0));
         call f$wln(f$id, .('A=M', 0));
         call f$wln(f$id, .('D=M', 0));
+
         /* TODO: put value from D into a memory location */
+        if s$cmp(p$a1, .('pointer', 0)) = 0 then
+        do;
+            if s$cmp(p$a2, .('0', 0)) = 0 then
+                call f$wln(f$id, .('@THIS', 0));
+            else
+                call f$wln(f$id, .('@THAT', 0));
+            call f$wln(f$id, .('M=D', 0));
+        end;
+        else if s$cmp(p$a1, .('static', 0)) = 0 then
+        do;
+            call f$wch(f$id, '@');
+            call w$module;
+            call f$wch(f$id, '.');
+            call f$wln(f$id, p$a2);
+            call f$wln(f$id, .('M=D', 0));
+        end;
+        else
+        do;
+            call f$wln(f$id, .('@R13', 0));
+            call f$wln(f$id, .('M=D', 0));
+            if s$cmp(p$a1, .('temp', 0)) = 0 then
+            do;
+                call f$wln(f$id, .('@5', 0));
+                call f$wln(f$id, .('D=A', 0));
+            end;
+            else
+            do;
+                call f$wch(f$id, '@');
+                call wln$segm(p$a1);
+                call f$wln(f$id, .('D=M', 0));
+            end;
+            call f$wch(f$id, '@');
+            call f$wln(f$id, p$a2);
+            call f$wln(f$id, .('D=A+D', 0));
+            call f$wln(f$id, .('@R14', 0));
+            call f$wln(f$id, .('M=D', 0));
+            call f$wln(f$id, .('@R13', 0));
+            call f$wln(f$id, .('D=M', 0));
+            call f$wln(f$id, .('@R14', 0));
+            call f$wln(f$id, .('A=M', 0));
+            call f$wln(f$id, .('M=D', 0));
+        end;
+
         call f$wln(f$id, .(0));
         return 0;
     end cmd$pop;
