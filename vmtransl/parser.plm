@@ -79,15 +79,15 @@ $include (extfun.plm)
     get$cmd: procedure (p$str) byte;
         declare p$str address;
         if s$cmp(p$str, .('add', 0)) = 0 or s$cmp(p$str, .('sub', 0)) = 0
-        or s$cmp(p$str, .('neg', 0)) = 0
-        or s$cmp(p$str, .('eq', 0)) = 0 or s$cmp(p$str, .('gt', 0)) = 0
-        or s$cmp(p$str, .('lt', 0)) = 0
-        or s$cmp(p$str, .('and', 0)) = 0 or s$cmp(p$str, .('or', 0)) = 0
-        or s$cmp(p$str, .('not', 0)) = 0 then
+              or s$cmp(p$str, .('neg', 0)) = 0
+              or s$cmp(p$str, .('eq', 0)) = 0 or s$cmp(p$str, .('gt', 0)) = 0
+              or s$cmp(p$str, .('lt', 0)) = 0
+              or s$cmp(p$str, .('and', 0)) = 0 or s$cmp(p$str, .('or', 0)) = 0
+              or s$cmp(p$str, .('not', 0)) = 0 then
             return C$ARITHM;
-        else if s$cmp(p$str, .('push')) = 0 then
+        else if s$cmp(p$str, .('push', 0)) = 0 then
             return C$PUSH;
-        else if s$cmp(p$str, .('pop')) = 0 then
+        else if s$cmp(p$str, .('pop', 0)) = 0 then
             return C$POP;
         else
             return C$NO$CMD;

@@ -94,7 +94,10 @@ $include (extfun.plm)
         end;
         if command$type = C$POP then
         do;
-            if cmd$pop(arg$1, arg$2) <> 0 then
+            declare (p$a1, p$a2) address;
+            p$a1 = arg$1;
+            p$a2 = arg$2;
+            if cmd$pop(p$a1, p$a2) <> 0 then
                 goto error;
         end;
     end;

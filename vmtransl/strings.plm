@@ -15,8 +15,19 @@ do;
         do while s1(i) <> 0 and s2(i) <> 0 and s1(i) = s2(i);
             i = i + 1;
         end;
-        return s1 - s2;
+        if s1(i) = 0 and s2(i) = 0 then
+            return 0;
+        else
+            return s1(i) - s2(i);
     end s$cmp;
+
+    lowercase: procedure (c) byte public;
+        declare c byte;
+        if c >= 'A' and c <= 'Z' then
+            return c - 'A' + 'a';
+        else
+            return c;
+    end lowercase;
 
     s$cpy: procedure(p$src, p$dest, sz) public;
         declare (p$src, p$dest) address;

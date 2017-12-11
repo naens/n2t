@@ -49,6 +49,10 @@ f$wch: procedure (f$id, ch) byte external;
     declare ch byte;
 end f$wch;
 
+lowercase: procedure (c) byte external;
+    declare c byte;
+end lowercase;
+
 s$cmp: procedure (p$str1, p$str2) byte external;
     declare (p$str1, p$str2) address;
 end s$cmp;
