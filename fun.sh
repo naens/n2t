@@ -29,7 +29,7 @@ deltemp ()
 {
     file1='/tmp/.file$1'
     file2='/tmp/.file$2'
-    ls -1 | grep 'mac\|rel\|sym\|$$$' | sort > $file1
+    ls -1 | grep 'mac\|rel\|sym\|rom\|ram\|$$$' | sort > $file1
     plmxfiles | sort > $file2
     rm -f $(comm -23 "$file1" "$file2") $file1 $file2
 }
