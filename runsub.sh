@@ -17,7 +17,7 @@ IFS='
 '
 for line in $(cat $fn)
 do
-    if [ -z "$line" ]
+    if [ $(echo "$line" | wc -w) -eq 0 ]
     then
         continue
     fi
