@@ -48,12 +48,12 @@ $include (extfun.plm)
         call f$wln(f$id, .(0));
     end wr$binary;
 
+    declare n address initial (0);
     wr$relation: procedure (p$op);
         declare p$op address;
-        declare n address initial (0);
         declare n$str (5) byte;
         declare buf (32) byte;
-        call nmout(5, n, '0', n$str, 4);
+        call nmout(n, 16, '0', .n$str, 4);
         n$str(4) = 0;
         call f$wstr(f$id, .('// relational ', 0));
         call f$wln(f$id, p$op);
@@ -83,13 +83,13 @@ $include (extfun.plm)
         call f$wch(f$id, '(');
         call f$wstr(f$id, .('relat.m1.', 0));
         call f$wstr(f$id, .n$str);
-        call f$wch(f$id, ')');
+        call f$wln(f$id, .(')', 0));
         call f$wln(f$id, .('M=1', 0));
         /* (END) */
         call f$wch(f$id, '(');
         call f$wstr(f$id, .('relat.end.', 0));
         call f$wstr(f$id, .n$str);
-        call f$wch(f$id, ')');
+        call f$wln(f$id, .(')', 0));
         call f$wln(f$id, .(0));
         n = n + 1;
     end wr$relation;
@@ -98,7 +98,6 @@ $include (extfun.plm)
         declare p$op address;
         call pr$str(.('cmd$arithm: ', 0));
         call pr$ln(p$op);
-        call f$wln(f$id, .('arithm', 0));
         if s$cmp(p$op, .('neg', 0)) = 0
                 or s$cmp(p$op, .('not', 0)) = 0 then
             call wr$unary(p$op);
@@ -126,7 +125,6 @@ $include (extfun.plm)
     w$module: procedure;
         declare buf(16) byte;
         declare i byte;
-        /* TODO: get module name */
         call arg$fn(.buf, 0);
         i = 0;
         /* TODO: make lowercase without extension */
@@ -138,20 +136,8 @@ $include (extfun.plm)
         call f$wstr(f$id, .buf);
     end w$module;
 
-    cmd$push: procedure (p$a1, p$a2) byte public;
+    w$s2d: procedure (p$a1, p$a2);
         declare (p$a1, p$a2) address;
-
-        call pr$str(.('cmd$push: ', 0));
-        call pr$str(p$a1);
-        call wr$con(' ');
-        call pr$ln(p$a2);
-
-        call f$wstr(f$id, .('// push ', 0));
-        call f$wstr(f$id, p$a1);
-        call f$wstr(f$id, .(' ', 0));
-        call f$wln(f$id, p$a2);
-
-        /* put value in D */
         if s$cmp(p$a1, .('pointer', 0)) = 0 then
         do;
             if s$cmp(p$a2, .('0', 0)) = 0 then
@@ -192,6 +178,23 @@ $include (extfun.plm)
             call f$wln(f$id, .('A=A+D', 0));
             call f$wln(f$id, .('D=M', 0));
         end;
+    end w$s2d;
+
+    cmd$push: procedure (p$a1, p$a2) byte public;
+        declare (p$a1, p$a2) address;
+
+        call pr$str(.('cmd$push: ', 0));
+        call pr$str(p$a1);
+        call wr$con(' ');
+        call pr$ln(p$a2);
+
+        call f$wstr(f$id, .('// push ', 0));
+        call f$wstr(f$id, p$a1);
+        call f$wstr(f$id, .(' ', 0));
+        call f$wln(f$id, p$a2);
+
+        /* put value in D */
+        call w$s2d(p$a1, p$a2);
 
         /* push D into stack */
         call f$wln(f$id, .('@SP', 0));
@@ -203,26 +206,8 @@ $include (extfun.plm)
         return 0;
     end cmd$push;
 
-    cmd$pop: procedure (p$a1, p$a2) byte public;
+    w$d2s: procedure (p$a1, p$a2);
         declare (p$a1, p$a2) address;
-
-        call pr$str(.('cmd$pop: ', 0));
-        call pr$str(p$a1);
-        call wr$con(' ');
-        call pr$ln(p$a2);
-
-        call f$wstr(f$id, .('// pop ', 0));
-        call f$wstr(f$id, p$a1);
-        call f$wstr(f$id, .(' ', 0));
-        call f$wln(f$id, p$a2);
-
-        /* put value to pop into D */
-        call f$wln(f$id, .('@SP', 0));
-        call f$wln(f$id, .('M=M-1', 0));
-        call f$wln(f$id, .('A=M', 0));
-        call f$wln(f$id, .('D=M', 0));
-
-        /* TODO: put value from D into a memory location */
         if s$cmp(p$a1, .('pointer', 0)) = 0 then
         do;
             if s$cmp(p$a2, .('0', 0)) = 0 then
@@ -265,6 +250,29 @@ $include (extfun.plm)
             call f$wln(f$id, .('A=M', 0));
             call f$wln(f$id, .('M=D', 0));
         end;
+    end w$d2s;
+
+    cmd$pop: procedure (p$a1, p$a2) byte public;
+        declare (p$a1, p$a2) address;
+
+        call pr$str(.('cmd$pop: ', 0));
+        call pr$str(p$a1);
+        call wr$con(' ');
+        call pr$ln(p$a2);
+
+        call f$wstr(f$id, .('// pop ', 0));
+        call f$wstr(f$id, p$a1);
+        call f$wstr(f$id, .(' ', 0));
+        call f$wln(f$id, p$a2);
+
+        /* put value to pop into D */
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('M=M-1', 0));
+        call f$wln(f$id, .('A=M', 0));
+        call f$wln(f$id, .('D=M', 0));
+
+        /* put value from D into a memory location */
+        call w$d2s(p$a1, p$a2);
 
         call f$wln(f$id, .(0));
         return 0;
