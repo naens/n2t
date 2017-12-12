@@ -15,4 +15,4 @@ delenv:
 
 clean: delenv
 	@. ../fun.sh && deltemp
-	@rm -f hackasm basasm *.com
+	@rm -f hackasm basasm *.com vmtransl
