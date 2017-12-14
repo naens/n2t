@@ -3,8 +3,17 @@
 !*.*
 !Makefile
 *~
+
 DEADJOE
 wa.sub
 *.asm
 *.vm
 *.com
+
+fp.*
+*.tst
+*.cmp
+*.bak
+*.ppu
+*.o
+*.out
