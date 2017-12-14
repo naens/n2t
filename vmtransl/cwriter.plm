@@ -73,6 +73,8 @@ $include (extfun.plm)
             call f$wln(f$id, .('D;JGT', 0));
         else if s$cmp(p$op, .('lt', 0)) = 0 then
             call f$wln(f$id, .('D;JLT', 0));
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('A=M-1', 0));
         call f$wln(f$id, .('M=0', 0));
         /* @END */
         call f$wch(f$id, '@');
@@ -84,7 +86,9 @@ $include (extfun.plm)
         call f$wstr(f$id, .('relat.m1.', 0));
         call f$wstr(f$id, .n$str);
         call f$wln(f$id, .(')', 0));
-        call f$wln(f$id, .('M=1', 0));
+        call f$wln(f$id, .('@SP', 0));
+        call f$wln(f$id, .('A=M-1', 0));
+        call f$wln(f$id, .('M=-1', 0));
         /* (END) */
         call f$wch(f$id, '(');
         call f$wstr(f$id, .('relat.end.', 0));
