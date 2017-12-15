@@ -24,12 +24,14 @@ procedure WriteLabel(var f: Text; ModuleName: string; LabelName: string);
 
 procedure WriteIfGoto(var f: Text; ModuleName: string; LabelName: string);
 
-procedure WriteReturn(var f: Text; n: integer; ModuleName: string);
+procedure WriteReturn(var f: Text; ModuleName: string);
 
 procedure WriteCall(var f: Text; ModuleName: string;
                                 FunctionName: string; NumArgs: integer);
 
-procedure WriteFunction(var f: Text; n: integer; ModuleName: string;
+procedure WriteRestore(var f: Text; ModuleName: string);
+
+procedure WriteFunction(var f: Text; ModuleName: string;
                                 FunctionName: string; NumVars: integer);
 
 procedure CloseWriter(var f: Text);
@@ -252,10 +254,10 @@ begin
   writeln(f);
 end;
 
-procedure WriteReturn(var f: Text; n: integer; ModuleName: string);
+procedure WriteReturn(var f: Text; ModuleName: string);
 begin
-  writeln(f, '// return to ', ModuleName, '$ret.', n);
-  writeln(f, '@', ModuleName, '$ret.', n);
+  writeln(f, '// return to ', ModuleName, '$ret');
+  writeln(f, '@', ModuleName, '$ret');
   writeln(f, '0;JMP');
   writeln(f);
 end;
@@ -265,26 +267,9 @@ procedure WriteCall(var f: Text; ModuleName: string;
 begin
 end;
 
-procedure WriteFunction(var f: Text; n: integer; ModuleName: string;
-                                FunctionName: string; NumVars: integer);
-var
-  i: integer;
+procedure WriteRestore(var f: Text; ModuleName: string);
 begin
-  writeln(f, '// function ', ModuleName, '.', FunctionName, ' ', NumVars);
-  writeln(f, '(', ModuleName, '.', FunctionName, ')');
-
-  for i := 1 to NumVars do
-  begin
-    writeln(f, '@SP');    {A=SP}
-    writeln(f, 'A=M');    {A=[SP]}
-    writeln(f, 'M=0');		{[[SP]]=0}
-    writeln(f, '@SP');
-    writeln(f, 'M=M+1')
-  end;
-  writeln(f, '@', ModuleName, '.', FunctionName, '$body.', n);
-  writeln(f, '0;JMP');
-
-  writeln(f, '(', ModuleName, '$ret.', n, ')');
+  writeln(f, '(', ModuleName, '$ret)');
 
   writeln(f, '@SP');
   writeln(f, 'A=M-1');
@@ -334,8 +319,27 @@ begin
   writeln(f, '@R13');
   writeln(f, 'A=M');
   writeln(f, '0;JMP');
+  writeln(f);
+end;
 
-  writeln(f, '(', ModuleName, '.', FunctionName, '$body.', n, ')');
+
+procedure WriteFunction(var f: Text; ModuleName: string;
+                                FunctionName: string; NumVars: integer);
+var
+  i: integer;
+begin
+  writeln(f, '// function ', ModuleName, '.', FunctionName, ' ', NumVars);
+  writeln(f, '(', ModuleName, '.', FunctionName, ')');
+
+  for i := 1 to NumVars do
+  begin
+    writeln(f, '@SP');    {A=SP}
+    writeln(f, 'A=M');    {A=[SP]}
+    writeln(f, 'M=0');		{[[SP]]=0}
+    writeln(f, '@SP');
+    writeln(f, 'M=M+1')
+  end;
+
   writeln(f);
 end;
 

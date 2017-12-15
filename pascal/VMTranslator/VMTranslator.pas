@@ -16,7 +16,7 @@ var
   ModuleName: string;
   FindPath: string;
   Info: TSearchRec;
-  f, n: integer;
+  n: integer;
   IsDir: boolean;
 begin
   WriteLn('VMTranslator');
@@ -50,7 +50,6 @@ begin
 
         InitParser(InputFileName, InputFile);
         n := 0;
-        f := 0;
         while Advance(InputFIle, Command, arg1, arg2) do
         begin
 //          writeln(Command, ' ', arg1);
@@ -61,15 +60,15 @@ begin
             cGoto: WriteGoto(OutputFile, ModuleName, arg1);
             cLabel: WriteLabel(OutputFile, ModuleName, arg1);
             cIfGoto: WriteIfGoto(OutputFile, ModuleName, arg1);
-            cReturn: WriteReturn(OutputFile, f, ModuleName);
+            cReturn: WriteReturn(OutputFile, ModuleName);
             cCall: WriteCall(OutputFile, ModuleName, arg1, StrToInt(arg2));
             cFunction:
             begin
-              f := f + 1;
-              WriteFunction(OutputFile, f, ModuleName, arg1, StrToInt(arg2))
+              WriteFunction(OutputFile, ModuleName, arg1, StrToInt(arg2))
             end
-          end
+          end;
         end;
+        WriteRestore(OutputFile, ModuleName);
         CloseParser(InputFile);
         n := n + 1
       until FindNext(Info) <> 0;
