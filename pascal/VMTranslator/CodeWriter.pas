@@ -7,6 +7,8 @@ uses
 
 procedure InitWriter(FileName: string; var f: Text);
 
+procedure WriteInit(var f: Text; ModuleName: string);
+
 procedure WriteArithm(var f: Text; n: integer;
                       ModuleName: string; Operation: string);
 
@@ -16,6 +18,20 @@ procedure WritePush(var f: Text; ModuleName: string;
 procedure WritePop(var f: Text; ModuleName: string;
                                 Segment: string; Index: string);
 
+procedure WriteGoto(var f: Text; ModuleName: string; LabelName: string);
+
+procedure WriteLabel(var f: Text; ModuleName: string; LabelName: string);
+
+procedure WriteIfGoto(var f: Text; ModuleName: string; LabelName: string);
+
+procedure WriteReturn(var f: Text; ModuleName: string);
+
+procedure WriteCall(var f: Text; ModuleName: string;
+                                FunctionName: string; NumArgs: string);
+
+procedure WriteFunction(var f: Text; ModuleName: string;
+                                FunctionName: string; NumVars: string);
+
 procedure CloseWriter(var f: Text);
 
 implementation
@@ -24,6 +40,10 @@ procedure InitWriter(FileName: string; var f: Text);
 begin
   assign(f, FileName);
   rewrite(f);
+end;
+
+procedure WriteInit(var f: Text; ModuleName: string);
+begin
 end;
 
 procedure WriteUnary(var f: Text; Operation: string);
@@ -203,6 +223,47 @@ begin
   writeln(f, 'D=M');
   WriteDV(f, ModuleName, Segment, Index);
   writeln(f);
+end;
+
+procedure WriteGoto(var f: Text; ModuleName: string; LabelName: string);
+begin
+  writeln(f, '// goto ', LabelName);
+  writeln(f, '@', Uppercase(ModuleName), '_', Uppercase(LabelName));
+  writeln(f, '0;JMP');
+  writeln(f);
+end;
+
+procedure WriteLabel(var f: Text; ModuleName: string; LabelName: string);
+begin
+  writeln(f, '// label ', LabelName);
+  writeln(f, '(', Uppercase(ModuleName), '_', Uppercase(LabelName), ')');
+  writeln(f);
+end;
+
+procedure WriteIfGoto(var f: Text; ModuleName: string; LabelName: string);
+begin
+  writeln(f, '// if-goto ', LabelName);
+  writeln(f, '@SP');
+  writeln(f, 'M=M-1');
+  writeln(f, 'A=M');
+  writeln(f, 'D=M');
+  writeln(f, '@', Uppercase(ModuleName), '_', Uppercase(LabelName));
+  writeln(f, 'D;JNE');
+  writeln(f);
+end;
+
+procedure WriteReturn(var f: Text; ModuleName: string);
+begin
+end;
+
+procedure WriteCall(var f: Text; ModuleName: string;
+                                FunctionName: string; NumArgs: string);
+begin
+end;
+
+procedure WriteFunction(var f: Text; ModuleName: string;
+                                FunctionName: string; NumVars: string);
+begin
 end;
 
 procedure CloseWriter(var f: Text);

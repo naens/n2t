@@ -7,7 +7,7 @@ uses
 
 type
   TCommand = (cArithm, cPush, cPop, cLabel, cGoto,
-                 cIf, cReturn, cCall, cFunction);
+                 cIfGoto, cReturn, cCall, cFunction);
 
 function StringToCommand(s: string): TCommand;
 
@@ -29,6 +29,7 @@ begin
     'pop': StringToCommand := cPop;
     'label': StringToCommand := cLabel;
     'goto': StringToCommand := cGoto;
+    'if-goto': StringToCommand := cIfGoto;
     'return': StringToCommand := cReturn;
     'call': StringToCommand := cCall;
     'function': StringToCommand := cFunction
@@ -45,7 +46,7 @@ begin
     cPop: CommandToString := 'pop';
     cLabel: CommandToString := 'label';
     cGoto: CommandToString := 'goto';
-    cIf: CommandToString := 'if';
+    cIfGoto: CommandToString := 'if-goto';
     cReturn: CommandToString := 'return';
     cCall: CommandToString := 'call';
     cFunction: CommandToString := 'function'
@@ -60,8 +61,8 @@ end;
 
 function IsLegalChar(c: char): boolean;
 begin
-  IsLegalChar := (ord(c) >= ord('a')) and (ord(c) <= ord('z'))
-                  or (ord(c) >= ord('0')) and (ord(c) <= ord('9'))
+  IsLegalChar := (ord(c) > 32) and (ord(c) < 127 )
+                 and (ord(c) <> ord('/'));
 end;
 
 function IsCommand(s: string): boolean;
@@ -75,7 +76,7 @@ var
   len: integer;
 begin
   len := length(Source);
-  i := FromPos;
+  i := FromPos;    
   while (i <= len) and IsLegalChar(Source[i]) do
     i := i + 1;
   Dest := copy(Source, FromPos, i - FromPos);
@@ -83,6 +84,16 @@ begin
   while (i <= len) and not IsLegalChar(Source[i]) do
     i := i + 1;
   ReadWord := i
+end;
+
+function SkipSpace(var s: string): integer;
+var
+  i: integer;
+begin
+  i := 1;
+  while s[i] = ' ' do
+    i := i + 1;
+  SkipSpace := i;
 end;
 
 function Advance(var f: Text; var cmd: TCommand;
@@ -99,7 +110,8 @@ begin
     if IsCommand(s) then
       CommandFound := true;
   end;
-  i := ReadWord(s, 1, CommandString);
+  i := SkipSpace(s);
+  i := ReadWord(s, i, CommandString);
   cmd := StringToCommand(CommandString);
   if cmd = cArithm then
     i := 1;
