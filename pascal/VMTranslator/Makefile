@@ -8,6 +8,7 @@ CodeWriter: Parser
 
 VMTranslator: Parser CodeWriter
 	fpc VMTranslator.pas
+	rm *.o *.ppu
 
 clean:
-	rm -f VMTranslator *.o
+	rm -f VMTranslator *.o *.ppu
