@@ -13,43 +13,54 @@ var
   Command: TCommand;
   arg1: string;
   arg2: string;
-  ModuleName: string;
+  Temp, Name, FunctionName, ModuleName: string;
+  WorkingDir: string;
   FindPath: string;
   Info: TSearchRec;
   n: integer;
   IsDir: boolean;
 begin
-  WriteLn('VMTranslator');
   if ParamCount = 1 then
   begin
     Argument := ParamStr(1);
     IsDir := DirectoryExists(Argument);
     if IsDir then
     begin
+      while Argument[length(Argument)] = '/' do
+        Argument := copy(Argument, 1, length(Argument) - 1);
       FindPath := '*.vm';
-      OutputFileName := Argument + '.asm';
+      Name := ExtractFileName(Argument);
+      OutputFileName := ExpandFileName(Name + '.asm');
+      WorkingDir := Argument;
     end
     else
     begin
       FindPath := Argument;
-      OutputFileName := ChangeFileExt(ParamStr(1), '.asm')
+      Temp := ExtractFileName(Argument);
+      Name := copy(Temp, 1, LastDelimiter('.', Temp) - 1);
+      OutputFileName := ExpandFileName(ChangeFileExt(Name, '.asm'));
+      WorkingDir := ExtractFileDir(Argument);
     end;
+    
+    writeln('Name=', Name);
+    SetCurrentDir(WorkingDir);
+    writeln('WorkingDir=', WorkingDir);
+    writeln('OutputFileName=', OutputFileName);
 
     if FindFirst(FindPath, faAnyFile, Info) = 0 then
     begin
-      WriteLn('Out File Name: ', OutputFileName);
       InitWriter(OutputFileName, OutputFile);
+      if IsDir then
+        WriteInit(OutputFile, 0);
       repeat
         InputFileName := Info.Name;
+        writeln('InputFileName=', InputFileName);
 
         ModuleName := copy(InputFileName, 1,
                            LastDelimiter('.', InputFileName) - 1);
 
-        if IsDir then
-          WriteInit(OutputFile, ModuleName);
-
+        n := 1;
         InitParser(InputFileName, InputFile);
-        n := 0;
         while Advance(InputFIle, Command, arg1, arg2) do
         begin
 //          writeln(Command, ' ', arg1);
@@ -57,22 +68,23 @@ begin
             cArithm: WriteArithm(OutputFile, n, ModuleName, arg1);
             cPush: WritePush(OutputFile, ModuleName, arg1, arg2);
             cPop: WritePop(OutputFile, ModuleName, arg1, arg2);
-            cGoto: WriteGoto(OutputFile, ModuleName, arg1);
-            cLabel: WriteLabel(OutputFile, ModuleName, arg1);
-            cIfGoto: WriteIfGoto(OutputFile, ModuleName, arg1);
-            cReturn: WriteReturn(OutputFile, ModuleName);
-            cCall: WriteCall(OutputFile, ModuleName, arg1, StrToInt(arg2));
-            cFunction:
+            cGoto: WriteGoto(OutputFile, FunctionName, arg1);
+            cLabel: WriteLabel(OutputFile, FunctionName, arg1);
+            cIfGoto: WriteIfGoto(OutputFile, FunctionName, arg1);
+            cReturn: WriteReturn(OutputFile, Name);
+            cCall: WriteCall(OutputFile, n, arg1, StrToInt(arg2));
+            cFunction: 
             begin
-              WriteFunction(OutputFile, ModuleName, arg1, StrToInt(arg2))
+              FunctionName := arg1;
+              WriteFunction(OutputFile, arg1, StrToInt(arg2))
             end
           end;
+          n := n + 1
         end;
-        WriteRestore(OutputFile, ModuleName);
         CloseParser(InputFile);
-        n := n + 1
       until FindNext(Info) <> 0;
       FindClose(Info);
+      WriteRestore(OutputFile, Name);
       CloseWriter(OutputFile)
     end
   end

@@ -7,7 +7,7 @@ uses
 
 procedure InitWriter(FileName: string; var f: Text);
 
-procedure WriteInit(var f: Text; ModuleName: string);
+procedure WriteInit(var f: Text; n: integer);
 
 procedure WriteArithm(var f: Text; n: integer;
                       ModuleName: string; Operation: string);
@@ -18,21 +18,20 @@ procedure WritePush(var f: Text; ModuleName: string;
 procedure WritePop(var f: Text; ModuleName: string;
                                 Segment: string; Index: string);
 
-procedure WriteGoto(var f: Text; ModuleName: string; LabelName: string);
+procedure WriteGoto(var f: Text; FunctionName: string; LabelName: string);
 
-procedure WriteLabel(var f: Text; ModuleName: string; LabelName: string);
+procedure WriteLabel(var f: Text; FunctionName: string; LabelName: string);
 
-procedure WriteIfGoto(var f: Text; ModuleName: string; LabelName: string);
+procedure WriteIfGoto(var f: Text; FunctionName: string; LabelName: string);
 
-procedure WriteReturn(var f: Text; ModuleName: string);
+procedure WriteReturn(var f: Text; Name: string);
 
-procedure WriteCall(var f: Text; ModuleName: string;
+procedure WriteCall(var f: Text; n:integer;
                                 FunctionName: string; NumArgs: integer);
 
-procedure WriteRestore(var f: Text; ModuleName: string);
+procedure WriteRestore(var f: Text; Name: string);
 
-procedure WriteFunction(var f: Text; ModuleName: string;
-                                FunctionName: string; NumVars: integer);
+procedure WriteFunction(var f: Text; FunctionName: string; NumVars: integer);
 
 procedure CloseWriter(var f: Text);
 
@@ -44,8 +43,15 @@ begin
   rewrite(f);
 end;
 
-procedure WriteInit(var f: Text; ModuleName: string);
+procedure WriteInit(var f: Text; n: integer);
 begin
+  writeln(f, '// init');
+  writeln(f, '@256');
+  writeln(f, 'D=A');
+  writeln(f, '@SP');
+  writeln(f, 'M=D');
+  writeln(f);
+  WriteCall(f, n, 'Sys.init', 0);
 end;
 
 procedure WriteUnary(var f: Text; Operation: string);
@@ -157,16 +163,21 @@ begin
   end;
 end;
 
+procedure WritePushExpr(var f: Text; Expr: string);
+begin
+  writeln(f, '@SP');
+  writeln(f, 'A=M');
+  writeln(f, 'M=', Expr);
+  writeln(f, '@SP');
+  writeln(f, 'M=M+1');
+end;
+
 procedure WritePush(var f: Text; ModuleName: string;
                                  Segment: string; Index: string);
 begin
   writeln(f, '// push ', Segment, ' ', Index);
   WriteVD(f, ModuleName, Segment, Index);
-  writeln(f, '@SP');
-  writeln(f, 'A=M');
-  writeln(f, 'M=D');
-  writeln(f, '@SP');
-  writeln(f, 'M=M+1');
+  WritePushExpr(f, 'D');
   writeln(f)
 end;
 
@@ -227,61 +238,105 @@ begin
   writeln(f);
 end;
 
-procedure WriteGoto(var f: Text; ModuleName: string; LabelName: string);
+procedure WriteGoto(var f: Text; FunctionName: string; LabelName: string);
 begin
   writeln(f, '// goto ', LabelName);
-  writeln(f, '@', Uppercase(ModuleName), '_', Uppercase(LabelName));
+  writeln(f, '@', FunctionName, '$', LabelName);
   writeln(f, '0;JMP');
   writeln(f);
 end;
 
-procedure WriteLabel(var f: Text; ModuleName: string; LabelName: string);
+procedure WriteLabel(var f: Text; FunctionName: string; LabelName: string);
 begin
   writeln(f, '// label ', LabelName);
-  writeln(f, '(', Uppercase(ModuleName), '_', Uppercase(LabelName), ')');
+  writeln(f, '(', FunctionName, '$', LabelName, ')');
   writeln(f);
 end;
 
-procedure WriteIfGoto(var f: Text; ModuleName: string; LabelName: string);
+procedure WriteIfGoto(var f: Text; FunctionName: string; LabelName: string);
 begin
   writeln(f, '// if-goto ', LabelName);
   writeln(f, '@SP');
   writeln(f, 'M=M-1');
   writeln(f, 'A=M');
   writeln(f, 'D=M');
-  writeln(f, '@', Uppercase(ModuleName), '_', Uppercase(LabelName));
+  writeln(f, '@', FunctionName, '$', LabelName);
   writeln(f, 'D;JNE');
   writeln(f);
 end;
 
-procedure WriteReturn(var f: Text; ModuleName: string);
+procedure WriteReturn(var f: Text; Name: string);
 begin
-  writeln(f, '// return to ', ModuleName, '$ret');
-  writeln(f, '@', ModuleName, '$ret');
+  writeln(f, '// return to ', Name, '$restore');
+  writeln(f, '@', Name, '$restore');
   writeln(f, '0;JMP');
   writeln(f);
 end;
 
-procedure WriteCall(var f: Text; ModuleName: string;
-                                FunctionName: string; NumArgs: integer);
+procedure WriteCall(var f: Text; n:integer; 
+                    FunctionName: string; NumArgs: integer);
+var
+  ReturnLabel: string;
 begin
+  writeln(f, '// call ', FunctionName, ' ', NumArgs);
+  ReturnLabel := FunctionName + '$ret.' + IntToStr(n);
+
+  {push return address}
+  writeln(f, '@', ReturnLabel); 
+  writeln(f, 'D=A');
+  WritePushExpr(f, 'D');
+
+  {push LCL}
+  writeln(f, '@LCL');
+  writeln(f, 'D=M');
+  WritePushExpr(f, 'D');
+
+  {push ARG}
+  writeln(f, '@ARG');
+  writeln(f, 'D=M');
+  WritePushExpr(f, 'D');
+
+  {push THIS}
+  writeln(f, '@THIS');
+  writeln(f, 'D=M');
+  WritePushExpr(f, 'D');
+
+  {push THAT}
+  writeln(f, '@THAT');
+  writeln(f, 'D=M');
+  WritePushExpr(f, 'D');
+
+  {LCL=SP}
+  writeln(f, '@SP');
+  writeln(f, 'D=M');
+  writeln(f, '@LCL');
+  writeln(f, 'M=D');
+
+  {ARG=SP-5-NumArgs}
+  writeln(f, '@5');
+  writeln(f, 'D=D-A');		{D=[LCL]-5}
+  writeln(f, '@', NumArgs);
+  writeln(f, 'D=D-A');
+  writeln(f, '@ARG');
+  writeln(f, 'M=D');
+
+  {goto function}
+  writeln(f, '@', FunctionName);
+  writeln(f, '0;JMP');
+
+  writeln(f, '(', ReturnLabel, ')');
+
+  writeln(f);
 end;
 
-procedure WriteRestore(var f: Text; ModuleName: string);
+procedure WriteRestore(var f: Text; Name: string);
 begin
-  writeln(f, '(', ModuleName, '$ret)');
+  writeln(f, '(', Name, '$restore)');
 
-  writeln(f, '@SP');
-  writeln(f, 'A=M-1');
+  writeln(f, '@ARG');		{save ARG}
   writeln(f, 'D=M');
-  writeln(f, '@ARG');
-  writeln(f, 'A=M');
-  writeln(f, 'M=D');		{[[ARG]]=[[SP]-1]}
-
-  writeln(f, '@ARG');
-  writeln(f, 'D=M+1');
-  writeln(f, '@SP');
-  writeln(f, 'M=D');    {[SP]=[ARG]+1}
+  writeln(f, '@R14');
+  writeln(f, 'M=D');
 
   writeln(f, '@LCL');
   writeln(f, 'D=M-1');  {D=[LCL]-1}
@@ -312,10 +367,24 @@ begin
   writeln(f, '@LCL');
   writeln(f, 'M=D');
 
+  writeln(f, '@R13');		{save return address}
+  writeln(f, 'A=M-1');
+  writeln(f, 'D=M');		{D=[[LCL]-5]}
   writeln(f, '@R13');
-  writeln(f, 'D=M-1');  {D=[LCL]-5}
-  writeln(f, 'AM=D');		{[R13]=[LCL]-5}
-  writeln(f, 'D=M');    {D=[[LCL]-5]}
+  writeln(f, 'M=D');		{[R13]=[[LCL]-15]}
+
+  writeln(f, '@SP');		{set return value}
+  writeln(f, 'A=M-1');
+  writeln(f, 'D=M');
+  writeln(f, '@R14');
+  writeln(f, 'A=M');
+  writeln(f, 'M=D');		{[[old-ARG]]=[[SP]-1]}
+
+  writeln(f, '@R14');   {set [SP] after return value}
+  writeln(f, 'D=M+1');
+  writeln(f, '@SP');
+  writeln(f, 'M=D');    {[SP]=[old-ARG]+1}
+
   writeln(f, '@R13');
   writeln(f, 'A=M');
   writeln(f, '0;JMP');
@@ -323,22 +392,16 @@ begin
 end;
 
 
-procedure WriteFunction(var f: Text; ModuleName: string;
+procedure WriteFunction(var f: Text; 
                                 FunctionName: string; NumVars: integer);
 var
   i: integer;
 begin
-  writeln(f, '// function ', ModuleName, '.', FunctionName, ' ', NumVars);
-  writeln(f, '(', ModuleName, '.', FunctionName, ')');
+  writeln(f, '// function ', FunctionName, ' ', NumVars);
+  writeln(f, '(', FunctionName, ')');
 
   for i := 1 to NumVars do
-  begin
-    writeln(f, '@SP');    {A=SP}
-    writeln(f, 'A=M');    {A=[SP]}
-    writeln(f, 'M=0');		{[[SP]]=0}
-    writeln(f, '@SP');
-    writeln(f, 'M=M+1')
-  end;
+    WritePushExpr(f, '0');
 
   writeln(f);
 end;
