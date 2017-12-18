@@ -1,0 +1,198 @@
+class Keywords {
+
+    static String strDeclare;
+    static String strDo;
+    static String strWhile;
+    static String strIf;
+    static String strThen;
+    static String strElse;
+    static String strEnd;
+    static String strBy;
+    static String strTo;
+    static String strAnd;
+    static String strOr;
+    static String strNot;
+    static String strMod;
+    static String strInteger;
+    static String strString;
+    static String strBoolean;
+    static String strIllegal;
+
+    function boolean fillItem(String str, Item item) {
+        if (Tools.stringEquals(str, strDeclare)) {
+            do item.setType(Const.KW_DECLARE());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strDo)) {
+            do item.setType(Const.KW_DO());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strWhile)) {
+            do item.setType(Const.KW_WHILE());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strIf)) {
+            do item.setType(Const.KW_IF());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strThen)) {
+            do item.setType(Const.KW_THEN());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strElse)) {
+            do item.setType(Const.KW_ELSE());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strEnd)) {
+            do item.setType(Const.KW_END());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strBy)) {
+            do item.setType(Const.KW_BY());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strTo)) {
+            do item.setType(Const.KW_TO());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strAnd)) {
+            do item.setType(Const.KW_AND());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strOr)) {
+            do item.setType(Const.KW_OR());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strNot)) {
+            do item.setType(Const.KW_NOT());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strMod)) {
+            do item.setType(Const.KW_MOD());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strInteger)) {
+            do item.setType(Const.RW_INTEGER());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strString)) {
+            do item.setType(Const.RW_STRING());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strBoolean)) {
+            do item.setType(Const.RW_BOOLEAN());
+            return true;
+        }
+        return false;
+    }
+
+    function String getKeywordString(integer keyword) {
+        if (keyword = Const.KW_DECLARE()) {
+            return strDeclare;
+        }
+        if (keyword = Const.KW_DO()) {
+            return strDo;
+        }
+        if (keyword = Const.KW_WHILE()) {
+            return strWhile;
+        }
+        if (keyword = Const.KW_IF()) {
+            return strIf;
+        }
+        if (keyword = Const.KW_THEN()) {
+            return strThen;
+        }
+        if (keyword = Const.KW_ELSE()) {
+            return strElse;
+        }
+        if (keyword = Const.KW_END()) {
+            return strEnd;
+        }
+        if (keyword = Const.KW_BY()) {
+            return strBy;
+        }
+        if (keyword = Const.KW_TO()) {
+            return strTo;
+        }
+        if (keyword = Const.KW_AND()) {
+            return strAnd;
+        }
+        if (keyword = Const.KW_OR()) {
+            return strOr;
+        }
+        if (keyword = Const.KW_NOT()) {
+            return strNot;
+        }
+        if (keyword = Const.KW_MOD()) {
+            return strMod;
+        }
+        if (keyword = Const.RW_INTEGER()) {
+            return strInteger;
+        }
+        if (keyword = Const.RW_STRING()) {
+            return strString;
+        }
+        if (keyword = Const.RW_BOOLEAN()) {
+            return strBoolean;
+        }
+        return strIllegal;
+    }
+
+    function void init() {
+        let strDeclare = "declare";
+        let strDo = "do";
+        let strWhile = "while";
+        let strIf = "if";
+        let strThen = "then";
+        let strElse = "else";
+        let strEnd = "end";
+        let strBy = "by";
+        let strTo = "to";
+        let strAnd = "and";
+        let strOr = "or";
+        let strNot = "not";
+        let strMod = "mod";
+        let strInteger = "integer";
+        let strString = "string";
+        let strBoolean = "boolean";
+        let strIllegal= "illegal";
+        return;
+    }
+
+    function void finalize() {
+        do strDeclare.dispose();
+        do strDo.dispose();
+        do strWhile.dispose();
+        do strIf.dispose();
+        do strThen.dispose();
+        do strElse.dispose();
+        do strEnd.dispose();
+        do strBy.dispose();
+        do strTo.dispose();
+        do strAnd.dispose();
+        do strOr.dispose();
+        do strNot.dispose();
+        do strMod.dispose();
+        do strInteger.dispose();
+        do strString.dispose();
+        do strBoolean.dispose();
+        do strIllegal.dispose();
+        return;
+    }
+    
+}
