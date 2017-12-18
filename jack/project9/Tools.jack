@@ -1,0 +1,34 @@
+class Tools {
+
+    function void println(String str) {
+        do Output.printString(str);
+        do Output.println();
+        return;
+    }
+
+    function void newline() {
+        do Output.println();
+        return;
+    }
+
+    function void print(String str) {
+        do Output.printString(str);
+        return;
+    }
+
+    function boolean stringEquals(String str1, String str2) {
+        var integer i;
+        if (~(str1.length() = str2.length())) {
+            return false;
+        }
+        let i = 0;
+        while (i < str1.length()) {
+            if (~(str1.charAt(i) = str2.charAt(i))) {
+                return false;
+            }
+            let i = i + 1;
+        }
+        return true;
+    }
+
+}

@@ -1,0 +1,10 @@
+class Main {
+    function void main() {
+        var Repl repl;
+        let repl = Repl.new();
+        do repl.run();
+        do repl.dispose();
+        return;
+    }
+}
+    

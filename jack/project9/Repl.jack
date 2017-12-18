@@ -1,0 +1,43 @@
+class Repl {
+
+    field String prompt;
+
+    constructor Repl new() {
+        let prompt = "REPL>";
+        do Tools.println("You are in a REPL!");
+        do Tools.newline();
+        return this;
+    }
+
+    method void run() {
+        var String line;
+        let line = Keyboard.readLine(prompt);
+        while (~Tools.stringEquals(line, "QUIT")) {
+            do Tools.print("You entered: ");
+            do Tools.println(line);
+            do Tools.newline();
+            /* TODO: QUIT/EXIT = command to be interpreted */
+            /* TODO
+             * If statement, evaluate and print.
+             * If variable declaration, add to environment.
+             * If function declaration, accumulate declaration until an
+             * "END" input, and then evaluate and add to the environment.
+             * Functions can be nested.
+             * Similar with blocks and conds.
+             */
+            do line.dispose();
+            let line = Keyboard.readLine(prompt);
+        }
+        do line.dispose();
+        do Tools.newline();
+        return;
+    }
+
+    method void dispose() {
+        do prompt.dispose();
+        do Memory.deAlloc(this);
+        do Tools.println("REPL Terminated.");
+        return;
+    }
+
+}
