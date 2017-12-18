@@ -1,0 +1,198 @@
+class Display {
+    static integer SCREEN_HEIGHT;
+    static integer SCREEN_WIDTH;
+    static integer SCREEN;
+    static integer CHAR_HEIGHT;
+    static integer CHAR_WIDTH;
+    static integer MAX_LINE;
+
+    field integer row;
+    field integer column;
+
+    constructor Display new() {
+        let SCREEN_HEIGHT = 23;
+        let SCREEN_WIDTH = 64;
+        let SCREEN = 16384;
+        let CHAR_HEIGHT = 11;
+        let CHAR_WIDTH = 8;
+        let MAX_LINE = SCREEN_WIDTH * SCREEN_HEIGHT;
+        let row = 0;
+        let column = 0;
+        return this;
+    }
+
+    method char read() {
+        var char c;
+        let c = Keyboard.keyPressed();
+        while (c = 0) {
+            do Sys.wait(10);
+            let c = Keyboard.keyPressed();
+        }
+        while (Keyboard.keyPressed() = c) {
+            do Sys.wait(10);
+        }
+        return c;
+    }
+
+    method void newline() {
+        do fillChar(row, column, false);
+        let column = 0;
+        if (row < SCREEN_HEIGHT - 1) {
+            let row = row + 1;
+        } else {
+            do scrollUp();
+        }
+        do Output.moveCursor(row, column);
+        do fillChar(row, column, true);
+        return;
+    }
+
+    method String readln() {
+        var integer i;
+        var char c;
+        var String line;
+        let i = 0;
+        let c = read();
+        let line = String.new(MAX_LINE);
+        while ((i < MAX_LINE) & (~(c = 128))) {
+
+            if ((c = 129) & (i > 0)) {            /* if backspace */
+                do backspace();
+                do line.eraseLastChar();
+            } else {
+                let c = Tools.lcChar(c);
+                do printChar(c);
+                do line.appendChar(c);
+            }
+            let c = read();
+            let i = i + 1;
+        }
+        do newline();
+        return line;
+    }
+
+    method void printChar(char c) {
+        do Output.printChar(c);
+        if (column < (SCREEN_WIDTH - 1)) {
+            let column = column + 1;
+        } else {
+            let column = 0;   
+            if (row < (SCREEN_HEIGHT - 1)) {
+                let row = row + 1;
+            } else {
+                do scrollUp();
+            }
+        }
+        do Output.moveCursor(row, column);
+        do fillChar(row, column, true);
+        return;
+    }
+
+    method void printString(String str) {
+        var integer i;
+        var integer l;
+        let i = 0;
+        let l = str.length();
+        while (i < l) {
+            do Output.printChar(str.charAt(i));
+            if (column < (SCREEN_WIDTH - 1)) {
+                let column = column + 1;
+            } else {
+                let column = 0;   
+                if (row < (SCREEN_HEIGHT - 1)) {
+                    let row = row + 1;
+                } else {
+                    do scrollUp();
+                }
+            }
+            let i = i + 1;
+        }
+        do Output.moveCursor(row, column);
+        do fillChar(row, column, true);
+        return;
+    }
+
+    method void println(String str) {
+        do printString(str);
+        do newline();
+        return;
+    }
+
+
+    method void fillChar(integer row, integer column, boolean black) {
+        var integer i;
+        var integer charLineSize;
+        var integer step;
+        var integer n;
+        var integer value;
+        let step = (CHAR_WIDTH * SCREEN_WIDTH) / 16;
+        let charLineSize = step * CHAR_HEIGHT;
+        let i = (row * charLineSize) + ((column * CHAR_WIDTH) / 16);
+        let i = i + step;       /* because char is not drawn on first pixel */
+        let n = 1;
+        while (n < CHAR_HEIGHT) {
+            let value = Memory.peek(SCREEN + i);
+            if (black) {
+                if ((column & 1) = 0) {
+                    let value = 255 | value;
+                } else {
+                    let value = (255 * 256) | value;
+                }
+            } else {
+                if ((column & 1) = 0) {
+                    let value = (255 * 256) & value;
+                } else {
+                    let value = 255 & value;
+                }
+            }
+            do Memory.poke(SCREEN + i, value);
+            let i = i + step;
+            let n = n + 1;
+        }
+        return;
+    }
+
+    method void backspace() {
+        do fillChar(row, column, false);
+        if ((column = 0) & (row = 0)) {
+            return;
+        }
+        if (column > 0) {
+            let column = column - 1;
+        } else {
+            let column = SCREEN_WIDTH - 1;
+            let row = row - 1;
+        }
+        do Output.moveCursor(row, column);
+        do fillChar(row, column, true);
+        return;
+    }
+
+    method void scrollUp() {
+        var integer i;
+        var integer j;
+        var integer n;
+        var integer lineSize;
+        let lineSize = (CHAR_WIDTH * SCREEN_WIDTH) / 16;
+        let i = SCREEN;
+        let j = i + lineSize;
+        let n = 0;
+        while (n < (CHAR_HEIGHT * (SCREEN_HEIGHT - 1))) {
+            do Memory.poke(i, Memory.peek(j));
+            let i = j;
+            let j = j + lineSize;
+            let n = n + 1;
+        }
+        let n = 0;
+        while (n < CHAR_HEIGHT) {
+            do Memory.poke(i, 0);
+            let i = i + lineSize;
+            let n = n + 1;
+        }
+        if (row > 0) {
+            let row = row -1;
+        }
+        return;
+    }
+
+}
