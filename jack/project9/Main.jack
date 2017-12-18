@@ -1,6 +1,15 @@
 class Main {
     function void main() {
+/*        var Display display;
+        var String tmp;
+        let display = Display.new();
+        let tmp = display.readln();
+        do display.printString("the string is: ");
+        do display.println(tmp);
+        do display.println("END");
+*/
         var Repl repl;
+        do Const.init();
         let repl = Repl.new();
         do repl.run();
         do repl.dispose();

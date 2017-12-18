@@ -2,20 +2,25 @@ class Repl {
 
     field String prompt;
 
+    field Display display;
+
     constructor Repl new() {
         let prompt = "REPL>";
-        do Tools.println("You are in a REPL!");
-        do Tools.newline();
+        let display = Display.new();
+        do display.newline();
+        do display.println("You are in a REPL!");
+        do display.newline();
         return this;
     }
 
     method void run() {
         var String line;
-        let line = Keyboard.readLine(prompt);
-        while (~Tools.stringEquals(line, "QUIT")) {
-            do Tools.print("You entered: ");
-            do Tools.println(line);
-            do Tools.newline();
+        do display.printString(prompt);
+        let line = display.readln();
+        while (~Tools.stringEquals(line, "quit")) {
+            do display.printString("You entered: ");
+            do display.println(line);
+            do display.newline();
             /* TODO: QUIT/EXIT = command to be interpreted */
             /* TODO
              * If statement, evaluate and print.
@@ -26,17 +31,19 @@ class Repl {
              * Similar with blocks and conds.
              */
             do line.dispose();
-            let line = Keyboard.readLine(prompt);
+            do display.printString(prompt);
+            let line = display.readln();
         }
         do line.dispose();
-        do Tools.newline();
+        do display.newline();
         return;
     }
 
     method void dispose() {
         do prompt.dispose();
         do Memory.deAlloc(this);
-        do Tools.println("REPL Terminated.");
+        do display.printString("REPL Terminated.");
+        do display.dispose();
         return;
     }
 

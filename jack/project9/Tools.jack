@@ -1,21 +1,5 @@
 class Tools {
 
-    function void println(String str) {
-        do Output.printString(str);
-        do Output.println();
-        return;
-    }
-
-    function void newline() {
-        do Output.println();
-        return;
-    }
-
-    function void print(String str) {
-        do Output.printString(str);
-        return;
-    }
-
     function boolean stringEquals(String str1, String str2) {
         var integer i;
         if (~(str1.length() = str2.length())) {
