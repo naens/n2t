@@ -31,4 +31,25 @@ class Tools {
         return true;
     }
 
+    function char lcChar(char c) {
+        var char c;
+        if ((c > 64) & (c < 91)) {
+            return c + 32;
+        } else {
+            return c;
+        }
+    }
+
+    function void lowercase(String str) {
+        var integer i;
+        var char c;
+        let i = 0;
+        while (i < str.length()) {
+            let c = str.charAt(i);
+            do str.setCharAt(i, Tools.lcChar(c));
+            let i = i + 1;
+        }
+        return;
+    }
+
 }

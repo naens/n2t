@@ -1,0 +1,60 @@
+class Const {
+    static integer KW_DECLARE;
+    static integer KW_DO;
+    static integer KW_WHILE;
+    static integer KW_IF;
+    static integer KW_THEN;
+    static integer KW_ELSE;
+    static integer KW_END;
+    static integer KW_BY;
+    static integer KW_TO;
+    static integer KW_AND;
+    static integer KW_OR;
+    static integer KW_NOT;
+    static integer KW_MOD;
+    static integer T_INTEGER;
+    static integer T_STRING;
+    static integer T_BOOLEAN;
+    static integer CH_PAROP;
+    static integer CH_PARCL;
+    static integer CH_COMMA;
+    static integer CH_PLUS;
+    static integer CH_MINUS;
+    static integer CH_SLASH;
+    static integer CH_STAR;
+    static integer CH_GREATER;
+    static integer CH_LOWER;
+    static integer CH_EQUALS;
+    static integer ILLEGAL;
+
+    function void init() {
+        let KW_DECLARE = 0;
+        let KW_DO = 1;
+        let KW_WHILE = 2;
+        let KW_IF = 3;
+        let KW_THEN = 4;
+        let KW_ELSE = 5;
+        let KW_END = 5;
+        let KW_BY = 6;
+        let KW_TO = 7;
+        let KW_AND = 8;
+        let KW_OR = 9;
+        let KW_NOT = 10;
+        let KW_MOD = 11;
+        let T_INTEGER = 20;
+        let T_STRING = 30;
+        let T_BOOLEAN = 40;
+        let CH_PAROP = 100;
+        let CH_PARCL = 200;
+        let CH_COMMA = 300;
+        let CH_PLUS = 400;
+        let CH_MINUS = 500;
+        let CH_SLASH = 600;
+        let CH_STAR = 700;
+        let CH_GREATER = 800;
+        let CH_LOWER = 900;
+        let CH_EQUALS = 1000;
+        let ILLEGAL = -1;
+        return;
+    }
+}
