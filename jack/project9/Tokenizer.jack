@@ -1,0 +1,16 @@
+class Tokenizer {
+
+    field String line;
+    field integer pos;
+
+    method Tokenizer new(String s) {
+        let line = s;
+        let pos = 0;
+        return this;
+    }
+
+    method integer nextToken() {
+        return -1;
+    }
+
+}
