@@ -121,13 +121,14 @@ class Display {
         var integer step;
         var integer n;
         var integer value;
+        var Array RAM;
         let step = (CHAR_WIDTH * SCREEN_WIDTH) / 16;
         let charLineSize = step * CHAR_HEIGHT;
         let i = (row * charLineSize) + ((column * CHAR_WIDTH) / 16);
         let i = i + step;       /* because char is not drawn on first pixel */
         let n = 1;
         while (n < CHAR_HEIGHT) {
-            let value = Memory.peek(SCREEN + i);
+            let value = RAM[SCREEN + i];
             if (black) {
                 if ((column & 1) = 0) {
                     let value = 255 | value;
@@ -141,7 +142,7 @@ class Display {
                     let value = 255 & value;
                 }
             }
-            do Memory.poke(SCREEN + i, value);
+            let RAM[SCREEN + i] = value;
             let i = i + step;
             let n = n + 1;
         }
@@ -169,17 +170,18 @@ class Display {
         var integer j;
         var integer charLineSize;
         var integer tmp;
+        var Array RAM;
         let charLineSize = ((CHAR_WIDTH * SCREEN_WIDTH) * CHAR_HEIGHT) / 16;
         let i = SCREEN;
         let j = SCREEN + charLineSize;
         let tmp = SCREEN + (charLineSize * (SCREEN_HEIGHT - 1));
         while (i < tmp) {
-            do Memory.poke(i, Memory.peek(j));
+            let RAM[i] = RAM[j];
             let i = i + 1;
             let j = j + 1;
         }
         while (i < j) {
-            do Memory.poke(i, 0);
+            let RAM[i] = 0;
             let i = i + 1;
         }
 
