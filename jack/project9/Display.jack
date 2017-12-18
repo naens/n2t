@@ -1,21 +1,9 @@
 class Display {
-    static integer SCREEN_HEIGHT;
-    static integer SCREEN_WIDTH;
-    static integer SCREEN;
-    static integer CHAR_HEIGHT;
-    static integer CHAR_WIDTH;
-    static integer MAX_LINE;
 
     field integer row;
     field integer column;
 
     constructor Display new() {
-        let SCREEN_HEIGHT = 23;
-        let SCREEN_WIDTH = 64;
-        let SCREEN = 16384;
-        let CHAR_HEIGHT = 11;
-        let CHAR_WIDTH = 8;
-        let MAX_LINE = SCREEN_WIDTH * SCREEN_HEIGHT;
         let row = 0;
         let column = 0;
         return this;
@@ -37,7 +25,7 @@ class Display {
     method void newline() {
         do fillChar(row, column, false);
         let column = 0;
-        if (row < (SCREEN_HEIGHT - 1)) {
+        if (row < (Const.SCREEN_HEIGHT() - 1)) {
             let row = row + 1;
         } else {
             do scrollUp();
@@ -53,8 +41,8 @@ class Display {
         var String line;
         let i = 0;
         let c = read();
-        let line = String.new(MAX_LINE);
-        while ((i < MAX_LINE) & (~(c = 128))) {
+        let line = String.new(Const.MAX_LINE());
+        while ((i < Const.MAX_LINE()) & (~(c = 128))) {
             if ((c = 129) & (i > 0)) {            /* if backspace */
                 do backspace();
                 do line.eraseLastChar();
@@ -71,17 +59,18 @@ class Display {
     }
 
     method void prch(char c) {
-        if (column < (SCREEN_WIDTH - 1)) {
+        if (column < (Const.SCREEN_WIDTH() - 1)) {
             do Output.printChar(c);
             let column = column + 1;
         } else {
             let column = 0;   
-            if (row < (SCREEN_HEIGHT - 1)) {
+            if (row < (Const.SCREEN_HEIGHT() - 1)) {
                 do Output.printChar(c);
                 let row = row + 1;
             } else {
                 do scrollUp();
-                do Output.moveCursor(SCREEN_HEIGHT - 2, SCREEN_WIDTH - 1);
+                do Output.moveCursor(Const.SCREEN_HEIGHT() - 2,
+                 Const.SCREEN_WIDTH() - 1);
                 do Output.printChar(c);
             }
         }
@@ -135,13 +124,13 @@ class Display {
         var integer n;
         var integer value;
         var Array RAM;
-        let step = (CHAR_WIDTH * SCREEN_WIDTH) / 16;
-        let charLineSize = step * CHAR_HEIGHT;
-        let i = (row * charLineSize) + ((column * CHAR_WIDTH) / 16);
+        let step = (Const.CHAR_WIDTH() * Const.SCREEN_WIDTH()) / 16;
+        let charLineSize = step * Const.CHAR_HEIGHT();
+        let i = (row * charLineSize) + ((column * Const.CHAR_WIDTH()) / 16);
         let i = i + step;       /* because char is not drawn on first pixel */
         let n = 1;
-        while (n < CHAR_HEIGHT) {
-            let value = RAM[SCREEN + i];
+        while (n < Const.CHAR_HEIGHT()) {
+            let value = RAM[Const.SCREEN() + i];
             if (black) {
                 if ((column & 1) = 0) {
                     let value = 255 | value;
@@ -155,7 +144,7 @@ class Display {
                     let value = 255 & value;
                 }
             }
-            let RAM[SCREEN + i] = value;
+            let RAM[Const.SCREEN() + i] = value;
             let i = i + step;
             let n = n + 1;
         }
@@ -170,7 +159,7 @@ class Display {
         if (column > 0) {
             let column = column - 1;
         } else {
-            let column = SCREEN_WIDTH - 1;
+            let column = Const.SCREEN_WIDTH() - 1;
             let row = row - 1;
         }
         do Output.moveCursor(row, column);
@@ -184,10 +173,11 @@ class Display {
         var integer charLineSize;
         var integer tmp;
         var Array RAM;
-        let charLineSize = ((CHAR_WIDTH * SCREEN_WIDTH) * CHAR_HEIGHT) / 16;
-        let i = SCREEN;
-        let j = SCREEN + charLineSize;
-        let tmp = SCREEN + (charLineSize * (SCREEN_HEIGHT - 1));
+        let charLineSize = ((Const.CHAR_WIDTH() * Const.SCREEN_WIDTH()) *
+        Const.CHAR_HEIGHT()) / 16;
+        let i = Const.SCREEN();
+        let j = Const.SCREEN() + charLineSize;
+        let tmp = Const.SCREEN() + (charLineSize * (Const.SCREEN_HEIGHT() - 1));
         while (i < tmp) {
             let RAM[i] = RAM[j];
             let i = i + 1;

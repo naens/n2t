@@ -9,8 +9,125 @@ class Tokenizer {
         return this;
     }
 
-    method integer nextToken() {
-        return -1;
+    method boolean isIdentChar(char c) {
+        if ((c > 97) & (c < 173)) {
+            return true;
+        }
+        if (c = 36) {
+            return true;
+        }
+        if ((c > 64) & (c < 91)) {
+            return true;
+        }
+        return false;
+    }
+
+    method Item nextToken() {
+        var Item item;
+        var char c;
+        var String str;
+
+        /* skip spaces */
+        while ((pos < line.length()) &
+          ((line.charAt(pos) = Const.CH_SPACE())
+             | (line.charAt(pos) = Const.CH_TAB()))) {
+            let pos = pos + 1;
+        }
+        if (pos = line.length()) {
+            return 0;
+        }
+
+        /* ignore comments */
+        if ((pos < (line.length() - 1))
+          & ((line.charAt(pos) = Const.CH_SLASH())
+                 & (line.charAt(pos + 1) = Const.CH_SLASH()))) {
+            return 0;
+        }
+
+        /* check single character */
+        let c = line.charAt(pos);
+        if ((c = Const.CH_PAROP()) | (c = Const.CH_PARCL())
+            | (c = Const.CH_COMMA()) | (c = Const.CH_EQUALS())
+            | (c = Const.CH_PLUS()) | (c = Const.CH_MINUS())
+            | (c = Const.CH_SLASH()) | (c = Const.CH_STAR())
+            | (c = Const.CH_GREATER()) | (c = Const.CH_LOWER())) {
+            let item = Item.new();
+            do item.setTerminal(true);
+            do item.setType(c);
+            return item;
+        }
+
+        /* check for string literal */
+        if (c = Const.CH_QUOTE()) {
+            let str = String.new(Const.SCREEN_WIDTH() * Const.SCREEN_HEIGHT());
+            do str.appendChar(c);
+            let pos = pos + 1;
+            while ((pos < line.length())
+             & (~(line.charAt(pos) = Const.CH_QUOTE()))) {
+                let pos = pos + 1;
+                if ((pos < (line.length() - 1))
+                        & ((line.charAt(pos) = Const.CH_QUOTE())
+                            & (line.charAt(pos + 1) = Const.CH_QUOTE()))) {
+                    do str.appendChar(Const.CH_QUOTE());
+                    let pos = pos + 1;
+                } 
+            }
+            let item = Item.new();
+            do item.setTerminal(true);
+            do item.setType(Const.T_STRING());
+            do item.setStringValue(str);
+            return item;
+        }
+
+        /* check for numbers */
+        if ((c > 47) & (c < 58)) {
+            let str = String.new(Const.SCREEN_WIDTH());
+            while ((pos < line.length())
+                & ((line.charAt(pos) > 47) & (line.charAt(pos) < 58))) {
+                do str.appendChar(line.charAt(pos));
+                let pos = pos + 1;
+                if ((pos < line.length())
+                 & (line.charAt(pos) = Const.CH_DOLLAR())) {
+                    let pos = pos + 1;
+                }
+            }
+            let item = Item.new();
+            do item.setTerminal(true);
+            do item.setType(Const.T_INTEGER());
+            do item.setIntegerValue(str.intValue());
+            return item;
+        }
+
+        if (~isIdentChar(c)) {
+            return 0;
+        }
+
+        /* get string */
+        let str = String.new(Const.SCREEN_WIDTH());
+        do str.appendChar(c);
+        let pos = pos + 1;
+        while (isIdentChar(line.charAt(pos))) {
+            let pos = pos + 1;
+            if ((pos < line.length())
+                 & (line.charAt(pos) = Const.CH_DOLLAR())) {
+                let pos = pos + 1;
+            }
+        }
+
+        /* we will have an item either way */
+        let item = Item.new();
+        do item.setTerminal(true);
+
+        /* check for reserved words */
+        if (Keywords.fillItem(str, item)) {
+            do str.dispose();
+            return item;
+        }
+
+        /* it is an identifier */
+        do item.setType(Const.IDENT());
+        do item.setStringValue(str);
+        return item;
     }
 
 }

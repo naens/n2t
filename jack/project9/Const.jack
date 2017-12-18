@@ -1,60 +1,172 @@
 class Const {
-    static integer KW_DECLARE;
-    static integer KW_DO;
-    static integer KW_WHILE;
-    static integer KW_IF;
-    static integer KW_THEN;
-    static integer KW_ELSE;
-    static integer KW_END;
-    static integer KW_BY;
-    static integer KW_TO;
-    static integer KW_AND;
-    static integer KW_OR;
-    static integer KW_NOT;
-    static integer KW_MOD;
-    static integer T_INTEGER;
-    static integer T_STRING;
-    static integer T_BOOLEAN;
-    static integer CH_PAROP;
-    static integer CH_PARCL;
-    static integer CH_COMMA;
-    static integer CH_PLUS;
-    static integer CH_MINUS;
-    static integer CH_SLASH;
-    static integer CH_STAR;
-    static integer CH_GREATER;
-    static integer CH_LOWER;
-    static integer CH_EQUALS;
-    static integer ILLEGAL;
-
-    function void init() {
-        let KW_DECLARE = 0;
-        let KW_DO = 1;
-        let KW_WHILE = 2;
-        let KW_IF = 3;
-        let KW_THEN = 4;
-        let KW_ELSE = 5;
-        let KW_END = 5;
-        let KW_BY = 6;
-        let KW_TO = 7;
-        let KW_AND = 8;
-        let KW_OR = 9;
-        let KW_NOT = 10;
-        let KW_MOD = 11;
-        let T_INTEGER = 20;
-        let T_STRING = 30;
-        let T_BOOLEAN = 40;
-        let CH_PAROP = 100;
-        let CH_PARCL = 200;
-        let CH_COMMA = 300;
-        let CH_PLUS = 400;
-        let CH_MINUS = 500;
-        let CH_SLASH = 600;
-        let CH_STAR = 700;
-        let CH_GREATER = 800;
-        let CH_LOWER = 900;
-        let CH_EQUALS = 1000;
-        let ILLEGAL = -1;
-        return;
+    /* Display Constants */
+    function integer SCREEN_HEIGHT() {
+        return 23;
     }
+
+    function integer SCREEN_WIDTH() {
+        return 64;
+    }
+
+    function integer SCREEN() {
+        return 16384;
+    }
+
+    function integer CHAR_HEIGHT() {
+        return 11;
+    }
+
+    function integer CHAR_WIDTH() {
+        return 8;
+    }
+
+    function integer MAX_LINE() {
+        return Const.SCREEN_WIDTH() * Const.SCREEN_HEIGHT();
+    }
+
+    /* Keyword Constants */
+    function integer KW_DECLARE() {
+        return 1000;
+    }
+
+    function integer KW_DO() {
+        return 1001;
+    }
+
+    function integer KW_WHILE() {
+        return 1002;
+    }
+
+    function integer KW_IF() {
+        return 1003;
+    }
+
+    function integer KW_THEN() {
+        return 1004;
+    }
+
+    function integer KW_ELSE() {
+        return 1005;
+    }
+
+    function integer KW_END() {
+        return 1006;
+    }
+
+    function integer KW_BY() {
+        return 1007;
+    }
+
+    function integer KW_TO() {
+        return 1008;
+    }
+
+    function integer KW_AND() {
+        return 1009;
+    }
+
+    function integer KW_OR() {
+        return 1010;
+    }
+
+    function integer KW_NOT() {
+        return 1011;
+    }
+
+    function integer KW_MOD() {
+        return 1012;
+    }
+
+    /* reseved words */
+    function integer RW_INTEGER() {
+        return 1020;
+    }
+
+    function integer RW_STRING() {
+        return 1030;
+    }
+
+    function integer RW_BOOLEAN() {
+        return 1040;
+    }
+
+    /* character constants */
+    function integer CH_PAROP() {
+        return 40;
+    }
+
+    function integer CH_PARCL() {
+        return 41;
+    }
+
+    function integer CH_COMMA() {
+        return 44;
+    }
+
+    function integer CH_PLUS() {
+        return 43;
+    }
+
+    function integer CH_MINUS() {
+        return 45;
+    }
+
+    function integer CH_SLASH() {
+        return 47;
+    }
+
+    function integer CH_STAR() {
+        return 42;
+    }
+
+    function integer CH_GREATER() {
+        return 62;
+    }
+
+    function integer CH_LOWER() {
+        return 60;
+    }
+
+    function integer CH_EQUALS() {
+        return 61;
+    }
+
+    function integer CH_TAB() {
+        return 9;
+    }
+
+    function integer CH_DOLLAR() {
+        return 36;
+    }
+
+    function integer CH_SPACE() {
+        return 32;
+    }
+
+    function integer CH_QUOTE() {
+        return 39;
+    }
+
+    /* terminal constants */
+    function integer IDENT() {
+        return 500;
+    }
+
+    /* type of data values */
+    function integer T_INTEGER() {
+        return 1020;
+    }
+
+    function integer T_STRING() {
+        return 1030;
+    }
+
+    function integer T_BOOLEAN() {
+        return 1040;
+    }
+
+    function integer ILLEGAL() {
+        return -1;
+    }
+
 }

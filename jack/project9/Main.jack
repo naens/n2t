@@ -1,10 +1,13 @@
 class Main {
     function void main() {
         var Repl repl;
-        do Const.init();
+        do Keywords.init();
+
         let repl = Repl.new();
         do repl.run();
+
         do repl.dispose();
+        do Keywords.finalize();
         return;
     }
 }
