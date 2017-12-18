@@ -37,7 +37,7 @@ class Display {
     method void newline() {
         do fillChar(row, column, false);
         let column = 0;
-        if (row < SCREEN_HEIGHT - 1) {
+        if (row < (SCREEN_HEIGHT - 1)) {
             let row = row + 1;
         } else {
             do scrollUp();
@@ -55,7 +55,6 @@ class Display {
         let c = read();
         let line = String.new(MAX_LINE);
         while ((i < MAX_LINE) & (~(c = 128))) {
-
             if ((c = 129) & (i > 0)) {            /* if backspace */
                 do backspace();
                 do line.eraseLastChar();
@@ -71,19 +70,27 @@ class Display {
         return line;
     }
 
-    method void printChar(char c) {
-        do Output.printChar(c);
+    method void prch(char c) {
         if (column < (SCREEN_WIDTH - 1)) {
+            do Output.printChar(c);
             let column = column + 1;
         } else {
             let column = 0;   
             if (row < (SCREEN_HEIGHT - 1)) {
+                do Output.printChar(c);
                 let row = row + 1;
             } else {
                 do scrollUp();
+                do Output.moveCursor(SCREEN_HEIGHT - 2, SCREEN_WIDTH - 1);
+                do Output.printChar(c);
             }
         }
+        return;
+    }
+
+    method void printChar(char c) {
         do Output.moveCursor(row, column);
+        do prch(c);
         do fillChar(row, column, true);
         return;
     }
@@ -94,17 +101,7 @@ class Display {
         let i = 0;
         let l = str.length();
         while (i < l) {
-            do Output.printChar(str.charAt(i));
-            if (column < (SCREEN_WIDTH - 1)) {
-                let column = column + 1;
-            } else {
-                let column = 0;   
-                if (row < (SCREEN_HEIGHT - 1)) {
-                    let row = row + 1;
-                } else {
-                    do scrollUp();
-                }
-            }
+            do prch(str.charAt(i));
             let i = i + 1;
         }
         do Output.moveCursor(row, column);
@@ -117,7 +114,6 @@ class Display {
         do newline();
         return;
     }
-
 
     method void fillChar(integer row, integer column, boolean black) {
         var integer i;
@@ -171,27 +167,27 @@ class Display {
     method void scrollUp() {
         var integer i;
         var integer j;
-        var integer n;
-        var integer lineSize;
-        let lineSize = (CHAR_WIDTH * SCREEN_WIDTH) / 16;
+        var integer charLineSize;
+        var integer tmp;
+        let charLineSize = ((CHAR_WIDTH * SCREEN_WIDTH) * CHAR_HEIGHT) / 16;
         let i = SCREEN;
-        let j = i + lineSize;
-        let n = 0;
-        while (n < (CHAR_HEIGHT * (SCREEN_HEIGHT - 1))) {
+        let j = SCREEN + charLineSize;
+        let tmp = SCREEN + (charLineSize * (SCREEN_HEIGHT - 1));
+        while (i < tmp) {
             do Memory.poke(i, Memory.peek(j));
-            let i = j;
-            let j = j + lineSize;
-            let n = n + 1;
+            let i = i + 1;
+            let j = j + 1;
         }
-        let n = 0;
-        while (n < CHAR_HEIGHT) {
+        while (i < j) {
             do Memory.poke(i, 0);
-            let i = i + lineSize;
-            let n = n + 1;
+            let i = i + 1;
         }
-        if (row > 0) {
-            let row = row -1;
-        }
+
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
         return;
     }
 
