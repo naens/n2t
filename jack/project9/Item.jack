@@ -1,0 +1,37 @@
+class Item {
+
+    field integer type;
+    field boolean terminal;
+    field String stringValue;
+    field integer integerValue;    
+
+    constructor Item new() {
+        return this;
+    }
+
+    method void setTerminal(boolean b) {
+        let terminal = b;
+        return;
+    }
+
+    method void setType(integer typeValue) {
+        let type = typeValue;
+        return;
+    }
+
+    method void setStringValue(String string) {
+        let stringValue = string;
+        return;
+    }
+
+    method void setIntegerValue(integer val) {
+        let integerValue = val;
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
