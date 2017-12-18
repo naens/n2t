@@ -8,7 +8,7 @@ class Repl {
         let prompt = "REPL>";
         let display = Display.new();
         do display.newline();
-        do display.println("You are in a REPL!");
+        do display.printConstln("You are in a REPL!");
         do display.newline();
         return this;
     }
@@ -18,7 +18,7 @@ class Repl {
         do display.printString(prompt);
         let line = display.readln();
         while (~Tools.stringEquals(line, "quit")) {
-            do display.printString("You entered: ");
+            do display.printConst("You entered: ");
             do display.println(line);
             do display.newline();
             /* TODO: QUIT/EXIT = command to be interpreted */
@@ -42,7 +42,7 @@ class Repl {
     method void dispose() {
         do prompt.dispose();
         do Memory.deAlloc(this);
-        do display.printString("REPL Terminated.");
+        do display.printConst("REPL Terminated.");
         do display.dispose();
         return;
     }

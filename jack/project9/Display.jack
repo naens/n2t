@@ -109,8 +109,21 @@ class Display {
         return;
     }
 
+    method void printConst(String str) {
+        do printString(str);
+        do str.dispose();
+        return;
+    }
+
     method void println(String str) {
         do printString(str);
+        do newline();
+        return;
+    }
+
+    method void printConstln(String str) {
+        do printString(str);
+        do str.dispose();
         do newline();
         return;
     }
