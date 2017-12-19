@@ -1,0 +1,14 @@
+class Parser {
+
+    function Item parseLine(Tokenizer tokenizer) {
+        var Item item;
+        let item = tokenizer.nextToken();
+        while (~(item = 0)) {
+            do item.print();
+            do Display.newline();
+            let item = tokenizer.nextToken();
+        }
+        return 0;
+    }
+
+}

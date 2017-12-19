@@ -2,25 +2,27 @@ class Repl {
 
     field String prompt;
 
-    field Display display;
-
     constructor Repl new() {
         let prompt = "REPL>";
-        let display = Display.new();
-        do display.newline();
-        do display.printConstln("You are in a REPL!");
-        do display.newline();
+        do Display.newline();
+        do Display.printConstln("You are in a REPL!");
+        do Display.newline();
         return this;
     }
 
     method void run() {
         var String line;
-        do display.printString(prompt);
-        let line = display.readln();
+        var Tokenizer tokenizer;
+        var Item item;
+        let tokenizer = Tokenizer.new();
+        do Display.printString(prompt);
+        let line = Display.readln();
         while (~Tools.stringEquals(line, "quit")) {
-            do display.printConst("You entered: ");
-            do display.println(line);
-            do display.newline();
+            do Display.printConst("You entered: ");
+            do Display.println(line);
+            do Display.newline();
+            do tokenizer.setLine(line);
+            let item = Parser.parseLine(tokenizer);
             /* TODO: QUIT/EXIT = command to be interpreted */
             /* TODO
              * If statement, evaluate and print.
@@ -31,19 +33,19 @@ class Repl {
              * Similar with blocks and conds.
              */
             do line.dispose();
-            do display.printString(prompt);
-            let line = display.readln();
+            do Display.printString(prompt);
+            let line = Display.readln();
         }
+        do tokenizer.dispose();
         do line.dispose();
-        do display.newline();
+        do Display.newline();
         return;
     }
 
     method void dispose() {
         do prompt.dispose();
         do Memory.deAlloc(this);
-        do display.printConst("REPL Terminated.");
-        do display.dispose();
+        do Display.printConst("REPL Terminated.");
         return;
     }
 
