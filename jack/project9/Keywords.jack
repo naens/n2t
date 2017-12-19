@@ -7,6 +7,7 @@ class Keywords {
     static String strThen;
     static String strElse;
     static String strEnd;
+    static String strReturn;
     static String strBy;
     static String strTo;
     static String strAnd;
@@ -53,6 +54,11 @@ class Keywords {
 
         if (Tools.stringEquals(str, strEnd)) {
             do item.setType(Const.KW_END());
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strReturn)) {
+            do item.setType(Const.KW_RETURN());
             return true;
         }
 
@@ -137,6 +143,9 @@ class Keywords {
         if (keyword = Const.KW_END()) {
             return strEnd;
         }
+        if (keyword = Const.KW_RETURN()) {
+            return strReturn;
+        }
         if (keyword = Const.KW_BY()) {
             return strBy;
         }
@@ -181,6 +190,7 @@ class Keywords {
         let strThen = "then";
         let strElse = "else";
         let strEnd = "end";
+        let strReturn = "return";
         let strBy = "by";
         let strTo = "to";
         let strAnd = "and";
@@ -204,6 +214,7 @@ class Keywords {
         do strThen.dispose();
         do strElse.dispose();
         do strEnd.dispose();
+        do strReturn.dispose();
         do strBy.dispose();
         do strTo.dispose();
         do strAnd.dispose();

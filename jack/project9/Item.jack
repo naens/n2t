@@ -5,9 +5,15 @@ class Item {
     field String stringValue;
     field integer integerValue;    
     field boolean booleanValue;
+    field List subItems;
 
     constructor Item new() {
+        let subItems = 0;
         return this;
+    }
+
+    method integer getType() {
+        return type;
     }
 
     method void setTerminal(boolean b) {
@@ -32,6 +38,14 @@ class Item {
 
     method void setBooleanValue(boolean b) {
         let booleanValue = b;
+        return;
+    }
+
+    method void addSubItem(Item item) {
+        if (subItems = 0) {
+            let subItems = List.new();
+        }
+        do subItems.append(item);
         return;
     }
 
@@ -85,8 +99,8 @@ class Item {
             if ((type = Const.KW_DECLARE()) | (type = Const.KW_DO())
                 | (type = Const.KW_WHILE()) | (type = Const.KW_IF())
                 | (type = Const.KW_THEN()) | (type = Const.KW_ELSE())
-                | (type = Const.KW_END()) | (type = Const.KW_BY())
-                | (type = Const.KW_TO()) | (type = Const.KW_AND())
+                | (type = Const.KW_TO()) | (type = Const.KW_BY())
+                | (type = Const.KW_END()) | (type = Const.KW_AND())
                 | (type = Const.KW_OR()) | (type = Const.KW_NOT()) 
                 | (type = Const.KW_MOD())) {
                 do Display.printConst("<keyword:");

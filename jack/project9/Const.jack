@@ -53,6 +53,10 @@ class Const {
         return 1006;
     }
 
+    function integer KW_RETURN() {
+        return 1006;
+    }
+
     function integer KW_BY() {
         return 1007;
     }
@@ -75,6 +79,10 @@ class Const {
 
     function integer KW_MOD() {
         return 1012;
+    }
+
+    function integer KW_SET() {
+        return 1017;
     }
 
     /* reseved words */
@@ -172,6 +180,63 @@ class Const {
 
     function integer B_FALSE() {
         return 1240;
+    }
+
+    /* nonterminals */
+    function integer VAR_DECL() {
+        return 7000;
+    }
+
+    function integer FUN_DECL() {
+        return 7001;
+    }
+
+    function integer COND() {
+        return 7002;
+    }
+
+    function integer DO_BLOCK() {
+        return 7003;
+    }
+
+    function integer DO_WHILE() {
+        return 7004;
+    }
+
+    function integer DO_ITER() {
+        return 7005;
+    }
+
+    function integer ASSIGN() {
+        return 7006;
+    }
+
+    function integer END() {
+        return 7007;
+    }
+
+    function integer RETURN() {
+        return 7008;
+    }
+
+    function integer REL_OP() {
+        return 7020;
+    }
+
+    function integer EXPR() {
+        return 7021;
+    }
+
+    function integer ARITHM() {
+        return 7022;
+    }
+
+    function integer TERM() {
+        return 7023;
+    }
+
+    function integer FACTOR() {
+        return 7024;
     }
 
     /* other values */

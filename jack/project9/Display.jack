@@ -44,8 +44,10 @@ class Display {
         let line = String.new(Const.MAX_LINE());
         while ((i < Const.MAX_LINE()) & (~(c = 128))) {
             if ((c = 129) & (i > 0)) {            /* if backspace */
-                do Display.backspace();
-                do line.eraseLastChar();
+                if (line.length() > 0) {
+                    do line.eraseLastChar();
+                    do Display.backspace();
+                }
             } else {
                 let c = Tools.lcChar(c);
                 do Display.printChar(c);

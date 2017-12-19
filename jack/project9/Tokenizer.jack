@@ -2,16 +2,25 @@ class Tokenizer {
 
     field String line;
     field integer pos;
-    field Item unread;
+    field List unreadItems;
 
     constructor Tokenizer new() {
+        let unreadItems = 0;
         return this;
+    }
+
+    method void unread(Item item) {
+        let unreadItems = unreadItems.prepend(item);
+        return;
     }
 
     method void setLine(String s) {
         let line = s;
         let pos = 0;
-        let unread = 0;
+        if (~(unreadItems = 0)) {
+            do unreadItems.dispose();
+            let unreadItems = 0;
+        }
         return;
     }
 
@@ -47,12 +56,11 @@ class Tokenizer {
         var char c;
         var String str;
 
-        if (~(unread = 0)) {
-            let item = unread;
-            let unread = 0;
+        if (~(unreadItems = 0)) {
+            let item = unreadItems.get();
+            let unreadItems = unreadItems.deleteFirst();
             return item;
         }
-
         if (pos = line.length()) {
             return 0;
         }
@@ -174,10 +182,11 @@ class Tokenizer {
 
         /* check for reserved words */
 //        do Display.printConstln("Reserved words");
+//        do Display.println(str);
         if (Keywords.fillItem(str, item)) {
 //            do Display.printConst("RW: ");
 //            do Display.println(str);
-            do str.dispose();
+//            do str.dispose();
             return item;
         }
 
