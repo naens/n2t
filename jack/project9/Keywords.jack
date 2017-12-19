@@ -16,6 +16,8 @@ class Keywords {
     static String strInteger;
     static String strString;
     static String strBoolean;
+    static String strTrue;
+    static String strFalse;
     static String strIllegal;
 
     function boolean fillItem(String str, Item item) {
@@ -98,6 +100,18 @@ class Keywords {
             do item.setType(Const.RW_BOOLEAN());
             return true;
         }
+
+        if (Tools.stringEquals(str, strTrue)) {
+            do item.setType(Const.T_BOOLEAN());
+            do item.setBooleanValue(true);
+            return true;
+        }
+
+        if (Tools.stringEquals(str, strFalse)) {
+            do item.setType(Const.T_BOOLEAN());
+            do item.setBooleanValue(false);
+            return true;
+        }
         return false;
     }
 
@@ -150,6 +164,12 @@ class Keywords {
         if (keyword = Const.RW_BOOLEAN()) {
             return strBoolean;
         }
+        if (keyword = Const.B_TRUE()) {
+            return strTrue;
+        }
+        if (keyword = Const.B_FALSE()) {
+            return strFalse;
+        }
         return strIllegal;
     }
 
@@ -170,6 +190,8 @@ class Keywords {
         let strInteger = "integer";
         let strString = "string";
         let strBoolean = "boolean";
+        let strTrue = "true";
+        let strFalse = "false";
         let strIllegal= "illegal";
         return;
     }
@@ -191,6 +213,8 @@ class Keywords {
         do strInteger.dispose();
         do strString.dispose();
         do strBoolean.dispose();
+        do strTrue.dispose();
+        do strFalse.dispose();
         do strIllegal.dispose();
         return;
     }

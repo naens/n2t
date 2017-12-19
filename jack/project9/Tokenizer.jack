@@ -2,24 +2,44 @@ class Tokenizer {
 
     field String line;
     field integer pos;
+    field Item unread;
 
-    method Tokenizer new(String s) {
-        let line = s;
-        let pos = 0;
+    constructor Tokenizer new() {
         return this;
     }
 
+    method void setLine(String s) {
+        let line = s;
+        let pos = 0;
+        let unread = 0;
+        return;
+    }
+
     method boolean isIdentChar(char c) {
-        if ((c > 97) & (c < 173)) {
+        if ((c > 96) & (c < 173)) {
             return true;
         }
         if (c = 36) {
             return true;
         }
-        if ((c > 64) & (c < 91)) {
-            return true;
-        }
         return false;
+    }
+
+    method void skipChar(char skip) {
+        var char c;
+        if (pos = line.length()) {
+            return;
+        }
+        let c = line.charAt(pos);
+        while ((~(c = 0)) & (c = skip)) {
+            let pos = pos + 1;
+            if (pos < line.length()) {
+                let c = line.charAt(pos);
+            } else {
+                let c = 0;
+            }
+        }
+        return;
     }
 
     method Item nextToken() {
@@ -27,30 +47,42 @@ class Tokenizer {
         var char c;
         var String str;
 
-        /* skip spaces */
-        while ((pos < line.length()) &
-          ((line.charAt(pos) = Const.CH_SPACE())
-             | (line.charAt(pos) = Const.CH_TAB()))) {
-            let pos = pos + 1;
+        if (~(unread = 0)) {
+            let item = unread;
+            let unread = 0;
+            return item;
         }
+
         if (pos = line.length()) {
             return 0;
         }
+        let c = line.charAt(pos);
+
+        /* skip spaces */
+//        do Display.printConstln("Spaces");
+        do skipChar(Const.CH_SPACE());
+        if (pos = line.length()) {
+            return 0;
+        }
+        let c = line.charAt(pos);
 
         /* ignore comments */
-        if ((pos < (line.length() - 1))
-          & ((line.charAt(pos) = Const.CH_SLASH())
-                 & (line.charAt(pos + 1) = Const.CH_SLASH()))) {
-            return 0;
+//        do Display.printConstln("Comments");
+        if (pos < (line.length() - 1)) {
+            if ((c = Const.CH_SLASH())
+                 & (line.charAt(pos + 1) = Const.CH_SLASH())) {
+                return 0;
+            }
         }
 
         /* check single character */
-        let c = line.charAt(pos);
+//        do Display.printConstln("Character");
         if ((c = Const.CH_PAROP()) | (c = Const.CH_PARCL())
             | (c = Const.CH_COMMA()) | (c = Const.CH_EQUALS())
             | (c = Const.CH_PLUS()) | (c = Const.CH_MINUS())
             | (c = Const.CH_SLASH()) | (c = Const.CH_STAR())
             | (c = Const.CH_GREATER()) | (c = Const.CH_LOWER())) {
+            let pos = pos + 1;
             let item = Item.new();
             do item.setTerminal(true);
             do item.setType(c);
@@ -58,19 +90,37 @@ class Tokenizer {
         }
 
         /* check for string literal */
+//        do Display.printConstln("Literal");
         if (c = Const.CH_QUOTE()) {
-            let str = String.new(Const.SCREEN_WIDTH() * Const.SCREEN_HEIGHT());
-            do str.appendChar(c);
             let pos = pos + 1;
-            while ((pos < line.length())
-             & (~(line.charAt(pos) = Const.CH_QUOTE()))) {
-                let pos = pos + 1;
-                if ((pos < (line.length() - 1))
-                        & ((line.charAt(pos) = Const.CH_QUOTE())
-                            & (line.charAt(pos + 1) = Const.CH_QUOTE()))) {
-                    do str.appendChar(Const.CH_QUOTE());
+            if (pos = line.length()) {
+                return 0;
+            }
+            let str = String.new(Const.SCREEN_WIDTH() * Const.SCREEN_HEIGHT());
+            let c = line.charAt(pos);
+            while (~(c = 0)) {
+                if (c = Const.CH_QUOTE()) {
+                    if (pos < (line.length() - 1)) {
+                        if (line.charAt(pos + 1) = Const.CH_QUOTE()) {
+                            do str.appendChar(c);
+                            let pos = pos + 2;
+                        } else {
+                            let pos = pos + 1;
+                            let c = 0;
+                        }
+                    } else {
+                        let pos = pos + 1;
+                        let c = 0;
+                    }
+                } else {
+                    do str.appendChar(c);
                     let pos = pos + 1;
-                } 
+                }
+                if (pos < line.length()) {
+                    let c = line.charAt(pos);
+                } else {
+                    let c = 0;
+                }
             }
             let item = Item.new();
             do item.setTerminal(true);
@@ -80,15 +130,17 @@ class Tokenizer {
         }
 
         /* check for numbers */
+//        do Display.printConstln("Number");
         if ((c > 47) & (c < 58)) {
             let str = String.new(Const.SCREEN_WIDTH());
-            while ((pos < line.length())
-                & ((line.charAt(pos) > 47) & (line.charAt(pos) < 58))) {
-                do str.appendChar(line.charAt(pos));
+            while ((~(c = 0)) & ((c > 47) & (c < 58))) {
+                do str.appendChar(c);
                 let pos = pos + 1;
-                if ((pos < line.length())
-                 & (line.charAt(pos) = Const.CH_DOLLAR())) {
-                    let pos = pos + 1;
+                do skipChar(Const.CH_DOLLAR());
+                if (pos < line.length()) {
+                    let c = line.charAt(pos);
+                } else {
+                    let c = 0;
                 }
             }
             let item = Item.new();
@@ -103,14 +155,16 @@ class Tokenizer {
         }
 
         /* get string */
+//        do Display.printConstln("get string");
         let str = String.new(Const.SCREEN_WIDTH());
-        do str.appendChar(c);
-        let pos = pos + 1;
-        while (isIdentChar(line.charAt(pos))) {
+        while ((~(c = 0)) & (isIdentChar(c))) {
+            do str.appendChar(c);
             let pos = pos + 1;
-            if ((pos < line.length())
-                 & (line.charAt(pos) = Const.CH_DOLLAR())) {
-                let pos = pos + 1;
+            do skipChar(Const.CH_DOLLAR());
+            if (pos < line.length()) {
+                let c = line.charAt(pos);
+            } else {
+                let c = 0;
             }
         }
 
@@ -119,15 +173,24 @@ class Tokenizer {
         do item.setTerminal(true);
 
         /* check for reserved words */
+//        do Display.printConstln("Reserved words");
         if (Keywords.fillItem(str, item)) {
+//            do Display.printConst("RW: ");
+//            do Display.println(str);
             do str.dispose();
             return item;
         }
 
         /* it is an identifier */
+//        do Display.printConstln("Identifier");
         do item.setType(Const.IDENT());
         do item.setStringValue(str);
         return item;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
     }
 
 }

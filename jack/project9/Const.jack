@@ -154,17 +154,27 @@ class Const {
 
     /* type of data values */
     function integer T_INTEGER() {
-        return 1020;
+        return 1200;
     }
 
     function integer T_STRING() {
-        return 1030;
+        return 1210;
     }
 
     function integer T_BOOLEAN() {
-        return 1040;
+        return 1220;
     }
 
+    /* boolean constants */
+    function integer B_TRUE() {
+        return 1230;
+    }
+
+    function integer B_FALSE() {
+        return 1240;
+    }
+
+    /* other values */
     function integer ILLEGAL() {
         return -1;
     }

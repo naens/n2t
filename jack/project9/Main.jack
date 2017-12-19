@@ -1,6 +1,7 @@
 class Main {
     function void main() {
         var Repl repl;
+        do Display.init();
         do Keywords.init();
 
         let repl = Repl.new();
