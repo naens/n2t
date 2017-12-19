@@ -1,14 +1,469 @@
 class Parser {
 
-    function Item parseLine(Tokenizer tokenizer) {
-        var Item item;
-        let item = tokenizer.nextToken();
-        while (~(item = 0)) {
-            do item.print();
-            do Display.newline();
-            let item = tokenizer.nextToken();
+    function Item addTerminal(Tokenizer tokenizer, Item item, integer type) {
+        var Item terminal;
+
+        let terminal = tokenizer.nextToken();
+        if (terminal = 0) {
+            return 0;
+        }
+        if (~(terminal.getType() = type)) {
+            do tokenizer.unread(terminal);
+            return 0;
+        }
+        do item.addSubItem(terminal);
+        return item;
+    }
+
+    function Item parseDeclare(Tokenizer tokenizer) {
+        return 0;
+    }
+
+    function Item parseIf(Tokenizer tokenizer) {
+        var Item kw_if;
+        var Item expr;
+        var Item kw_then;
+        var Item result;
+        
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.COND());
+
+        let kw_if = Parser.addTerminal(tokenizer, result, Const.KW_IF());
+        if (kw_if = 0) {
+            do result.dispose();
+            return 0;
+        }
+
+        let expr = Parser.parseExpression(tokenizer);
+        if (expr = 0) {
+            do result.dispose();
+            return 0;
+        }
+        do result.addSubItem(expr);
+
+        let kw_then = Parser.addTerminal(tokenizer, result, Const.KW_THEN());
+        if (kw_then = 0) {
+            do result.dispose();
+            return 0;
+        }
+
+        return result;
+    }
+
+    function Item parseDo(Tokenizer tokenizer) {
+        return 0;
+    }
+
+    function Item parseEnd(Tokenizer tokenizer) {
+        var Item kw_end;
+        var Item expr;
+        var Item result;
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.END());
+
+        let kw_end = Parser.addTerminal(tokenizer, result, Const.KW_END());
+        if (kw_end = 0) {
+            do result.dispose();
+            return 0;
+        }
+
+        do Parser.addTerminal(tokenizer, result, Const.IDENT());
+
+        return result;
+    }
+
+    function Item parseReturn(Tokenizer tokenizer) {
+        var Item kw_return;
+        var Item expr;
+        var Item result;
+
+        let result = Item.new();
+        do result.setType(Const.RETURN());
+
+        let kw_return = Parser.addTerminal(tokenizer,
+             result, Const.KW_RETURN());
+        if (kw_return = 0) {
+            do result.dispose();
+            return 0;
+        }
+
+        let expr = Parser.parseExpression(tokenizer);
+        if (~(expr = 0)) {
+            do result.addSubItem(expr);
+        }
+
+        return result;
+    }
+
+    function Item parseAssign(Tokenizer tokenizer) {
+        var Item ident;
+        var Item ch_equals;
+        var Item expr;
+        var Item result;
+        
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.ASSIGN());
+
+        let ident = Parser.addTerminal(tokenizer, result, Const.IDENT());
+        if (ident = 0) {
+            do result.dispose();
+            return 0;
+        }
+
+        let ch_equals = Parser.addTerminal(tokenizer,
+             result, Const.CH_EQUALS());
+        if (ch_equals = 0) {
+            do tokenizer.unread(ident);
+            do result.dispose();
+            return 0;
+        }
+
+        let expr = Parser.parseExpression(tokenizer);
+        if (expr = 0) {
+            do tokenizer.unread(ident);
+            do tokenizer.unread(ch_equals);
+            do result.dispose();
+            return 0;
+        }
+
+        do result.addSubItem(expr);
+        return result;
+    }
+
+    /* rel_op = "<" | ">" | "<=" | >=" | "<>" | "=" */
+    function Item parseRelOp(Tokenizer tokenizer) {
+        var Item i1;
+        var Item i2;
+        var item result;
+        var integer i1type;
+        var integer i2type;
+
+        let i1 = tokenizer.nextToken();
+        if (i1 = 0) {
+            return 0;
+        }
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.REL_OP());
+
+        let i1type = i1.getType();
+        if (i1type = Const.CH_EQUALS()) {
+            do result.setType(Const.REL_OP());
+            do result.addSubItem(i1);
+            return result;
+        } else {
+            if ((i1.getType() = Const.CH_LOWER()) 
+                | (i1.getType() = Const.CH_GREATER())) {
+                do result.setType(Const.REL_OP());
+                do result.addSubItem(i1);
+            } else {
+                do tokenizer.unread(i1);
+                do result.dispose();
+                return 0;
+            }
+        }
+
+        let i2 = tokenizer.nextToken();
+        if (i2 = 0) {
+            do tokenizer.unread(i2);
+            return result;
+        }
+        let i2type = i2.getType();
+        if (((i1type = Const.CH_LOWER()) & ((i2type = Const.CH_EQUALS())
+                                         | (i2type = Const.CH_GREATER())))
+            | ((i1type = Const.CH_GREATER()) & (i2type = Const.CH_EQUALS()))) {
+            do result.addSubItem(i2);
+        } else {
+            do tokenizer.unread(i2);
+        }
+        return result;
+    }
+
+    /* expr = arithm [ rel_op arithm ] */
+    function Item parseExpression(Tokenizer tokenizer) {
+        var Item arithm;
+        var Item rel_op;
+        var Item result;
+
+        let arithm = Parser.parseArithm(tokenizer);
+        if (arithm = 0) {
+            do Display.printConstln("expr:1");
+            return 0;
+        }
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.EXPR());
+        do result.addSubItem(arithm);
+
+        let rel_op = Parser.parseRelOp(tokenizer);
+        if (rel_op = 0) {
+            do Display.printConstln("expr:2");
+            return result;
+        }
+        let arithm = Parser.parseArithm(tokenizer);
+        if (~(arithm = 0)) {
+            do result.addSubItem(rel_op);
+            do result.addSubItem(arithm);
+        } else {
+            do Display.printConstln("expr:3");
+            do result.dispose();
+            return 0; /* error: rel_op without arithm */
+        }
+        return result;
+    }
+
+    /* arithm = term {( "+" | "-" ) term } */
+    function Item parseArithm(Tokenizer tokenizer) {
+        var Item term;
+        var Item op;
+        var Item result;
+
+        do Display.printConstln("arithm:0");
+        let term = Parser.parseTerm(tokenizer);
+        if (term = 0) {
+            do Display.printConstln("arithm:1");
+            return 0;
+        }
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.ARITHM());
+        do result.addSubItem(term);
+
+        while (~(term = 0)) {
+            do Display.printConstln("arithm:2");
+            let op = tokenizer.nextToken();
+            if (op = 0) {
+                return result;
+            }
+            if ((~(op.getType() = Const.CH_PLUS()))
+                 & (~(op.getType() = Const.CH_MINUS()))) {
+                do tokenizer.unread(op);
+                return result;
+            }
+            let term = Parser.parseArithm(tokenizer);
+            if (~(term = 0)) {
+                do result.addSubItem(op);
+                do result.addSubItem(term);
+            } else {
+                do tokenizer.unread(op);
+                return result;
+            }
+        }
+        return result;
+    }
+
+    /* term = factor { ( "*" | "/" ) factor } */
+    function Item parseTerm(Tokenizer tokenizer) {
+        var Item factor;
+        var Item op;
+        var Item result;
+
+        do Display.printConstln("term:0");
+        let factor = Parser.parseFactor(tokenizer);
+        if (factor = 0) {
+            do Display.printConstln("term:1");
+            return 0;
+        }
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.TERM());
+        do result.addSubItem(factor);
+
+        while (~(factor = 0)) {
+            do Display.printConstln("term:2");
+            let op = tokenizer.nextToken();
+            if (op = 0) {
+                return result;
+            }
+            if ((~(op.getType() = Const.CH_STAR()))
+                 & (~(op.getType() = Const.CH_SLASH()))) {
+                do tokenizer.unread(op);
+                return result;
+            }
+            let factor = Parser.parseFactor(tokenizer);
+            if (~(factor = 0)) {
+                do result.addSubItem(op);
+                do result.addSubItem(factor);
+            } else {
+                do tokenizer.unread(op);
+                return result;
+            }
+        }
+        return result;
+    }
+
+
+    /* factor = [ "-" ]  number | ident | ( "(" ( ident {expr} ) | expr ")") */
+    function Item parseFactor(Tokenizer tokenizer) {
+        var Item sign;
+        var Item token;
+        var Item expr; 
+        var Item result;
+        var integer tokenType;
+        var Item token2;
+        var Item token3;
+        var integer token3type;
+
+        do Display.printConstln("factor:0");
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.FACTOR());
+
+        let token = tokenizer.nextToken();
+        if (token = 0) {
+            return 0;
+        }
+
+        do Display.printConstln("factor:1");
+
+        if (token.getType() = Const.CH_MINUS()) {
+            do result.addSubItem(token);
+            let sign = token;
+        } else {
+            let sign = 0;
+        }
+        
+        do Display.printConstln("factor:2");
+
+        if (~(sign = 0)) {
+            let token = tokenizer.nextToken();
+        }
+        let tokenType = token.getType();
+        if ((tokenType = Const.T_INTEGER()) | (tokenType = Const.IDENT())) {
+            do result.addSubItem(token);
+            return result;
+        }
+
+        do Display.printConstln("factor:3");
+
+        if (~(tokenType = Const.CH_PARCL())) {
+            do tokenizer.unread(token);
+            if (~(sign = 0)) {
+                do tokenizer.unread(sign);
+            }
+            do result.dispose();
+            return 0;
+        }
+
+        do result.addSubItem(token);
+        let token2 = tokenizer.nextToken();
+        if (token2 = 0) {
+            do tokenizer.unread(token);
+            do result.dispose();
+            return 0;
+        }
+        if (token2.getType() = Const.CH_MINUS()) {
+            do tokenizer.unread(token2);
+            let expr = Parser.parseExpression(tokenizer);
+        } else {
+            let token3 = tokenizer.nextToken();
+            if (token3 = 0) {
+                do tokenizer.unread(token2);
+                do tokenizer.unread(token);
+                do result.dispose();
+                return 0;
+            }
+            let token3type = token3.getType();
+            if ((token3type = Const.CH_EQUALS())
+                | (token3type = Const.CH_PLUS())
+                | (token3type = Const.CH_MINUS())
+                | (token3type = Const.CH_GREATER())
+                | (token3type = Const.CH_LOWER())
+                | (token3type = Const.CH_STAR())
+                | (token3type = Const.CH_SLASH())) {
+                do tokenizer.unread(token2);
+                do tokenizer.unread(token);
+                let expr = Parser.parseExpression(tokenizer);
+                return result;            
+            }
+            if (token2.getType() = Const.IDENT()) {
+                do result.addSubItem(token2);
+                let expr = Parser.parseExpression(tokenizer);
+                while (~(expr = 0)) {
+                    do result.addSubItem(expr);
+                    let expr = Parser.parseExpression(tokenizer);
+                }
+                let token = Parser.addTerminal(tokenizer,
+                     result, Const.CH_PARCL());
+                if (token = 0) {
+                    do result.dispose();
+                    return 0;
+                }
+                do result.addSubItem(token);
+                return result;
+            }
         }
         return 0;
+    }
+
+    function Item parseLine(Tokenizer tokenizer) {
+        var Item item;
+        var integer type;
+        let item = tokenizer.nextToken();
+
+        if (item = 0) {
+            return 0;
+        }
+        let type = item.getType();
+
+        if (type = Const.KW_ELSE()) {
+            return item;
+        }
+
+        do tokenizer.unread(item);
+
+/*
+        if (type = Const.KW_DECLARE()) {
+            return Parser.parseDeclare(tokenizer);
+        }
+        if (type = Const.KW_IF()) {
+            return Parser.parseIf(tokenizer);
+        }
+        if (type = Const.KW_ELSE()) {
+            return tokenizer.nextToken();
+        }
+        if (type = Const.KW_DO()) {
+            return Parser.parseDo(tokenizer);
+        }
+        if (type = Const.KW_END()) {
+            return Parser.parseEnd(tokenizer);
+        }
+        if (type = Const.KW_RETURN()) {
+            return Parser.parseReturn(tokenizer);
+        }
+        let item = Parser.parseAssign(tokenizer);
+        if (~(item = 0)) {
+            return item;
+        }
+        let item = Parser.parseExpression(tokenizer);
+        if (~(item = 0)) {
+            return item;
+        }
+        return 0;
+
+//        if (type = Const.KW_SET()) {
+//            return Parser.parseSet(tokenizer);
+//        }
+*/
+
+        let item = Parser.parseExpression(tokenizer);
+        if (item = 0) {
+            do Display.printConstln("bad expression");
+        } else {
+            do Display.printConstln("parsing expression ok");
+        }
+
+        return 0;
+        
     }
 
 }
