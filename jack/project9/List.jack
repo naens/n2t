@@ -1,0 +1,61 @@
+class List {
+    field integer data;
+    field List next;
+
+    constructor List new() {
+        let next = 0;
+        return this;
+    }
+
+    method List getNext() {
+        return next;
+    }
+
+    method void setNext(List n) {
+        let next = n;
+        return;
+    }
+
+    method integer get() {
+        return data;
+    }
+
+    method void set(integer d) {
+        let data = d;
+        return;
+    } 
+
+    method void append(integer data) {
+        if (next = 0) {
+            let next = List.new();
+            do next.set(data);
+        } else {
+            do next.append(data);
+        }
+        return;
+    }
+
+    method List prepend(integer data) {
+        var List newNode;
+        let newNode = List.new();
+        do newNode.set(data);
+        do newNode.setNext(this);
+        return newNode;
+    }
+
+    method List deleteFirst() {
+        var List result;
+        let result = next;
+        do Memory.deAlloc(this);
+        return result;
+    }
+
+    method void dispose() {
+        if (~(next = 0)) {
+            do next.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
