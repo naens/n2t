@@ -1,6 +1,6 @@
 class Parser {
 
-    function Item addTerminal(Tokenizer tokenizer, Item item, integer type) {
+    function Item addTerminal(Tokenizer tokenizer, Item parent, integer type) {
         var Item terminal;
 
         let terminal = tokenizer.nextToken();
@@ -11,8 +11,8 @@ class Parser {
             do tokenizer.unread(terminal);
             return 0;
         }
-        do item.addSubItem(terminal);
-        return item;
+        do parent.addSubItem(terminal);
+        return terminal;
     }
 
     function Item parseDeclare(Tokenizer tokenizer) {
@@ -35,7 +35,7 @@ class Parser {
             return 0;
         }
 
-        let expr = Parser.parseExpression(tokenizer);
+        let expr = Parser.parseExpression(true, tokenizer);
         if (expr = 0) {
             do result.dispose();
             return 0;
@@ -90,7 +90,7 @@ class Parser {
             return 0;
         }
 
-        let expr = Parser.parseExpression(tokenizer);
+        let expr = Parser.parseExpression(true, tokenizer);
         if (~(expr = 0)) {
             do result.addSubItem(expr);
         }
@@ -122,7 +122,7 @@ class Parser {
             return 0;
         }
 
-        let expr = Parser.parseExpression(tokenizer);
+        let expr = Parser.parseExpression(true, tokenizer);
         if (expr = 0) {
             do tokenizer.unread(ident);
             do tokenizer.unread(ch_equals);
@@ -138,7 +138,7 @@ class Parser {
     function Item parseRelOp(Tokenizer tokenizer) {
         var Item i1;
         var Item i2;
-        var item result;
+        var Item result;
         var integer i1type;
         var integer i2type;
 
@@ -185,17 +185,16 @@ class Parser {
     }
 
     /* expr = arithm [ rel_op arithm ] */
-    function Item parseExpression(Tokenizer tokenizer) {
+    function Item parseExpression(boolean first, Tokenizer tokenizer) {
         var Item arithm;
         var Item rel_op;
         var Item result;
 
-        let arithm = Parser.parseArithm(tokenizer);
+        let arithm = Parser.parseArithm(first, tokenizer);
         if (arithm = 0) {
             do Display.printConstln("expr:1");
             return 0;
         }
-
         let result = Item.new();
         do result.setTerminal(false);
         do result.setType(Const.EXPR());
@@ -206,26 +205,26 @@ class Parser {
             do Display.printConstln("expr:2");
             return result;
         }
-        let arithm = Parser.parseArithm(tokenizer);
+        let arithm = Parser.parseArithm(false, tokenizer);
         if (~(arithm = 0)) {
             do result.addSubItem(rel_op);
             do result.addSubItem(arithm);
         } else {
             do Display.printConstln("expr:3");
             do result.dispose();
-            return 0; /* error: rel_op without arithm */
+            return 0; // error: rel_op without arithm
         }
         return result;
     }
 
     /* arithm = term {( "+" | "-" ) term } */
-    function Item parseArithm(Tokenizer tokenizer) {
+    function Item parseArithm(boolean first, Tokenizer tokenizer) {
         var Item term;
         var Item op;
         var Item result;
 
         do Display.printConstln("arithm:0");
-        let term = Parser.parseTerm(tokenizer);
+        let term = Parser.parseTerm(first, tokenizer);
         if (term = 0) {
             do Display.printConstln("arithm:1");
             return 0;
@@ -240,6 +239,7 @@ class Parser {
             do Display.printConstln("arithm:2");
             let op = tokenizer.nextToken();
             if (op = 0) {
+                do Display.printConstln("arithm:2b");
                 return result;
             }
             if ((~(op.getType() = Const.CH_PLUS()))
@@ -247,7 +247,7 @@ class Parser {
                 do tokenizer.unread(op);
                 return result;
             }
-            let term = Parser.parseArithm(tokenizer);
+            let term = Parser.parseTerm(false, tokenizer);
             if (~(term = 0)) {
                 do result.addSubItem(op);
                 do result.addSubItem(term);
@@ -260,13 +260,13 @@ class Parser {
     }
 
     /* term = factor { ( "*" | "/" ) factor } */
-    function Item parseTerm(Tokenizer tokenizer) {
+    function Item parseTerm(boolean first, Tokenizer tokenizer) {
         var Item factor;
         var Item op;
         var Item result;
 
         do Display.printConstln("term:0");
-        let factor = Parser.parseFactor(tokenizer);
+        let factor = Parser.parseFactor(first, tokenizer);
         if (factor = 0) {
             do Display.printConstln("term:1");
             return 0;
@@ -288,7 +288,7 @@ class Parser {
                 do tokenizer.unread(op);
                 return result;
             }
-            let factor = Parser.parseFactor(tokenizer);
+            let factor = Parser.parseFactor(false, tokenizer);
             if (~(factor = 0)) {
                 do result.addSubItem(op);
                 do result.addSubItem(factor);
@@ -302,17 +302,19 @@ class Parser {
 
 
     /* factor = [ "-" ]  number | ident | ( "(" ( ident {expr} ) | expr ")") */
-    function Item parseFactor(Tokenizer tokenizer) {
+    function Item parseFactor(boolean first, Tokenizer tokenizer) {
         var Item sign;
         var Item token;
         var Item expr; 
         var Item result;
-        var integer tokenType;
         var Item token2;
         var Item token3;
+        var integer tokenType;
+        var integer token2type;
         var integer token3type;
 
-        do Display.printConstln("factor:0");
+        do Display.printConstln("factor:1");
+        let sign = 0;
 
         let result = Item.new();
         do result.setTerminal(false);
@@ -320,32 +322,36 @@ class Parser {
 
         let token = tokenizer.nextToken();
         if (token = 0) {
+            do Display.printConstln("factor:1a");
             return 0;
         }
+        let tokenType = token.getType();
+        if (first) { // allow a minus prefix only for first factor of an arithm
+            do Display.printConstln("factor:FIRST");
 
-        do Display.printConstln("factor:1");
-
-        if (token.getType() = Const.CH_MINUS()) {
-            do result.addSubItem(token);
-            let sign = token;
-        } else {
-            let sign = 0;
+            if (tokenType = Const.CH_MINUS()) {
+                let sign = token;
+                let token = tokenizer.nextToken();
+                if (token = 0) {
+                    do tokenizer.unread(sign);
+                    return 0;
+                }
+                do result.addSubItem(sign);
+                let tokenType = token.getType();
+            }
         }
         
         do Display.printConstln("factor:2");
 
-        if (~(sign = 0)) {
-            let token = tokenizer.nextToken();
-        }
-        let tokenType = token.getType();
         if ((tokenType = Const.T_INTEGER()) | (tokenType = Const.IDENT())) {
             do result.addSubItem(token);
+            do Display.printConstln("factor:2a");
             return result;
         }
 
         do Display.printConstln("factor:3");
 
-        if (~(tokenType = Const.CH_PARCL())) {
+        if (~(tokenType = Const.CH_PAROP())) {
             do tokenizer.unread(token);
             if (~(sign = 0)) {
                 do tokenizer.unread(sign);
@@ -357,22 +363,35 @@ class Parser {
         do result.addSubItem(token);
         let token2 = tokenizer.nextToken();
         if (token2 = 0) {
+        do Display.printConstln("factor:4");
             do tokenizer.unread(token);
             do result.dispose();
             return 0;
         }
-        if (token2.getType() = Const.CH_MINUS()) {
+        let token2type = token2.getType();
+        if ((token2type = Const.CH_MINUS())
+                 | (token2type = Const.T_INTEGER())
+                 | (token2type = Const.CH_PAROP())) {
             do tokenizer.unread(token2);
-            let expr = Parser.parseExpression(tokenizer);
+            let expr = Parser.parseExpression(true, tokenizer);
+            if (expr = 0) {
+                do tokenizer.unread(token);
+                do result.dispose();
+                return 0;
+            }
+            do result.addSubItem(expr);
         } else {
+            do Display.printConstln("factor:5");
             let token3 = tokenizer.nextToken();
             if (token3 = 0) {
                 do tokenizer.unread(token2);
                 do tokenizer.unread(token);
                 do result.dispose();
+                do Display.printConstln("factor:5a");
                 return 0;
             }
             let token3type = token3.getType();
+            do tokenizer.unread(token3);
             if ((token3type = Const.CH_EQUALS())
                 | (token3type = Const.CH_PLUS())
                 | (token3type = Const.CH_MINUS())
@@ -380,29 +399,46 @@ class Parser {
                 | (token3type = Const.CH_LOWER())
                 | (token3type = Const.CH_STAR())
                 | (token3type = Const.CH_SLASH())) {
+                do Display.printConstln("factor:6");
                 do tokenizer.unread(token2);
-                do tokenizer.unread(token);
-                let expr = Parser.parseExpression(tokenizer);
-                return result;            
-            }
-            if (token2.getType() = Const.IDENT()) {
-                do result.addSubItem(token2);
-                let expr = Parser.parseExpression(tokenizer);
-                while (~(expr = 0)) {
-                    do result.addSubItem(expr);
-                    let expr = Parser.parseExpression(tokenizer);
-                }
-                let token = Parser.addTerminal(tokenizer,
-                     result, Const.CH_PARCL());
-                if (token = 0) {
+                let expr = Parser.parseExpression(true, tokenizer);
+                if (expr = 0) {
+                    do tokenizer.unread(token);
                     do result.dispose();
+                    do Display.printConstln("factor:6a");
                     return 0;
                 }
-                do result.addSubItem(token);
-                return result;
+                do result.addSubItem(expr);
+            } else {
+                if (token2type = Const.IDENT()) {     //function call
+                    do Display.printConstln("factor:7");
+                    do result.addSubItem(token2);           //function name
+                    let expr = Parser.parseExpression(false, tokenizer);
+                    while (~(expr = 0)) {
+                        do result.addSubItem(expr);         //parameters
+                        let expr = Parser.parseExpression(false, tokenizer);
+                    }
+                }
             }
         }
-        return 0;
+
+        do Display.printConstln("factor:8");
+
+        /* read closing parenthese */
+        let token = tokenizer.nextToken();
+        if (token = 0) {
+            do result.dispose();
+            do Display.printConstln("factor:8a");
+            return 0;
+        }
+        if (~(token.getType() = Const.CH_PARCL())) {
+            do result.dispose();
+            do Display.printConstln("factor:8b");
+            return 0;
+        }
+
+        do result.addSubItem(token);
+        return result;
     }
 
     function Item parseLine(Tokenizer tokenizer) {
@@ -455,11 +491,13 @@ class Parser {
 //        }
 */
 
-        let item = Parser.parseExpression(tokenizer);
+        let item = Parser.parseExpression(true, tokenizer);
         if (item = 0) {
             do Display.printConstln("bad expression");
         } else {
             do Display.printConstln("parsing expression ok");
+            do item.print();
+            do Display.newline();
         }
 
         return 0;
