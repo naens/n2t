@@ -54,31 +54,31 @@ class Const {
     }
 
     function integer KW_RETURN() {
-        return 1006;
-    }
-
-    function integer KW_BY() {
         return 1007;
     }
 
-    function integer KW_TO() {
+    function integer KW_BY() {
         return 1008;
     }
 
-    function integer KW_AND() {
+    function integer KW_TO() {
         return 1009;
     }
 
-    function integer KW_OR() {
+    function integer KW_AND() {
         return 1010;
     }
 
-    function integer KW_NOT() {
+    function integer KW_OR() {
         return 1011;
     }
 
-    function integer KW_MOD() {
+    function integer KW_NOT() {
         return 1012;
+    }
+
+    function integer KW_MOD() {
+        return 1013;
     }
 
     function integer KW_SET() {
@@ -187,56 +187,84 @@ class Const {
         return 7000;
     }
 
-    function integer FUN_DECL() {
+    function integer FUN_STAT() {
         return 7001;
     }
 
-    function integer COND() {
+    function integer FUN_DECL() {
+        return 7011;
+    }
+
+    function integer IF_STAT() {
         return 7002;
     }
 
-    function integer DO_BLOCK() {
+    function integer COND() {
+        return 7012;
+    }
+
+    function integer DO_BLOCK_STAT() {
         return 7003;
     }
 
-    function integer DO_WHILE() {
+    function integer DO_BLOCK() {
+        return 7013;
+    }
+
+    function integer DO_WHILE_STAT() {
         return 7004;
     }
 
-    function integer DO_ITER() {
+    function integer DO_WHILE() {
+        return 7014;
+    }
+
+    function integer DO_ITER_STAT() {
         return 7005;
     }
 
+    function integer DO_ITER() {
+        return 7015;
+    }
+
     function integer ASSIGN() {
-        return 7006;
-    }
-
-    function integer END() {
-        return 7007;
-    }
-
-    function integer RETURN() {
-        return 7008;
-    }
-
-    function integer REL_OP() {
         return 7020;
     }
 
+    function integer END() {
+        return 7030;
+    }
+
+    function integer RETURN() {
+        return 7040;
+    }
+
+    function integer REL_OP() {
+        return 7100;
+    }
+
     function integer EXPR() {
-        return 7021;
+        return 7200;
+    }
+
+    function integer LOG_EXPR() {
+        return 7300;
     }
 
     function integer ARITHM() {
-        return 7022;
+        return 7400;
     }
 
     function integer TERM() {
-        return 7023;
+        return 7500;
+    }
+
+    function integer CALL() {
+        return 7600;
     }
 
     function integer FACTOR() {
-        return 7024;
+        return 7700;
     }
 
     /* other values */

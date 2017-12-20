@@ -123,7 +123,7 @@ class Item {
                 | (type = Const.KW_TO()) | (type = Const.KW_BY())
                 | (type = Const.KW_END()) | (type = Const.KW_AND())
                 | (type = Const.KW_OR()) | (type = Const.KW_NOT()) 
-                | (type = Const.KW_MOD())) {
+                | (type = Const.KW_MOD()) | (type = Const.KW_RETURN())) {
                 do Display.printConst("<keyword:");
                 do Display.printString(Keywords.getKeywordString(type));
                 do Display.printConst(">");
@@ -140,28 +140,108 @@ class Item {
             do Display.printConst("<unknown_terminal>");
             return;
         } else {
-            if (type = Const.EXPR()) {
-                do Display.printConst("[");
+            if (type = Const.VAR_DECL()) {
+                do Display.printConst("(var-decl:");
                 do printSubItems();
-                do Display.printConst("]");
+                do Display.printConst(":var-decl)");
+                return;
+            }
+
+            if (type = Const.FUN_STAT()) {
+                do Display.printConst("(fun-stat:");
+                do printSubItems();
+                do Display.printConst(":fun-stat)");
+                return;
+            }
+
+            if (type = Const.IF_STAT()) {
+                do Display.printConst("(if-stat:");
+                do printSubItems();
+                do Display.printConst(":if-stat)");
+                return;
+            }
+
+            if (type = Const.DO_BLOCK_STAT()) {
+                do Display.printConst("do-block-stat:");
+                do printSubItems();
+                do Display.printConst(":do-block-stat)");
+                return;
+            }
+
+            if (type = Const.DO_WHILE_STAT()) {
+                do Display.printConst("(do-while-stat:");
+                do printSubItems();
+                do Display.printConst(":do-while-stat)");
+                return;
+            }
+
+            if (type = Const.DO_ITER_STAT()) {
+                do Display.printConst("(do-iter-stat:");
+                do printSubItems();
+                do Display.printConst(":do-iter-stat)");
+                return;
+            }
+
+            if (type = Const.ASSIGN()) {
+                do Display.printConst("(assign:");
+                do printSubItems();
+                do Display.printConst(":assign)");
+                return;
+            }
+
+            if (type = Const.END()) {
+                do Display.printConst("(end:");
+                do printSubItems();
+                do Display.printConst(":end)");
+                return;
+            }
+
+            if (type = Const.RETURN()) {
+                do Display.printConst("(return:");
+                do printSubItems();
+                do Display.printConst(":return)");
+                return;
+            }
+
+            if (type = Const.REL_OP()) {
+                do printSubItems();
+                return;
+            }
+
+            if (type = Const.EXPR()) {
+                do Display.printConst("{");
+                do printSubItems();
+                do Display.printConst("} ");
+                return;
+            }
+            if (type = Const.LOG_EXPR()) {
+//                do Display.printConst("[*");
+                do printSubItems();
+//                do Display.printConst("*]");
                 return;
             }
             if (type = Const.ARITHM()) {
-                do Display.printConst("{");
+//                do Display.printConst("[@");
                 do printSubItems();
-                do Display.printConst("}");
+//                do Display.printConst("@]");
                 return;
             }
             if (type = Const.TERM()) {
-                do Display.printConst(" ");
+//                do Display.printConst("[&");
                 do printSubItems();
-                do Display.printConst(" ");
+//                do Display.printConst("&]");
+                return;
+            }
+            if (type = Const.CALL()) {
+                do Display.printConst("[~");
+                do printSubItems();
+                do Display.printConst("~]");
                 return;
             }
             if (type = Const.FACTOR()) {
-                do Display.printConst("<");
+//                do Display.printConst("[%");
                 do printSubItems();
-                do Display.printConst(">");
+//                do Display.printConst("%]");
                 return;
             }
             do Display.printConst("#");
