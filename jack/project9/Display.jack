@@ -13,11 +13,11 @@ class Display {
         var char c;
         let c = Keyboard.keyPressed();
         while (c = 0) {
-            do Sys.wait(10);
+            do Sys.wait(2);
             let c = Keyboard.keyPressed();
         }
         while (Keyboard.keyPressed() = c) {
-            do Sys.wait(10);
+            do Sys.wait(2);
         }
         return c;
     }

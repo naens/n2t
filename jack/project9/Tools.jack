@@ -5,6 +5,11 @@ class Tools {
         if (~(str1.length() = str2.length())) {
             return false;
         }
+//        do Display.printConst("eq:");
+//        do Display.printString(str1);
+//        do Display.printConst("=");
+//        do Display.printString(str2);
+//        do Display.printConstln(":eq");
         let i = 0;
         while (i < str1.length()) {
             if (~(str1.charAt(i) = str2.charAt(i))) {

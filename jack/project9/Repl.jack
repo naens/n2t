@@ -23,6 +23,14 @@ class Repl {
             do Display.newline();
             do tokenizer.setLine(line);
             let item = Parser.parseLine(tokenizer);
+            if (~(item = 0)) {
+                do Display.printConstln("parsing expression ok");
+                do item.print();
+                do Display.newline();
+            } else {
+                do Display.printConstln("bad expression");
+            }
+
             /* TODO: QUIT/EXIT = command to be interpreted */
             /* TODO
              * If statement, evaluate and print.

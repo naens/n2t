@@ -25,10 +25,16 @@ class Tokenizer {
     }
 
     method boolean isIdentChar(char c) {
+        // lowercase letters
         if ((c > 96) & (c < 173)) {
             return true;
         }
+        // dollar
         if (c = 36) {
+            return true;
+        }
+        // digits
+        if ((c > 47) & (c < 58)) {
             return true;
         }
         return false;
@@ -158,7 +164,8 @@ class Tokenizer {
             return item;
         }
 
-        if (~isIdentChar(c)) {
+        /* identifiers and reserved words begin with a lowercase letter */
+        if ((c < 97) | (c > 172)) {
             return 0;
         }
 
