@@ -2,8 +2,9 @@ class List {
     field integer data;
     field List next;
 
-    constructor List new() {
+    constructor List new(integer d) {
         let next = 0;
+        let data = d;
         return this;
     }
 
@@ -27,8 +28,7 @@ class List {
 
     method void append(integer data) {
         if (next = 0) {
-            let next = List.new();
-            do next.set(data);
+            let next = List.new(data);
         } else {
             do next.append(data);
         }
@@ -37,8 +37,7 @@ class List {
 
     method List prepend(integer data) {
         var List newNode;
-        let newNode = List.new();
-        do newNode.set(data);
+        let newNode = List.new(data);
         do newNode.setNext(this);
         return newNode;
     }

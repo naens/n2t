@@ -21,6 +21,10 @@ class Item {
         return;
     }
 
+    method boolean isTerminal() {
+        return terminal;
+    }
+
     method void setType(integer typeValue) {
         let type = typeValue;
         return;
@@ -43,14 +47,31 @@ class Item {
 
     method void addSubItem(Item item) {
         if (subItems = 0) {
-            let subItems = List.new();
+            let subItems = List.new(item);
+        } else {
+            do subItems.append(item);
         }
-        do subItems.append(item);
         return;
     }
 
     method void dispose() {
         do Memory.deAlloc(this);
+        return;
+    }
+
+    method void printSubItems() {
+        var List list;
+        var Item item;
+        let list = subItems;
+        while(~(list = 0)) {
+            let item = list.get();
+            if (item = 0) {
+                do Display.printConst("[ERROR]");
+                return;
+            }
+            do item.print();
+            let list = list.getNext();
+        }
         return;
     }
 
@@ -60,9 +81,9 @@ class Item {
             if (type = Const.T_INTEGER()) {
                 let intString = String.new(Const.SCREEN_WIDTH());
                 do intString.setInt(integerValue);
-                do Display.printConst("<integer:");
+//                do Display.printConst("<integer:");
                 do Display.printString(intString);
-                do Display.printConst(">");
+//                do Display.printConst(">");
                 do intString.dispose();
                 return;
             }
@@ -81,9 +102,9 @@ class Item {
                 return;
             }
             if (type = Const.IDENT()) {
-                do Display.printConst("<identifier:");
+//                do Display.printConst("<identifier:");
                 do Display.printString(stringValue);
-                do Display.printConst(">");
+//                do Display.printConst(">");
                 return;
             }
             if ((type = Const.CH_PAROP()) | (type = Const.CH_PARCL())
@@ -91,9 +112,9 @@ class Item {
                 | (type = Const.CH_PLUS()) | (type = Const.CH_MINUS())
                 | (type = Const.CH_SLASH()) | (type = Const.CH_STAR())
                 | (type = Const.CH_GREATER()) | (type = Const.CH_LOWER())) {
-                do Display.printConst("<char:");
+//                do Display.printConst("<char:");
                 do Display.printChar(type);
-                do Display.printConst(">");
+//                do Display.printConst(">");
                 return;
             }   
             if ((type = Const.KW_DECLARE()) | (type = Const.KW_DO())
@@ -119,7 +140,31 @@ class Item {
             do Display.printConst("<unknown_terminal>");
             return;
         } else {
-            do Display.printConst("<nonterminal>");
+            if (type = Const.EXPR()) {
+                do Display.printConst("[");
+                do printSubItems();
+                do Display.printConst("]");
+                return;
+            }
+            if (type = Const.ARITHM()) {
+                do Display.printConst("{");
+                do printSubItems();
+                do Display.printConst("}");
+                return;
+            }
+            if (type = Const.TERM()) {
+                do Display.printConst(" ");
+                do printSubItems();
+                do Display.printConst(" ");
+                return;
+            }
+            if (type = Const.FACTOR()) {
+                do Display.printConst("<");
+                do printSubItems();
+                do Display.printConst(">");
+                return;
+            }
+            do Display.printConst("#");
         }
         return;
     }
