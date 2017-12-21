@@ -231,7 +231,7 @@ class Const {
         return 7020;
     }
 
-    function integer END() {
+    function integer END_STAT() {
         return 7030;
     }
 

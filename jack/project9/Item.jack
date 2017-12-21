@@ -154,6 +154,13 @@ class Item {
                 return;
             }
 
+            if (type = Const.FUN_DECL()) {
+                do Display.printConst("(fun-decl:");
+                do printSubItems();
+                do Display.printConst(":fun-decl)");
+                return;
+            }
+
             if (type = Const.IF_STAT()) {
                 do Display.printConst("(if-stat:");
                 do printSubItems();
@@ -161,10 +168,24 @@ class Item {
                 return;
             }
 
+            if (type = Const.COND()) {
+                do Display.printConst("(cond:");
+                do printSubItems();
+                do Display.printConst(":cond)");
+                return;
+            }
+
             if (type = Const.DO_BLOCK_STAT()) {
-                do Display.printConst("do-block-stat:");
+                do Display.printConst("(do-block-stat:");
                 do printSubItems();
                 do Display.printConst(":do-block-stat)");
+                return;
+            }
+
+            if (type = Const.DO_BLOCK()) {
+                do Display.printConst("(do-block:");
+                do printSubItems();
+                do Display.printConst(":do-block)");
                 return;
             }
 
@@ -175,10 +196,24 @@ class Item {
                 return;
             }
 
+            if (type = Const.DO_WHILE()) {
+                do Display.printConst("(do-while:");
+                do printSubItems();
+                do Display.printConst(":do-while)");
+                return;
+            }
+
             if (type = Const.DO_ITER_STAT()) {
                 do Display.printConst("(do-iter-stat:");
                 do printSubItems();
                 do Display.printConst(":do-iter-stat)");
+                return;
+            }
+
+            if (type = Const.DO_ITER()) {
+                do Display.printConst("(do-iter:");
+                do printSubItems();
+                do Display.printConst(":do-iter)");
                 return;
             }
 
@@ -189,7 +224,7 @@ class Item {
                 return;
             }
 
-            if (type = Const.END()) {
+            if (type = Const.END_STAT()) {
                 do Display.printConst("(end:");
                 do printSubItems();
                 do Display.printConst(":end)");

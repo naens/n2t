@@ -10,11 +10,36 @@ class Repl {
         return this;
     }
 
+    method boolean isBlockStat(Item item) {
+        if (item = 0) {
+            return false;
+        }
+        if (item.getType() = Const.FUN_STAT()) {
+            return true;
+        }
+        if (item.getType() = Const.DO_BLOCK_STAT()) {
+            return true;
+        }
+        if (item.getType() = Const.DO_WHILE_STAT()) {
+            return true;
+        }
+        if (item.getType() = Const.DO_ITER_STAT()) {
+            return true;
+        }
+        return false;
+    }
+
     method void run() {
         var String line;
         var Tokenizer tokenizer;
         var Item item;
+        var integer depth;
+        var Item block;
+//        var Eva eva; //evaluator
+
         let tokenizer = Tokenizer.new();
+        let depth = 0;
+
         do Display.printString(prompt);
         let line = Display.readln();
         while (~Tools.stringEquals(line, "quit")) {
@@ -22,11 +47,45 @@ class Repl {
             do Display.println(line);
             do Display.newline();
             do tokenizer.setLine(line);
-            let item = Parser.parseLine(tokenizer);
+            let item = Parser.parseLine(tokenizer); //tokenizer is clean
             if (~(item = 0)) {
                 do Display.printConstln("parsing expression ok");
                 do item.print();
                 do Display.newline();
+                if (depth = 0) {
+                    if (isBlockStat(item)) {
+                        do Display.printConstln("set depth 1, append");
+                        do tokenizer.appendNode(item);
+                    } else {
+                        if (item.getType() = Const.IF_STAT()) {
+                            /* TODO */
+                        } else {
+                            // normal line (assign, expr, call, var_decl)
+                            //do Eva.execute(item);
+                        }
+                    }
+                } else {
+                    do Display.printConstln("depth > 0, append");
+                    do tokenizer.appendNode(item);
+                    if ((depth = 1) & (item.getType() = Const.END_STAT())) {
+                        do Display.printConstln("set depth 0, parse");
+                        let block = Parser.parseBlock(tokenizer);
+                        if (block = 0) {
+                            do Display.printConstln("bad block");
+                        } else {
+                            do Display.printConst("parsed: ");
+                            do block.print();
+                            do Display.newline();
+                        }
+                        //do Eva.execute(block); // set block ids and execute
+                    }
+                }
+                if (isBlockStat(item)) {
+                    let depth = depth + 1;
+                 }
+                if (item.getType() = Const.END_STAT()) {
+                    let depth = depth - 1;
+                }
             } else {
                 do Display.printConstln("bad expression");
             }
