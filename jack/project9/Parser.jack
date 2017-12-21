@@ -1,5 +1,219 @@
 class Parser {
 
+    function Item addNode(Tokenizer tokenizer, integer type) {
+        var Item item;
+
+        /* var_decl */
+        let item = tokenizer.nextNode();
+        if (item = 0) {
+            return 0;
+        }
+        if (item.getType() = type) {
+            return item;
+        } else {
+            do tokenizer.unread(item);
+            return 0;
+        }
+    }
+
+    /* declaration =  var_decl | fun_decl  */
+    function Item parseDeclaration(Tokenizer tokenizer) {
+        var Item item;
+
+        /* var_decl */
+        let item = Parser.addNode(tokenizer, Const.VAR_DECL());
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* fun_decl */
+        let item = Parser.parseFunDecl(tokenizer);
+
+        return item;
+    }
+
+    /* unit = assignment | call | expression | block */
+    function Item parseUnit(Tokenizer tokenizer) {
+        var Item item;
+
+        /* assignment */
+        let item = Parser.addNode(tokenizer, Const.ASSIGN());
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* call */
+        let item = Parser.addNode(tokenizer, Const.CALL());
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* call */
+        let item = Parser.addNode(tokenizer, Const.RETURN());
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* expression */
+        let item = Parser.addNode(tokenizer, Const.EXPR());
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* do-block */
+        let item = Parser.parseDoBlock(tokenizer);
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* do-iter */
+        let item = Parser.parseDoIter(tokenizer);
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* do-while */
+        let item = Parser.parseDoWhile(tokenizer);
+        if (~(item = 0)) {
+            return item;
+        }
+
+        return item;
+    }
+
+    /* fun/block = (fun_stat|block_stat) {declaration} {unit} end_stat */
+    function Item parseBlock2(Tokenizer tokenizer, integer type,
+              integer statType) {
+        var Item stat;
+        var Item decl;
+        var Item unit;
+        var Item result;
+        var String str;
+        let str = String.new(20);
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(type);
+
+//        do Display.printConstln("block2 1");
+        let stat = tokenizer.nextNode();
+        if (stat = 0) {
+            do Display.printConstln("block2 e1");
+            do result.dispose();
+            return 0;
+        }
+//            do stat.print();
+//            do Display.printConst("   ");
+//            do str.setInt(stat.getType());
+//            do Display.printString(str);
+//            do Display.printConst("=?=");
+//            do str.setInt(statType);
+//            do Display.println(str);
+//            do Display.newline();
+//            do Display.printConstln("block2 2");
+        if (~(stat.getType() = statType)) {
+//            do Display.printConstln("block2 e2");
+//            do Display.printConstln(" bad stat type");
+//            do str.setInt(stat.getType());
+//            do Display.printString(str);
+//            do Display.printConst("<>");
+//            do str.setInt(statType);
+//            do Display.println(str);
+//            do stat.print();
+//            do Display.newline();
+            do tokenizer.unread(stat);
+            do result.dispose();
+            return 0;
+        }
+        do result.addSubItem(stat);
+//        do Display.printConstln("block2 3");
+
+
+        let decl = Parser.parseDeclaration(tokenizer);
+        while (~(decl = 0)) {
+            do result.addSubItem(decl);
+            let decl = Parser.parseDeclaration(tokenizer);
+        }
+
+        let unit = Parser.parseUnit(tokenizer);
+        while (~(unit = 0)) {
+            do result.addSubItem(unit);
+            let unit = Parser.parseUnit(tokenizer);
+        }
+
+        let stat = tokenizer.nextNode();
+        if (stat = 0) {
+            do result.dispose();
+            do Display.printConstln("block2 e3");
+            return 0;
+        }
+//        do Display.printConstln("block2 4");
+        if (~(stat.getType() = Const.END_STAT())) {
+            do result.dispose();
+            do Display.printConstln("block2 e4");
+            return 0;
+        }
+        do result.addSubItem(stat);
+//        do Display.printConstln("block2 5");
+
+//        do Display.printConst("===>>>");
+//        do result.print();
+//        do Display.newline();
+        return result;
+    }
+
+    function Iterm parseFunDecl(Tokenizer tokenizer) {
+//        do Display.printConstln("block fun_decl");
+        return Parser.parseBlock2(tokenizer,
+                 Const.FUN_DECL(), Const.FUN_STAT());
+    }
+
+    function Iterm parseDoBlock(Tokenizer tokenizer) {
+//        do Display.printConstln("block do_block");
+        return Parser.parseBlock2(tokenizer,
+                 Const.DO_BLOCK(), Const.DO_BLOCK_STAT());
+    }
+
+    function Iterm parseDoIter(Tokenizer tokenizer) {
+//        do Display.printConstln("block do_iter");
+        return Parser.parseBlock2(tokenizer,
+                 Const.DO_ITER(), Const.DO_ITER_STAT());
+    }
+
+    function Iterm parseDoWhile(Tokenizer tokenizer) {
+//        do Display.printConstln("block do_while");
+        return Parser.parseBlock2(tokenizer,
+                 Const.DO_WHILE(), Const.DO_WHILE_STAT());
+    }
+
+    function Item parseBlock(Tokenizer tokenizer) {
+        var Item result;
+        var Item tmp;
+        let result = Parser.parseFunDecl(tokenizer);
+        if (result = 0) {
+            let result = Parser.parseDoBlock(tokenizer);
+            if (result = 0) {
+                let result = Parser.parseDoIter(tokenizer);
+                if (result = 0) {
+                    let result = Parser.parseDoWhile(tokenizer);
+                }
+            }
+        }
+        let tmp = tokenizer.nextNode();
+        if (tmp = 0) {
+            if (result = 0) {
+                do Display.printConstln("block 4");
+            }
+            return result;
+        } else {
+            do Display.printConstln("PARSE_BLOCK: tokenizer not empty");
+            do tmp.print();
+            do Display.newline();
+            do tokenizer.emptyUnread();
+            return 0;
+        }
+    }
+
     function Item addTerminal(Tokenizer tokenizer, Item parent, integer type) {
         var Item terminal;
 
@@ -131,7 +345,7 @@ class Parser {
         return 0;
     }
 
-    function Item parseIf(Tokenizer tokenizer) {
+    function Item parseIfStat(Tokenizer tokenizer) {
         var Item kw_if;
         var Item expr;
         var Item kw_then;
@@ -163,7 +377,7 @@ class Parser {
         return result;
     }
 
-    function Item parseDoBlock(Tokenizer tokenizer) {
+    function Item parseDoBlockStat(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
         var Item result;
@@ -188,7 +402,7 @@ class Parser {
     }
 
     /* do_iter = do ident = expr to expr [by expr] */
-    function Item parseDoIter(Tokenizer tokenizer) {
+    function Item parseDoIterStat(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
         var Item result;
@@ -251,7 +465,7 @@ class Parser {
         return result;
     }
 
-    function Item parseDoWhile(Tokenizer tokenizer) {
+    function Item parseDoWhileStat(Tokenizer tokenizer) {
         var Item kw_do;
         var Item kw_while;
         var Item expr;
@@ -288,15 +502,15 @@ class Parser {
 
     function Item parseDo(Tokenizer tokenizer) {
         var Item result;
-        let result = Parser.parseDoBlock(tokenizer);
+        let result = Parser.parseDoBlockStat(tokenizer);
         if (~(result = 0)) {
             return result;
         }
-        let result = Parser.parseDoIter(tokenizer);
+        let result = Parser.parseDoIterStat(tokenizer);
         if (~(result = 0)) {
             return result;
         }
-        let result = Parser.parseDoWhile(tokenizer);
+        let result = Parser.parseDoWhileStat(tokenizer);
         if (~(result = 0)) {
             return result;
         }
@@ -310,7 +524,7 @@ class Parser {
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.END());
+        do result.setType(Const.END_STAT());
 
         let kw_end = Parser.addTerminal(tokenizer, result, Const.KW_END());
         if (kw_end = 0) {
@@ -409,9 +623,8 @@ class Parser {
         }
         do result.addSubItem(log_expr);
 
-
+//        do Display.printConstln("expr:1");
         while (~(log_expr = 0)) {
-//            do Display.printConstln("expr:1");
             let op = tokenizer.nextToken();
             if (op = 0) {
 //                do Display.printConstln("expr:1b");
@@ -420,6 +633,7 @@ class Parser {
             if ((~(op.getType() = Const.KW_AND()))
                  & (~(op.getType() = Const.KW_OR()))) {
                 do tokenizer.unread(op);
+//                do Display.printConstln("expr:1c");
                 return result;
             }
             // no problem having unary minus after and / or
@@ -429,6 +643,7 @@ class Parser {
                 do result.addSubItem(expr);
             } else {
                 do tokenizer.unread(op);
+//                do Display.printConstln("expr:1d");
                 return result;
             }
         }
@@ -742,6 +957,7 @@ class Parser {
     function Item parseLine(Tokenizer tokenizer) {
         var Item item;
         var integer type;
+        var Item result;
 
         let item = tokenizer.nextToken();
         if (item = 0) {
@@ -749,47 +965,46 @@ class Parser {
         }
         let type = item.getType();
 
-        if (type = Const.KW_ELSE()) {
-            return item;
-        }
-
         do tokenizer.unread(item);
 
-
+        let result = 0;
+        if (type = Const.KW_ELSE()) {
+            let result = tokenizer.nextToken();
+        }
         if (type = Const.KW_DECLARE()) {
-            return Parser.parseDeclare(tokenizer);
+            let result = Parser.parseDeclare(tokenizer);
         }
         if (type = Const.KW_IF()) {
-            return Parser.parseIf(tokenizer);
-        }
-        if (type = Const.KW_ELSE()) {
-            return tokenizer.nextToken();
+            let result = Parser.parseIfStat(tokenizer);
         }
         if (type = Const.KW_DO()) {
-            return Parser.parseDo(tokenizer);
+            let result = Parser.parseDo(tokenizer);
         }
         if (type = Const.KW_END()) {
-            return Parser.parseEnd(tokenizer);
+            let result = Parser.parseEnd(tokenizer);
         }
         if (type = Const.KW_RETURN()) {
-            return Parser.parseReturn(tokenizer);
+            let result = Parser.parseReturn(tokenizer);
         }
-        let item = Parser.parseAssign(tokenizer);
-        if (~(item = 0)) {
-            return item;
+        if (result = 0) {
+            let result = Parser.parseAssign(tokenizer);
+            if (result = 0) {
+                let result = Parser.parseCall(tokenizer);
+                if (result = 0) {
+                    let result = Parser.parseExpression(true, tokenizer);
+                 }
+            }
         }
-        let item = Parser.parseCall(tokenizer);
-        if (~(item = 0)) {
-            return item;
+        let item = tokenizer.nextToken();
+        if (item = 0) {     // no unreads, no items left on the line
+            return result;
+        } else {
+            do Display.printConst("PARSE_LINE: tokenizer not empty: ");
+            do item.print();
+            do Display.newline();
+            do tokenizer.emptyUnread();
+            return 0;
         }
-
-        let item = Parser.parseExpression(true, tokenizer);
-        if (~(item = 0)) {
-            return item;
-        }
-
-        return 0;
-        
     }
 
 }

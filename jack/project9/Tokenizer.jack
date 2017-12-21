@@ -3,9 +3,11 @@ class Tokenizer {
     field String line;
     field integer pos;
     field List unreadItems;
+    field List nodes;
 
     constructor Tokenizer new() {
         let unreadItems = 0;
+        let nodes = 0;
         return this;
     }
 
@@ -14,14 +16,56 @@ class Tokenizer {
         return;
     }
 
-    method void setLine(String s) {
-        let line = s;
-        let pos = 0;
+    method void emptyUnread() {
         if (~(unreadItems = 0)) {
             do unreadItems.dispose();
             let unreadItems = 0;
         }
         return;
+    }
+
+    /* there must be no unreads when calling */
+    method void setLine(String s) {
+        let line = s;
+        let pos = 0;
+        if (~(unreadItems = 0)) {
+            do Display.printConstln("SET_LINE: UNREADS EXIST");
+        }
+        return;
+    }
+
+    /* there must be no unreads when calling */
+    method void appendNode(Item node) {
+        if (~(unreadItems = 0)) {
+            do Display.printConstln("APPEND_NODE: UNREADS EXIST");
+        }
+        if (nodes = 0) {
+            let nodes = List.new(node);
+        } else {
+            do nodes.append(node);
+        }
+        return;
+    }
+
+    method Item nextNode() {
+        var Item result;
+        var List tmp;
+        if (~(unreadItems = 0)) {
+//            do Display.printConstln("unread");
+            let result = unreadItems.get();
+            let unreadItems = unreadItems.deleteFirst();
+            return result;
+        }
+        if (nodes = 0) {
+            return 0;
+        }
+        let result = nodes.get();
+        let tmp = nodes;
+        let nodes = nodes.getNext();
+//        do Display.printConstln("from next");
+        do tmp.setNext(0);
+        do tmp.dispose();
+        return result;
     }
 
     method boolean isIdentChar(char c) {
