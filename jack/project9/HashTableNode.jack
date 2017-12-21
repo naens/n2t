@@ -1,0 +1,31 @@
+class HashTableNode {
+    field integer key;
+    field integer element;
+
+    constructor HashTableNode new(integer k, integer e) {
+        let key = k;
+        let element = e;
+        return this;
+    }
+
+    method integer getKey() {
+        return key;
+    }
+
+    method void setElement(integer e) {
+        let element = e;
+        return;
+    }
+
+    method integer getElement() {
+        return element;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
+
+    
