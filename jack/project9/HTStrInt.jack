@@ -3,8 +3,16 @@ class HTStrInt {
     static integer TAB_SZ;
     field Array table;
 
-    function integer hash(integer key) {
-        return key & 15;
+    function integer hash(String key) {
+        var integer sum;
+        var integer i;
+        let i = 0;
+        let sum = 0;
+        while (i < key.length()) {
+            let sum = sum + str.charAt(i);
+            let i = i + 1;
+        }
+        return sum & 15;
     }
 
     constructor HTStrInt new() {
