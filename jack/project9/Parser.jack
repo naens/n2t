@@ -347,7 +347,7 @@ class Parser {
 
     function Item parseIfStat(Tokenizer tokenizer) {
         var Item kw_if;
-        var Item expr;
+        var Item callOrExpr;
         var Item kw_then;
         var Item result;
         
@@ -361,12 +361,12 @@ class Parser {
             return 0;
         }
 
-        let expr = Parser.parseExpression(true, tokenizer);
-        if (expr = 0) {
+        let callOrExpr = Parser.parseCallOrExpr(tokenizer);
+        if (callOrExpr = 0) {
             do result.dispose();
             return 0;
         }
-        do result.addSubItem(expr);
+        do result.addSubItem(callOrExpr);
 
         let kw_then = Parser.addTerminal(tokenizer, result, Const.KW_THEN());
         if (kw_then = 0) {
@@ -430,7 +430,7 @@ class Parser {
             return 0;
         }
 
-        let token = Parser.parseExpression(true, tokenizer);
+        let token = Parser.parseCallOrExpr(tokenizer);
         if (token = 0) {
             do result.dispose();
             return 0;
@@ -443,7 +443,7 @@ class Parser {
             return 0;
         }
 
-        let token = Parser.parseExpression(true, tokenizer);
+        let token = Parser.parseCallOrExpr(tokenizer);
         if (token = 0) {
             do result.dispose();
             return 0;
@@ -455,7 +455,7 @@ class Parser {
             return result;
         }
 
-        let token = Parser.parseExpression(true, tokenizer);
+        let token = Parser.parseCallOrExpr(tokenizer);
         if (token = 0) {
             do result.dispose();
             return 0;
@@ -468,7 +468,7 @@ class Parser {
     function Item parseDoWhileStat(Tokenizer tokenizer) {
         var Item kw_do;
         var Item kw_while;
-        var Item expr;
+        var Item callOrExpr;
         var Item result;
 
         let result = Item.new();
@@ -488,14 +488,14 @@ class Parser {
             return 0;
         }
 
-        let expr = Parser.parseExpression(true, tokenizer);
-        if (expr = 0) {
+        let callOrExpr = Parser.parseCallOrExpr(tokenizer);
+        if (callOrExpr = 0) {
             do tokenizer.unread(kw_while);
             do tokenizer.unread(kw_do);
             do result.dispose();
             return 0;
         }
-        do result.addSubItem(expr);
+        do result.addSubItem(callOrExpr);
 
         return result;
     }
@@ -584,7 +584,7 @@ class Parser {
             return 0;
         }
 
-        let expr = Parser.parseExpression(true, tokenizer);
+        let expr = Parser.parseExpression(true, expr);
         if (expr = 0) {
             do tokenizer.unread(ident);
             do tokenizer.unread(ch_equals);
@@ -860,11 +860,24 @@ class Parser {
         return result;
     }
 
+    /* call or expressions delimited by terminating token or end of line */
+    function Item parseCallOrExpr(Tokenizer tokenizer) {
+        var Item result;
+        let result = Parser.parseCall(tokenizer);
+        if (result = 0) {
+            let result = Parser.parseExpression(true, tokenizer);
+        }
+        if (result = 0) {
+            return 0;
+        }
+        return result;
+    }
+
     /* factor= [ "-" ]  number | ident | ( "(" call | expr ")") */
     function Item parseFactor(boolean first, Tokenizer tokenizer) {
         var Item sign;
         var Item token;
-        var Item call;
+        var Item callOrExpr;
         var Item expr; 
         var Item result;
         var integer tokenType;
@@ -878,7 +891,7 @@ class Parser {
 
         let token = tokenizer.nextToken();
         if (token = 0) {
-            do Display.printConstln("factor:1a");
+//            do Display.printConstln("factor:1a");
             return 0;
         }
 //        do Display.printConst("<<<");
@@ -922,17 +935,13 @@ class Parser {
             return 0;
         }
 
-        let call = Parser.parseCall(tokenizer);
-        if (~(call = 0)) {
-            do result.addSubItem(call);
+        let callOrExpr = Parser.parseCallOrExpr(tokenizer);
+        if (~(callOrExpr = 0)) {
+            do result.addSubItem(callOrExpr);
         } else {
-            let expr = Parser.parseExpression(true, tokenizer);
-            if (expr = 0) {
-                do tokenizer.unread(token);
-                do result.dispose();
-                return 0;
-            }
-            do result.addSubItem(expr);
+            do tokenizer.unread(token);
+            do result.dispose();
+            return 0;
         }
 
 //        do Display.printConstln("factor:8");
@@ -989,14 +998,14 @@ class Parser {
         if (result = 0) {
             let result = Parser.parseAssign(tokenizer);
             if (result = 0) {
-                let result = Parser.parseCall(tokenizer);
-                if (result = 0) {
-                    let result = Parser.parseExpression(true, tokenizer);
-                 }
+                let result = Parser.parseCallOrExpr(tokenizer);
             }
         }
         let item = tokenizer.nextToken();
         if (item = 0) {     // no unreads, no items left on the line
+            if (result = 0) {
+                do Display.printConstln("bad expression");
+            }
             return result;
         } else {
             do Display.printConst("PARSE_LINE: tokenizer not empty: ");
