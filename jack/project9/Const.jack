@@ -161,8 +161,12 @@ class Const {
     }
 
     /* type of data values */
-    function integer T_INTEGER() {
+    function integer T_PROCEDURE() {
         return 1200;
+    }
+
+    function integer T_INTEGER() {
+        return 1205;
     }
 
     function integer T_STRING() {
