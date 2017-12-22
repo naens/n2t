@@ -35,9 +35,12 @@ class Repl {
         var Item item;
         var integer depth;
         var Item block;
+        var Ifs ifs;
+        var Cond cond;
 //        var Eva eva; //evaluator
 
         let tokenizer = Tokenizer.new();
+        let ifs = Ifs.new();
         let depth = 0;
 
         do Display.printString(prompt);
@@ -58,10 +61,17 @@ class Repl {
                         do tokenizer.appendNode(item);
                     } else {
                         if (item.getType() = Const.IF_STAT()) {
-                            /* TODO */
+                            let cond = Cond.new(eva.execute(item));
+                            do ifs.ifCond(cond);
                         } else {
-                            // normal line (assign, expr, call, var_decl)
-                            //do Eva.execute(item);
+                            if (item.getType() = Const.KW_ELSE()) {
+                                do ifs.ifReverse();
+                            } else {
+                                // normal line (assign, expr, call, var_decl)
+                                if (ifs.checkIfs()) {
+                                //    do Eva.execute(item);
+                                }
+                            }
                         }
                     }
                 } else {
@@ -77,7 +87,9 @@ class Repl {
                             do block.print();
                             do Display.newline();
                         }
-                        //do Eva.execute(block); // set block ids and execute
+                        if (ifs.checkIfs()) {
+                        //    do Eva.execute(block); // set block ids and execute
+                        }
                     }
                 }
                 if (isBlockStat(item)) {
@@ -104,6 +116,7 @@ class Repl {
             let line = Display.readln();
         }
         do tokenizer.dispose();
+        do ifs.dispose();
         do line.dispose();
         do Display.newline();
         return;

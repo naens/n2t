@@ -1,0 +1,41 @@
+class Cond {
+
+    field boolean value;
+    field boolean entered;
+    field boolean reversed;
+
+    constructor Cond new(boolean b) {
+        let value = b;
+        let entered = false;
+        let reversed = false;
+        return this;
+    }
+
+    method boolean getValue() {
+        return value;
+    }
+
+    method boolean isEntered() {
+        return entered;
+    }
+
+    method boolean isReversed() {
+        return reversed;
+    }
+
+    method void setEntered(boolean b) {
+        let entered = b;
+        return;
+    }
+
+    method void setReversed(boolean b) {
+        let reversed = b;
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}

@@ -1,0 +1,113 @@
+class Ifs {
+
+    field List ifs;
+
+    constructor Ifs new() {
+        let ifs = 0;
+        return this;
+    }
+
+    method void reset() {
+        var Cond cond;
+        while (~(ifs = 0)) {
+            let cond = ifs.get();
+            do cond.dispose();
+            let ifs = list.delFirst();
+        }
+        return;
+    }
+
+    // return boolean based on the condition and values of ifs
+    method boolean getTotalCond() {
+        var List currentIf;
+        var Cond cond;
+        let currentIf = ifs;
+        while (~(currentIf = 0)) {
+            let cond = currentIf.get();
+            if (((~cond.getValue()) & (~cond.isReversed()))
+                | (cond.getValue() & cond.isReversed())) {
+                return false;
+            }
+            let currentIf = currentIf.getNext();
+        }
+        return true;
+    }
+
+    // modify state of ifs and return boolean if the following command
+    // should be executed
+    method boolean checkIfs() {
+        var List list;
+        var Cond cond;
+        if (ifs = 0) { // no ifs, nothing to do, command without ifs...
+            return true;
+        }
+
+        let cond = ifs.get();
+        if (cond.isEntered()) {   // command after another command => outside
+            do reset();
+            return true;
+        }
+
+        do cond.setEntered(true);
+
+        return getTotalCond();
+    }
+
+    // if with condition encountered
+    method void ifCond(Cond cond) {
+        var Cond cond;
+        if (ifs = 0) {
+            let ifs = List.new(cond);
+        } else {
+            let cond = ifs.get();
+            if (cond.isEntered()) {
+                do reset();
+                let ifs = List.new(cond);
+            } else {
+                let ifs = ifs.prepend(cond);
+            }
+        }
+        return;
+    }
+
+    // else encountered: reverse condition
+    method void ifReverse() {
+        var Cond cond;
+        
+        if (ifs = 0) {
+            do Display.printConstln("else no if");
+            return;
+        }
+
+        let cond = ifs.get();
+        while (~cond.isReversed()) {
+            if (~cond.isEntered()) {
+                do Display.printConstln("else without unit");
+                return;
+            }
+            let ifs = ifs.deleteFirst();
+            if (ifs = 0) {
+                do Display.printConstln("else no if");
+                return;
+            }
+        }
+
+        if (~cond.isEntered()) {
+            do Display.printConstln("else without unit");
+            return;
+        }
+
+        do cond.setReversed(true);
+        do cond.setEntered(false);
+        return;
+    }
+
+    method void dispose() {
+        if (~(ifs = 0)) {
+            do ifs.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
