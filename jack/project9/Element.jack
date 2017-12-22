@@ -1,0 +1,69 @@
+class Element {
+
+    field integer type;          /* procedure, integer, boolean, string */
+    field Item procedureItem;    /* procedure Item in ast */
+    field List valueStack;       /* variable: stack of values */
+
+    constructor Element newProc(Item item) {
+        let type = Const.T_PROCEDURE();
+        let procedureItem = item;
+        return this;
+    }
+
+    constructor Element newVar(integer valueType) {
+        let type = valueType;
+        let valueStack = 0;
+        return this;
+    }
+
+    method void setValue(integer value, integer valueType) {
+        if (~(valueStack = 0)) {
+            do valueStack.set(value);
+        }
+        return;
+    }
+
+    method boolean isEmpty() {
+        if (valueStack = 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    method boolean isProc() {
+        return type = Const.T_PROCEDURE();
+    }
+
+    method integer getValue(integer value) {
+        if (~(valueStack = 0)) {
+            return valueStack.get();
+        }
+        return 0;
+    }
+
+    method void push() {
+        if (valueStack = 0) {
+            let valueStack = List.new(0);
+        } else {
+            let valueStack = valueStack.prepend(0);
+        }
+        return;
+    }
+
+    method void pop() {
+        if (~(valueStack = 0)) {
+            do valueStack.deleteFirst();
+        }
+        return;
+    }
+
+    method void dispose() {
+        if (~(valueStack = 0)) {
+            do valueStack.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}

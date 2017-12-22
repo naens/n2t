@@ -1,0 +1,32 @@
+class IdentMapNode {
+    field string name;
+    field integer blockId;
+    field Element element;
+
+    constructor IdentMapNode new(string s, integer i, Element e) {
+        let name = s;
+        let blockId = i;
+        let element = e;
+        return this;
+    }
+
+    method integer getName() {
+        return name;
+    }
+
+    method integer getBlockId() {
+        return blockId;
+    }
+
+    method Element getElement() {
+        return element;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
+
+    

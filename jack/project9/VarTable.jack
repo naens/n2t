@@ -1,0 +1,132 @@
+class VarTable {
+
+    static integer TAB_SZ;
+    field Array table;
+
+    function integer hash(String key) {
+        var integer sum;
+        var integer i;
+        let i = 0;
+        let sum = 0;
+        while (i < key.length()) {
+            let sum = sum + str.charAt(i);
+            let i = i + 1;
+        }
+        return sum & 15;
+    }
+
+    constructor VarTable new() {
+        let TAB_SZ = 16;
+        let table = Array.new(TAB_SZ);
+        return this;
+    }
+
+    method VarTableNode getNode(List list, String key) {
+        var VarTableNode node;
+        while (~(list = 0)) {
+            let node = list.get();
+            if (Tools.stringEquals(node.getKey(), key)) {
+                return node;
+            }
+            let list = list.getNext();
+        }
+        return 0;
+    }
+
+    method void put(String key, integer value) {
+        var List list;
+        var integer h;
+        var VarTableNode node;
+        let h = VarTable.hash(key);
+        let list = table[h];
+        if (list = 0) {
+            let node = VarTableNode.new(key);
+            let list = List.new(node);
+            let table[h] = list.prepend(node);
+        } else {
+            let node = getNode(list, key);
+        }
+        do node.push(value);
+        return;
+    }
+
+    method integer get(String key) {
+        var List list;
+        var integer h;
+        var VarTableNode node;
+        let h = VarTable.hash(key);
+        let list = table[h];
+        let node = getNode(list, key);
+        if (node = 0) {
+            return 0;
+        } else {
+            return node.getValue();
+        }
+    }
+
+    method void popBlock(integer blockId) {
+        var List list;
+        var integer i;
+        var boolean first;
+        var boolean needAdvance;
+        var List prev;
+        var List next;
+        var VarTableNode node;
+        let i = 0;
+        while (i < TAB_SZ) {
+            let first = true;
+            let list = table[i];
+            while (~(list = 0)) {
+                let node = list.get();
+                let needAdvance = true;
+                if (node.getValue() = blockId) {
+                    do node.pop();
+                    if (node.isEmpty()) {
+                        let next = list.getNext();
+                        if (first) {
+                            let table[i] = next;
+                        } else {
+                            do prev.setNext(next);
+                        }
+                        do list.setNext(0);
+                        do node.dispose();
+                        do list.dispose();
+                        let list = next;
+                        let needAdvance = false;
+                    }
+                }
+                if (needAdvance) {
+                    let prev = list;
+                    let list = list.getNext();
+                    let first = false;
+                }
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void dispose() {
+        var List list;
+        var List next;
+        var integer i;
+        var VarTableNode node;
+        let i = 0;
+        while (i < TAB_SZ) {
+            let list = table[i];
+            while (~(list = 0)) {
+                let node = list.get();
+                do node.dispose();
+                let next = list.getNext();
+                do list.setNext(0);
+                do list.dispose();
+                let list = next;
+            }
+            let i = i + 1;
+        }
+        do table.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}

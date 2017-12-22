@@ -1,0 +1,48 @@
+class VarTableNode {
+    field String key;
+    field List varStack;
+
+    constructor VarTableNode new(String k) {
+        let key = k;
+        let varStack = 0;
+        return this;
+    }
+
+    method String getKey() {
+        return key;
+    }
+
+    method void push(integer v) {
+        let varStack = varStack.prepend(v);
+        return;
+    }
+
+    method boolean isEmpty() {
+        return ~(varStack = 0);
+    }
+
+    method integer getValue() {
+        if (~(varStack = 0)) {
+            return varStack.get();
+        }
+        return 0;
+    }
+
+    method void pop() {
+        if (~(varStack = 0)) {
+            let varStack = varStack.deleteFirst();
+        }
+        return;
+    }
+
+    method void dispose() {
+        if (~(varStack = 0)) {
+            do varStack.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
+
+    
