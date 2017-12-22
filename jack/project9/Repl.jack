@@ -46,28 +46,32 @@ class Repl {
         do Display.printString(prompt);
         let line = Display.readln();
         while (~Tools.stringEquals(line, "quit")) {
-            do Display.printConst("You entered: ");
-            do Display.println(line);
-            do Display.newline();
+//            do Display.printConst("You entered: ");
+//            do Display.println(line);
+//            do Display.newline();
             do tokenizer.setLine(line);
             let item = Parser.parseLine(tokenizer); //tokenizer is clean
             if (~(item = 0)) {
-                do Display.printConstln("parsing expression ok");
+//                do Display.printConstln("parsing expression ok");
                 do item.print();
                 do Display.newline();
                 if (depth = 0) {
                     if (isBlockStat(item)) {
-                        do Display.printConstln("set depth 1, append");
+//                        do Display.printConstln("set depth 1, append");
                         do tokenizer.appendNode(item);
                     } else {
                         if (item.getType() = Const.IF_STAT()) {
-                            let cond = Cond.new(eva.execute(item));
+//                            do Display.printConstln("if_stat");
+                            let cond = Cond.new(true); /* TODO: replace */
+//                            let cond = Cond.new(eva.execute(item));
                             do ifs.ifCond(cond);
                         } else {
                             if (item.getType() = Const.KW_ELSE()) {
+//                                do Display.printConstln("kw_else");
                                 do ifs.ifReverse();
                             } else {
                                 // normal line (assign, expr, call, var_decl)
+//                                do Display.printConstln("exec");
                                 if (ifs.checkIfs()) {
                                 //    do Eva.execute(item);
                                 }
@@ -98,8 +102,6 @@ class Repl {
                 if (item.getType() = Const.END_STAT()) {
                     let depth = depth - 1;
                 }
-            } else {
-                do Display.printConstln("bad expression");
             }
 
             /* TODO: QUIT/EXIT = command to be interpreted */
