@@ -9,10 +9,11 @@ class Ifs {
 
     method void reset() {
         var Cond cond;
+//        do Display.printConstln("reset ifs");
         while (~(ifs = 0)) {
             let cond = ifs.get();
             do cond.dispose();
-            let ifs = list.delFirst();
+            let ifs = ifs.deleteFirst();
         }
         return;
     }
@@ -22,14 +23,21 @@ class Ifs {
         var List currentIf;
         var Cond cond;
         let currentIf = ifs;
+//        do Display.printConst("getTotalCond");
         while (~(currentIf = 0)) {
             let cond = currentIf.get();
+//            if (cond.isReversed()) {
+//                do Display.printConst(" condR");
+//            } else {
+//                do Display.printConst(" cond");
+//            }
             if (((~cond.getValue()) & (~cond.isReversed()))
                 | (cond.getValue() & cond.isReversed())) {
                 return false;
             }
             let currentIf = currentIf.getNext();
         }
+//        do Display.newline();
         return true;
     }
 
@@ -38,6 +46,7 @@ class Ifs {
     method boolean checkIfs() {
         var List list;
         var Cond cond;
+        var boolean result;
         if (ifs = 0) { // no ifs, nothing to do, command without ifs...
             return true;
         }
@@ -50,21 +59,23 @@ class Ifs {
 
         do cond.setEntered(true);
 
-        return getTotalCond();
+        let result =  getTotalCond();
+        return result;
     }
 
     // if with condition encountered
-    method void ifCond(Cond cond) {
-        var Cond cond;
+    method void ifCond(Cond newCond) {
+        var Cond prevCond;
         if (ifs = 0) {
-            let ifs = List.new(cond);
+            let ifs = List.new(newCond);
         } else {
-            let cond = ifs.get();
-            if (cond.isEntered()) {
+            let prevCond = ifs.get();
+            if (prevCond.isEntered()) {
                 do reset();
-                let ifs = List.new(cond);
+                let ifs = List.new(newCond);
             } else {
-                let ifs = ifs.prepend(cond);
+                do prevCond.setEntered(true);
+                let ifs = ifs.prepend(newCond);
             }
         }
         return;
@@ -80,7 +91,7 @@ class Ifs {
         }
 
         let cond = ifs.get();
-        while (~cond.isReversed()) {
+        while (cond.isReversed()) {
             if (~cond.isEntered()) {
                 do Display.printConstln("else without unit");
                 return;
@@ -88,12 +99,15 @@ class Ifs {
             let ifs = ifs.deleteFirst();
             if (ifs = 0) {
                 do Display.printConstln("else no if");
+                do reset();
                 return;
             }
+            let cond = ifs.get();
         }
 
         if (~cond.isEntered()) {
             do Display.printConstln("else without unit");
+            do reset();
             return;
         }
 
