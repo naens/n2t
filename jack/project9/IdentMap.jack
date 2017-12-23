@@ -134,10 +134,8 @@ class IdentMap {
                             } else {
                                 do prev.setNext(next);
                             }
-                            do list.setNext(0);
-                            do list.dispose();
                             do element.dispose();
-                            let list = next;
+                            let list = list.deleteFirst();
                             let needAdvance = false;
                         }
                     }

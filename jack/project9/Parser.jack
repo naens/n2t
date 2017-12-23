@@ -576,23 +576,22 @@ class Parser {
             return 0;
         }
 
-        let ch_equals = Parser.addTerminal(tokenizer,
-             result, Const.CH_EQUALS());
+        let ch_equals = Parser.addTerminal(tokenizer, result, Const.CH_EQUALS());
         if (ch_equals = 0) {
             do tokenizer.unread(ident);
             do result.dispose();
             return 0;
         }
 
-        let expr = Parser.parseExpression(true, expr);
+        let expr = Parser.parseExpression(true, tokenizer);
         if (expr = 0) {
-            do tokenizer.unread(ident);
             do tokenizer.unread(ch_equals);
+            do tokenizer.unread(ident);
             do result.dispose();
             return 0;
         }
-
         do result.addSubItem(expr);
+
         return result;
     }
 

@@ -88,10 +88,8 @@ class VarTable {
                         } else {
                             do prev.setNext(next);
                         }
-                        do list.setNext(0);
                         do node.dispose();
-                        do list.dispose();
-                        let list = next;
+                        let list = list.deleteFirst();
                         let needAdvance = false;
                     }
                 }
@@ -108,7 +106,6 @@ class VarTable {
 
     method void dispose() {
         var List list;
-        var List next;
         var integer i;
         var VarTableNode node;
         let i = 0;
@@ -117,10 +114,7 @@ class VarTable {
             while (~(list = 0)) {
                 let node = list.get();
                 do node.dispose();
-                let next = list.getNext();
-                do list.setNext(0);
-                do list.dispose();
-                let list = next;
+                let list = list.deleteFirst();
             }
             let i = i + 1;
         }

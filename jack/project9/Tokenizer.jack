@@ -63,8 +63,7 @@ class Tokenizer {
         let tmp = nodes;
         let nodes = nodes.getNext();
 //        do Display.printConstln("from next");
-        do tmp.setNext(0);
-        do tmp.dispose();
+        do tmp.deleteFirst();
         return result;
     }
 
