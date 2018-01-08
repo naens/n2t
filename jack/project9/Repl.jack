@@ -37,10 +37,11 @@ class Repl {
         var Item block;
         var Ifs ifs;
         var Cond cond;
-//        var Eva eva; //evaluator
+        var Eva eva;
 
         let tokenizer = Tokenizer.new();
         let ifs = Ifs.new();
+        let eva = Eva.new();
         let depth = 0;
 
         do Display.printString(prompt);
@@ -73,7 +74,7 @@ class Repl {
                                 // normal line (assign, expr, call, var_decl)
 //                                do Display.printConstln("exec");
                                 if (ifs.checkIfs()) {
-                                //    do Eva.execute(item);
+                                //    do eva.execute(item);
                                 }
                             }
                         }
@@ -92,7 +93,7 @@ class Repl {
                             do Display.newline();
                         }
                         if (ifs.checkIfs()) {
-                        //    do Eva.execute(block); // set block ids and execute
+                        //    do eva.execute(block); // set block ids and execute
                         }
                     }
                 }
@@ -119,6 +120,7 @@ class Repl {
         }
         do tokenizer.dispose();
         do ifs.dispose();
+        do eva.dispose();
         do line.dispose();
         do Display.newline();
         return;
@@ -130,5 +132,4 @@ class Repl {
         do Display.printConst("REPL Terminated.");
         return;
     }
-
 }
