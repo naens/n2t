@@ -1,0 +1,28 @@
+class Eva {
+    /* 2-pass Evaluator
+     * 1st pass: determine the block for each variable
+                 link identifier objects to function if is a function
+     * 2nd pass: execute the item
+     *
+     * The evaluator needs to keep the variable values, they are stored
+     * in object fields.
+     */
+    
+    field IdentMap identMap;
+
+    constructor Eva new() {
+        let identMap = IdentMap.new();
+        return this;
+    }
+
+    method void execute(Item item) {
+        return;
+    }
+
+    method void dispose() {
+        do identMap.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}
