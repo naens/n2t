@@ -1,0 +1,54 @@
+class Value {
+    field integer type;
+    field integer blockId;
+    field String stringValue;
+    field integer integerValue;    
+    field boolean booleanValue;
+
+    constructor Value newString(String s) {
+        let type = Const.T_STRING();
+        let stringValue = s;
+        return this;
+    }
+
+    constructor Value newInteger(integer i) {
+        let type = Const.T_INTEGER();
+        let integerValue = i;
+        return this;
+    }
+
+    constructor Value newBoolean(boolean b) {
+        let type = Const.T_BOOLEAN();
+        let booleanValue = b;
+        return this;
+    }
+
+    method void print() {
+        var String intString;
+        if (type = Const.T_STRING()) {
+            do Display.printString(stringValue);
+        }
+        if (type = Const.T_INTEGER()) {
+            let intString = String.new(Const.SCREEN_WIDTH());
+            do intString.setInt(integerValue);
+            do Display.printString(intString);
+            do intString.dispose();
+        }
+        if (type = Const.T_BOOLEAN()) {
+            if (booleanValue) {
+                do Display.printConst("true");
+            } else {
+                do Display.printConst("false");
+            }
+        }
+        return;
+    }
+
+    method void dispose() {
+        if (type = Const.T_STRING()) {
+            do Memory.deAlloc(stringValue);
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+}
