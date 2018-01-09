@@ -15,8 +15,32 @@ class Eva {
         return this;
     }
 
-    method void execute(Item item) {
+    /* pass1: variable declaration: save in block id in vartable
+     *        procedure declaration: save in block id in vartable
+     *                               save in identmap
+     *        variable in code: set block id from vartable
+     *        procedure in code: set procedure node from identmap
+     * !! when identifier in code: first find block id
+     *                             then check identmap (present => proc)
+     *                             if procedure: link occurence to node
+     */
+    method void pass1(Item item) {
+        var VarTable varTable;
+        let varTable = VarTable.new();
+        /* TODO */
+        do varTable.dispose();
         return;
+    }
+
+    method Value execute(Item item) {
+        /* TODO */
+        return 0;
+    }
+
+    /* execute method: performs the two passes */
+    method Value evaluate(Item item) {
+        do pass1(item);
+        return execute(item);
     }
 
     method void dispose() {

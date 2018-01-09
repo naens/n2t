@@ -2,9 +2,8 @@ class Item {
 
     field integer type;
     field boolean terminal;
-    field String stringValue;
-    field integer integerValue;    
-    field boolean booleanValue;
+    field integer blockId;
+    field Value value;
     field List subItems;
 
     constructor Item new() {
@@ -31,17 +30,17 @@ class Item {
     }
 
     method void setStringValue(String string) {
-        let stringValue = string;
+        let value = Value.newString(string);
         return;
     }
 
     method void setIntegerValue(integer val) {
-        let integerValue = val;
+        let value = Value.newInteger(val);
         return;
     }
 
     method void setBooleanValue(boolean b) {
-        let booleanValue = b;
+        let value = Value.newBoolean(b);
         return;
     }
 
@@ -79,31 +78,24 @@ class Item {
         var String intString;
         if (terminal) {
             if (type = Const.T_INTEGER()) {
-                let intString = String.new(Const.SCREEN_WIDTH());
-                do intString.setInt(integerValue);
-//                do Display.printConst("<integer:");
-                do Display.printString(intString);
-//                do Display.printConst(">");
-                do intString.dispose();
+                do value.print();
                 return;
             }
             if (type = Const.T_STRING()) {
                 do Display.printConst("<string:");
-                do Display.printString(stringValue);
+                do value.print();
                 do Display.printConst(">");
                 return;
             }
             if (type = Const.T_BOOLEAN()) {
-                if (booleanValue) {
-                    do Display.printConst("<boolean:true>");
-                } else {
-                    do Display.printConst("<boolean:false>");
-                }
+                do Display.printConst("<boolean:");
+                do value.print();
+                do Display.printConst(">");
                 return;
             }
             if (type = Const.IDENT()) {
 //                do Display.printConst("<identifier:");
-                do Display.printString(stringValue);
+                do value.print();
 //                do Display.printConst(">");
                 return;
             }
