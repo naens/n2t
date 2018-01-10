@@ -29,10 +29,18 @@ class Repl {
         return false;
     }
 
+    method Item elseStatIf(Item elseStat) {
+        var List subItems;
+        let subItems = elseStat.getSubItems();
+        let subItems = items.next();
+        return subItems.get();
+    }
+
     method void run() {
         var String line;
         var Tokenizer tokenizer;
         var Item item;
+        var Item elseIf;
         var integer depth;
         var Item block;
         var Ifs ifs;
@@ -63,21 +71,23 @@ class Repl {
                         do tokenizer.appendNode(item);
                     } else {
                         if (item.getType() = Const.IF_STAT()) {
-//                            do Display.printConstln("if_stat");
-                            let cond = Cond.new(true); /* TODO: replace */
-//                            let cond = Cond.new(eva.execute(item));
+                            let cond = Cond.new(eva.evaluate(item));
                             do ifs.ifCond(cond);
                         } else {
                             if (item.getType() = Const.KW_ELSE()) {
-//                                do Display.printConstln("kw_else");
                                 do ifs.ifReverse();
                             } else {
-                                // normal line (assign, expr, call, var_decl)
-//                                do Display.printConstln("exec");
-                                if (ifs.checkIfs()) {
-                                /* evaluate expression and print value */
-                                    let value = eva.evaluate(item);
-                                    do value.print();
+                                if (item.getType() = Const.ELSE_STAT()) {
+                                    do ifs.ifReverse();
+                                    let elseIf = elseStatIf(item);
+                                    let cond = Cond.new(eva.evaluate(elseIf));
+                                    do ifs.ifCond(cond);
+                                } else {
+                                    if (ifs.checkIfs()) {
+                                    /* evaluate expression and print value */
+                                        let value = eva.evaluate(item);
+                                        do value.print();
+                                    }
                                 }
                             }
                         }

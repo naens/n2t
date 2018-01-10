@@ -377,6 +377,32 @@ class Parser {
         return result;
     }
 
+    /* 'else' or 'else' if-stat */
+    function Item parseElseStat(Tokenizer tokenizer) {
+        var Item kw_else;
+        var Item ifStat;
+        var Item result;
+        
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.ELSE_STAT());
+
+        let kw_else = Parser.addTerminal(tokenizer, result, Const.KW_ELSE());
+        if (kw_else = 0) {
+            do result.dispose();
+            return 0;
+        }
+
+        let ifStat = Parser.parseIfStat(tokenizer);
+        if (ifStat = 0) {
+            return kw_else;
+        }
+
+        do result.addSubItem(ifStat);
+
+        return result;
+    }
+
     function Item parseDoBlockStat(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
@@ -976,14 +1002,14 @@ class Parser {
         do tokenizer.unread(item);
 
         let result = 0;
-        if (type = Const.KW_ELSE()) {
-            let result = tokenizer.nextToken();
-        }
         if (type = Const.KW_DECLARE()) {
             let result = Parser.parseDeclare(tokenizer);
         }
         if (type = Const.KW_IF()) {
             let result = Parser.parseIfStat(tokenizer);
+        }
+        if (type = Const.KW_ELSE()) {
+            let result = Parser.parseElseStat(tokenizer);
         }
         if (type = Const.KW_DO()) {
             let result = Parser.parseDo(tokenizer);

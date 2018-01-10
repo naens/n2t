@@ -203,6 +203,10 @@ class Const {
         return 7002;
     }
 
+    function integer ELSE_STAT() {
+        return 7003;
+    }
+
     function integer COND() {
         return 7012;
     }

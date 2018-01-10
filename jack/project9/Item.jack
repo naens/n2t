@@ -53,6 +53,10 @@ class Item {
         return;
     }
 
+    method LIst getSubItems() {
+        return subItems;
+    }
+
     method void dispose() {
         do Memory.deAlloc(this);
         return;

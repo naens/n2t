@@ -23,6 +23,22 @@ class Value {
         return this;
     }
 
+    method integer getType() {
+        return type;
+    }
+
+    method String getStringValue() {
+        return stringValue;
+    }
+
+    method integer getIntegerValue() {
+        return integerValue;
+    }
+
+    method boolean getBooleanValue() {
+        return booleanValue;
+    }
+
     method void print() {
         var String intString;
         if (type = Const.T_STRING()) {
