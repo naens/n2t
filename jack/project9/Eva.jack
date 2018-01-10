@@ -33,6 +33,7 @@ class Eva {
             if (item.getType() = Const.IDENT()) {
                 do item.setBlockId(blockId);
             }
+            return;
         } else {
             if (item.getType() = Const.FUN_DECL()) {
                 let funName = AstSel.funName(item);
@@ -53,8 +54,11 @@ class Eva {
                 do pass1rec(varTable, subItems.get());
                 let subItems = subItems.getNext();
             }
+            if (item.getType() = Const.END_STAT()) {
+                do varTable.popBlock(blockId);
+            }
+            return;
         }
-        return;
     }
 
     method void pass1(Item item) {
