@@ -1,0 +1,46 @@
+/* AST Selector functions */
+class AstSel {
+
+    /* function selectors
+     * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
+     */
+    function String funName(Item funDecl) {
+        var List subItems;
+        var Item item;
+        let subItems = funDecl.getSubItems();
+        let item = subItems.get(); /* fun_stat */
+        let subItems = item.getSubItems();
+        while ((~(item.getType() = Const.IDENT()))) {
+            let subItems = subItems.getNext();
+            let item = subItems.get();
+        }
+        return item.getStringValue();
+    }
+
+    /* returns fun_stat of a function
+     * [fun_decl: fun_stat ...]
+     */
+    function Item funStat(Item funDecl) {
+        var List subItems;
+        let subItems = funDecl.getSubItems();
+        return subItems.get();
+    }
+
+    /* returns declarations, units and end of a function
+     * [fun_decl: fun_stat {declaration} {unit} end_stat]
+     */
+    function List funRest(Item funDecl) {
+        var List subItems;
+        let subItems = funDecl.getSubItems(); /* fun_stat */
+        return subItems.getNext();
+    }
+
+    function Item elseStatIf(Item elseStat) {
+        var List subItems;
+        let subItems = elseStat.getSubItems();
+        let subItems = items.next();
+        return subItems.get();
+    }
+
+}
+
