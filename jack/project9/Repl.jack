@@ -29,13 +29,6 @@ class Repl {
         return false;
     }
 
-    method Item elseStatIf(Item elseStat) {
-        var List subItems;
-        let subItems = elseStat.getSubItems();
-        let subItems = items.next();
-        return subItems.get();
-    }
-
     method void run() {
         var String line;
         var Tokenizer tokenizer;
@@ -79,7 +72,7 @@ class Repl {
                             } else {
                                 if (item.getType() = Const.ELSE_STAT()) {
                                     do ifs.ifReverse();
-                                    let elseIf = elseStatIf(item);
+                                    let elseIf = AstSel.elseStatIf(item);
                                     let cond = Cond.new(eva.evaluate(elseIf));
                                     do ifs.ifCond(cond);
                                 } else {

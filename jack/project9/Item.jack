@@ -24,9 +24,22 @@ class Item {
         return terminal;
     }
 
+    method integer getBlockId() {
+        return blockId;
+    }
+
+    method void setBlockId(integer i) {
+        let blockId = i;
+        return;
+    }
+
     method void setType(integer typeValue) {
         let type = typeValue;
         return;
+    }
+
+    method String getStringValue() {
+        return value.getStringValue();
     }
 
     method void setStringValue(String string) {
@@ -34,9 +47,17 @@ class Item {
         return;
     }
 
+    method integer getIntegerValue() {
+        return value.getIntegerValue();
+    }
+
     method void setIntegerValue(integer val) {
         let value = Value.newInteger(val);
         return;
+    }
+
+    method boolean getBooleanValue() {
+        return value.getBooleanValue();
     }
 
     method void setBooleanValue(boolean b) {
