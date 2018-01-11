@@ -11,6 +11,28 @@ class AstSel {
         return subItems.get();
     }
 
+    /* return the type of the variable
+     * [var_decl: declare ident type]
+     */
+    function integer varType(Item varDecl) {
+        var List subItems;
+        var Item item;
+        let subItems = varDecl.getSubItems(); /* declare */
+        let subItems = subItems.getNext();    /* ident */
+        let subItems = subItems.getNext();    /* type */
+        let item = subItems.get();
+        if (item.getType() = Const.RW_INTEGER()) {
+            return Const.T_INTEGER();
+        }
+        if (item.getType() = Const.RW_STRING()) {
+            return Const.T_STRING();
+        }
+        if (item.getType() = Const.RW_BOOLEAN()) {
+            return Const.T_BOOLEAN();
+        }
+        return Const.ILLEGAL();
+    }
+
     /* returns the rest of the variable declaration
      * [var_decl: declare ident type]
      */
@@ -57,8 +79,20 @@ class AstSel {
     function Item elseStatIf(Item elseStat) {
         var List subItems;
         let subItems = elseStat.getSubItems();
-        let subItems = items.next();
+        let subItems = subItems.getNext();
         return subItems.get();
+    }
+
+    function String endName(Item endStat) {
+        var List subItems;
+        var Item ident;
+        let subItems = endStat.getSubItems();
+        let subItems = subItems.getNext();
+        if (subItems = 0) {
+            return 0;
+        }
+        let ident = subItems.get();
+        return ident.getStringValue();
     }
 
     /* Terminal Selectors */
@@ -67,4 +101,3 @@ class AstSel {
     }
 
 }
-

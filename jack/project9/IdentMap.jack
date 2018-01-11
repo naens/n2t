@@ -47,7 +47,7 @@ class IdentMap {
             let node = IdentMapNode.new(name, blockId, element);
             let list = List.new(node);
             let table[h] = list.prepend(node);
-        }
+        } /* else: should be impossible */
         return;
     }
 
@@ -70,7 +70,6 @@ class IdentMap {
 
     method Element get(String name, integer blockId) {
         var List list;
-        var List varStack;
         var integer h;
         var IdentMapNode node;
         let h = IdentMap.hash(name, blockId);
@@ -79,11 +78,11 @@ class IdentMap {
         if (node = 0) {
             return 0;
         } else {
-            let varStack = node.getElement();
-            return varStack.get();
+            return node.getElement();
         }
     }
 
+    /* looks for all elements of blockId and pushes them */
     method void pushBlock(integer blockId) {
         var List list;
         var integer i;

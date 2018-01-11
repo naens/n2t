@@ -16,7 +16,7 @@ class Element {
         return this;
     }
 
-    method void setValue(integer value, integer valueType) {
+    method void setValue(integer value) {
         if (~(valueStack = 0)) {
             do valueStack.set(value);
         }
@@ -35,7 +35,7 @@ class Element {
         return type = Const.T_PROCEDURE();
     }
 
-    method integer getValue(integer value) {
+    method integer getValue() {
         if (~(valueStack = 0)) {
             return valueStack.get();
         }
