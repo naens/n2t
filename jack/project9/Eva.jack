@@ -29,25 +29,34 @@ class Eva {
     method void pass1rec(VarTable varTable, Item item) {
         var List subItems;
         var String funName;
+        var String varName;
+        var String identName;
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
-                do item.setBlockId(blockId);
+                let identName = AstSel.identName(item);
+                do item.setBlockId(varTable.get(identName));
             }
             return;
         } else {
-            if (item.getType() = Const.FUN_DECL()) {
-                let funName = AstSel.funName(item);
+            if (item.getType() = Const.VAR_DECL()) {
+                let varName = AstSel.varName(item);
                 let blockId = blockId + 1;
-                /* set blockId for variables (? only for debug ?) */
-                do pass1rec(varTable, AstSel.funStat(item));
-                do identMap.putProc(funName, blockId, item);
-                let subItems = AstSel.funRest(item);
+                do pass1rec(varTable, AstSel.varRest(item));
+                do varTable.put(item, blockId);
             } else {
-                let subItems = item.getSubItems();
-                if (item.getType() = Const.DO_BLOCK()
-                  | item.getType() = Const.DO_ITER()
-                  | item.getType() = Const.DO_WHILE()) {
+                if (item.getType() = Const.FUN_DECL()) {
+                    let funName = AstSel.funName(item);
                     let blockId = blockId + 1;
+                    do pass1rec(varTable, AstSel.funStat(item));
+                    do identMap.putProc(funName, blockId, item);
+                    let subItems = AstSel.funRest(item);
+                } else {
+                    let subItems = item.getSubItems();
+                    if (item.getType() = Const.DO_BLOCK()
+                      | item.getType() = Const.DO_ITER()
+                      | item.getType() = Const.DO_WHILE()) {
+                        let blockId = blockId + 1;
+                    }
                 }
             }
             while (~(subItems = 0)) {
@@ -72,7 +81,7 @@ class Eva {
 
     method Value execute(Item item) {
         /* TODO */
-        return 0;
+        return item;
     }
 
     /* execute method: performs the two passes */
