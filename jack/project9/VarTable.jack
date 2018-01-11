@@ -16,8 +16,14 @@ class VarTable {
     }
 
     constructor VarTable new() {
+        var integer i;
         let TAB_SZ = 16;
         let table = Array.new(TAB_SZ);
+        let i = 0;
+        while (i < TAB_SZ) {
+            let table[i] = 0;
+            let i = i + 1;
+        }
         return this;
     }
 
@@ -116,6 +122,7 @@ class VarTable {
                 do node.dispose();
                 let list = list.deleteFirst();
             }
+
             let i = i + 1;
         }
         do table.dispose();
