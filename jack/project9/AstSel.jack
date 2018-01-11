@@ -1,6 +1,25 @@
 /* AST Selector functions */
 class AstSel {
 
+    /* variable selectors
+     * [var_decl: declare ident type]
+     */
+    function String varName(Item varDecl) {
+        var List subItems;
+        let subItems = varDecl.getSubItems(); /* declare */
+        let subItems = subItems.getNext();    /* ident */
+        return subItems.get();
+    }
+
+    /* returns the rest of the variable declaration
+     * [var_decl: declare ident type]
+     */
+    function List varRest(Item varDecl) {
+        var List subItems;
+        let subItems = varDecl.getSubItems(); /* declare */
+        return subItems.getNext();
+    }
+
     /* function selectors
      * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
      */
@@ -40,6 +59,11 @@ class AstSel {
         let subItems = elseStat.getSubItems();
         let subItems = items.next();
         return subItems.get();
+    }
+
+    /* Terminal Selectors */
+    function String identName(Item ident) {
+        return ident.getStringValue();
     }
 
 }
