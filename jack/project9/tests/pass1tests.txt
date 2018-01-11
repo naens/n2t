@@ -1,0 +1,104 @@
+* Evaluator pass1 tests.
+
+** Description
+
+Tests are grouped by level of complexity.  The first tests are at the
+beginning, then they test next levels of complexity.  Each group is does not
+add a lot of additional complexity, therefore they sould be executed in
+order.
+
+** About pass1
+The purpose of the pass1 is to assign block id to variables in statements
+and function node reference to functions in statements.
+
+** What must be tested
+ * The ability to tell whether an identifier is a function or a variable
+ * The ability to tell whether an identifier is declared
+ * The ability to search among variables and functions defined in main block
+ as well as in subblocks, functions and subfunctions (functions within
+ blocks or within other functions)
+ * The ability to assign the correct block id and function node to
+ identifiers
+ * The block ids should be predictable.  Each evaluation should begin with a
+ block id divisible by 100, so the last 2 digits must be predictable.
+
+** Order of tests
+ * Expressions
+ * Assignments
+ * Blocks (Do, DoWhile, DoIter)
+ * Functions
+ * Conditions
+ * Block in Functions
+ * Functions in Blocks
+ * Conditions in Blocks
+ * Conditions in Functions
+ * Blocks in Blocks
+ * Conditions in Conditions
+ * Functions in Functions
+ * 3-4 level tests
+ * Using previously defined Functions
+
+** Output format
+ * Function Declarations: function "<name>" (<blockId>)
+ * Varlable Declarations: variable "<name>" (<blockId>): <type>
+ * Blocks: do_block / do_while / do_iter
+ * End Statement: end ["<name>"]
+ * Identifiers:
+    - functions: <name>: func (<function blockId>)
+    - variables: <name>: var (<variable blockId>)
+    - undefined: <name>: undef
+
+** Tests
+*** Expressions
+**** expr1
+REPL>5
+
+**** expr2
+REPL>a
+a: undef
+
+**** expr3
+REPL>declare a integer
+varibale a (0): integer
+REPL>a
+a: var (0)
+REPL>a+a
+a: var (0)
+a: var (0)
+
+**** expr4
+REPL>a+b
+a: var(0)
+b: undef
+REPL>declare b boolean
+variable b (0): boolean
+REPL>b+2*a
+b: var(0)
+a: var(0)
+
+*** Assignments
+**** assign1
+REPL>c=a+b
+c: undef
+a: var(0)
+b: var(0)
+
+**** assign2
+REPL>declare c integer
+variable c (0): integer
+REPL>c=2*(a-1)/a
+c: var(0)
+a: var(0)
+a: var(0)
+
+*** Functions
+*** Blocks (Do, DoWhile, DoIter)
+*** Conditions
+*** Block in Functions
+*** Functions in Blocks
+*** Conditions in Blocks
+*** Conditions in Functions
+*** Blocks in Blocks
+*** Conditions in Conditions
+*** Functions in Functions
+*** Multilevel Tests
