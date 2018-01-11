@@ -27,22 +27,32 @@ class Eva {
      *                             if procedure: link occurence to node
      */
     method void pass1rec(VarTable varTable, Item item) {
-        var List subItems;
-        var String funName;
-        var String varName;
         var String identName;
+        var String varName;
+        var VarTableNode vtn;
+        var String funName;
+        var integer type;
+        var List subItems;
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
-                do item.setBlockId(varTable.get(identName));
+                let vtn = varTable.get(identName);
+                if (~(vtn = 0)) {
+                    do item.setBlockId(vtn.getValue());
+                }
+                do AstPrint.ident(varTable, identMap, item);
             }
             return;
         } else {
             if (item.getType() = Const.VAR_DECL()) {
                 let varName = AstSel.varName(item);
                 let blockId = blockId + 1;
+                let type = AstSel.varType(item);
                 do pass1rec(varTable, AstSel.varRest(item));
+                do identMap.putVar(varName, blockId, type);
                 do varTable.put(item, blockId);
+                do item.setBlockId(blockId);
+                do AstPrint.varDecl(item);
             } else {
                 if (item.getType() = Const.FUN_DECL()) {
                     let funName = AstSel.funName(item);
@@ -50,12 +60,16 @@ class Eva {
                     do pass1rec(varTable, AstSel.funStat(item));
                     do identMap.putProc(funName, blockId, item);
                     let subItems = AstSel.funRest(item);
+                    do item.setBlockId(blockId);
+                    do AstPrint.funDecl(item);
                 } else {
                     let subItems = item.getSubItems();
                     if (item.getType() = Const.DO_BLOCK()
                       | item.getType() = Const.DO_ITER()
                       | item.getType() = Const.DO_WHILE()) {
                         let blockId = blockId + 1;
+                        do item.setBlockId(blockId);
+                        do AstPrint.block(item);
                     }
                 }
             }

@@ -1,0 +1,57 @@
+class AstPrint {
+
+    /* Class containing functions for printing of AST elements
+     * for debug purposes
+     */
+
+    /* function "<name>" (<blockId>) */
+    function void funDecl(Item funDecl) {
+        return;
+    }
+
+    /* variable "<name>" (<blockId>): <type> */
+    function void varDecl(Item varDecl) {
+        return;
+    }
+    
+    function void block(Item block) {
+        if (item.getType() = Const.DO_BLOCK()) {
+            do Display.printConstln("do_block");
+        }
+        if (item.getType() = Const.DO_WHILE()) {
+            do Display.printConstln("do_while");
+        }
+        if (item.getType() = Const.DO_ITER()) {
+            do Display.printConstln("do_iter");
+        }
+        return;
+    }
+
+    function void endStat(Item endStat) {
+        var String name;
+        do Display.printConst("end");
+        let name = AstSel.endName(endStat);
+        if (~(name = 0)) {
+            do Display.printConst(" ");
+            do Display.printString(name);
+            do name.dispose();
+        }
+        do Display.newline();
+        return;
+    }
+
+    /* functions: <name>: func (<function blockId>)
+     * variables: <name>: var (<variable blockId>)
+     * undefined: <name>: undef
+     */
+    function void ident(VarTable varTable, IdentMap identMap, Item ident) {
+        var String name;
+        var integer blockId;
+        var Item func;
+        let name = AstSel.identName(ident);
+        let blockId = varTable.get(name);
+        let func = identMap.get(name, blockId);
+        return;
+    }    
+    
+}
