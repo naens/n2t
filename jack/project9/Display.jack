@@ -106,6 +106,15 @@ class Display {
         return;
     }
 
+    function void printInt(integer n) {
+        var String string;
+        let string = String.new(6);
+        do string.setInt(n);
+        do Display.printString(string);
+        do string.dispose();
+        return;
+    }
+
     function void println(String str) {
         do Display.printString(str);
         do Display.newline();
