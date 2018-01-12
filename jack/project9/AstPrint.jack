@@ -44,14 +44,59 @@ class AstPrint {
      * variables: <name>: var (<variable blockId>)
      * undefined: <name>: undef
      */
-    function void ident(VarTable varTable, IdentMap identMap, Item ident) {
+    function void ident(IdentMap identMap, Item ident) {
         var String name;
         var integer blockId;
         var Item func;
         let name = AstSel.identName(ident);
-        let blockId = varTable.get(name);
+        let blockId = ident.getBlockId();
+        do Display.printString(name);
+        do Display.printConst(": ");
+        if (blockId = (-1)) {
+            do Display.printConstln("undef");
+            return;
+        }
         let func = identMap.get(name, blockId);
+        if (func = 0) {
+            do Display.printConst("func (");
+        } else {
+            do Display.printConst("var (");
+        }
+        do Display.printInt(blockId);
+        do Display.printConstln(")");
         return;
     }    
+
+   function void item(IdentMap identMap, Item item) {
+        var List subItems;
+        if (item.isTerminal()) {
+            if (item.getType() = Const.IDENT()) {
+                do AstPrint.ident(identMap, item);
+            }
+            return;
+        } else {
+            if (item.getType() = Const.VAR_DECL()) {
+                do AstPrint.varDecl(item);
+                return;
+            } else {
+                if (item.getType() = Const.FUN_DECL()) {
+                    do AstPrint.funDecl(item);
+                    let subItems = AstSel.funRest(item);
+                } else {
+                    let subItems = item.getSubItems();
+                    if (item.getType() = Const.DO_BLOCK()
+                      | item.getType() = Const.DO_ITER()
+                      | item.getType() = Const.DO_WHILE()) {
+                        do AstPrint.block(item);
+                    }
+                }
+            }
+            while (~(subItems = 0)) {
+                do AstPrint.item(identMap, subItems.get());
+                let subItems = subItems.getNext();
+            }
+            return;
+        }
+    }
     
 }

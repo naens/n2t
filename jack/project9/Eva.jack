@@ -39,8 +39,9 @@ class Eva {
                 let vtn = varTable.get(identName);
                 if (~(vtn = 0)) {
                     do item.setBlockId(vtn.getValue());
+                } else {
+                    do item.setBlockId(-1);
                 }
-                do AstPrint.ident(varTable, identMap, item);
             }
             return;
         } else {
@@ -52,7 +53,7 @@ class Eva {
                 do identMap.putVar(varName, blockId, type);
                 do varTable.put(item, blockId);
                 do item.setBlockId(blockId);
-                do AstPrint.varDecl(item);
+                return;
             } else {
                 if (item.getType() = Const.FUN_DECL()) {
                     let funName = AstSel.funName(item);
@@ -61,7 +62,6 @@ class Eva {
                     do identMap.putProc(funName, blockId, item);
                     let subItems = AstSel.funRest(item);
                     do item.setBlockId(blockId);
-                    do AstPrint.funDecl(item);
                 } else {
                     let subItems = item.getSubItems();
                     if (item.getType() = Const.DO_BLOCK()
@@ -69,7 +69,6 @@ class Eva {
                       | item.getType() = Const.DO_WHILE()) {
                         let blockId = blockId + 1;
                         do item.setBlockId(blockId);
-                        do AstPrint.block(item);
                     }
                 }
             }
@@ -101,6 +100,7 @@ class Eva {
     /* execute method: performs the two passes */
     method Value evaluate(Item item) {
         do pass1(item);
+        do AstPrint.item(identMap, item);
         return execute(item);
     }
 
