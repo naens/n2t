@@ -45,7 +45,7 @@ and function node reference to functions in statements.
  * End Statement: end ["<name>"]
  * Identifiers:
     - functions: <name>: func (<function blockId>)
-    - variables: <name>: var (<variable blockId>)
+    - variables: <name>: var (<variable blockId>) <type>
     - undefined: <name>: undef
 
 ** Tests
@@ -61,35 +61,35 @@ a: undef
 REPL>declare a integer
 varibale a (0): integer
 REPL>a
-a: var (0)
+a: var (0) integer
 REPL>a+a
-a: var (0)
-a: var (0)
+a: var (0) integer
+a: var (0) integer
 
 **** expr4
 REPL>a+b
-a: var(0)
+a: var(0) integer
 b: undef
 REPL>declare b boolean
 variable b (0): boolean
 REPL>b+2*a
-b: var(0)
-a: var(0)
+b: var(0) boolean
+a: var(0) integer
 
 *** Assignments
 **** assign1
 REPL>c=a+b
 c: undef
-a: var(0)
-b: var(0)
+a: var(0) integer
+b: var(0) boolean
 
 **** assign2
 REPL>declare c integer
 variable c (0): integer
 REPL>c=2*(a-1)/a
-c: var(0)
-a: var(0)
-a: var(0)
+c: var(0) integer
+a: var(0) integer
+a: var(0) integer
 
 *** Functions
 *** Blocks (Do, DoWhile, DoIter)
