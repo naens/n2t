@@ -16,6 +16,10 @@ class Element {
         return this;
     }
 
+    method integer getType() {
+        return type;
+    }
+
     method void setValue(integer value) {
         if (~(valueStack = 0)) {
             do valueStack.set(value);

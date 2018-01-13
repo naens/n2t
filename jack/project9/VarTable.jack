@@ -9,7 +9,7 @@ class VarTable {
         let i = 0;
         let sum = 0;
         while (i < key.length()) {
-            let sum = sum + str.charAt(i);
+            let sum = sum + key.charAt(i);
             let i = i + 1;
         }
         return sum & 15;
@@ -43,28 +43,79 @@ class VarTable {
         var List list;
         var integer h;
         var VarTableNode node;
+/*
+                    do Display.printConst("VT:put table = ");
+                    do Display.printInt(table);
+                    do Display.newline();
+        do Display.newline();
+        do Display.printConst("VT:put key=[");
+        do Display.printString(key);
+        do Display.printConstln("]");
+*/
         let h = VarTable.hash(key);
+/*
+        do Display.printConst("VT:put h=[");
+        do Display.printInt(h);
+        do Display.printConstln("]");
+*/
         let list = table[h];
         if (list = 0) {
+//            do Display.printConstln("VT:put list=0");
             let node = VarTableNode.new(key);
             let list = List.new(node);
+            let table[h] = list;
+                    let list = table[h];
+/*
+                    do Display.printConst("VT:put list = table[h] = ");
+                    do Display.printInt(list);
+                    do Display.newline();
+*/
+        } else  {
+//            do Display.printConstln("VT:put list<>0");
             let table[h] = list.prepend(node);
-        } else {
             let node = getNode(list, key);
+            if (node = 0) {
+//                do Display.printConstln("VT:put node=0");
+                let node = VarTableNode.new(key);
+            }
         }
         do node.push(value);
         return;
     }
 
-    /* return VarTableNode, can be zero if not found */
+    /* return VarTableNode or -1 if not found */
     method integer get(String key) {
         var List list;
         var integer h;
         var VarTableNode node;
+/*
+        do Display.newline();
+                    do Display.printConst("VT:get table = ");
+                    do Display.printInt(table);
+                    do Display.newline();
+        do Display.printConst("VT:get key=[");
+        do Display.printString(key);
+        do Display.printConstln("]");
+*/
         let h = VarTable.hash(key);
+/*
+        do Display.printConst("VT:get h=[");
+        do Display.printInt(h);
+        do Display.printConstln("]");
+*/
         let list = table[h];
+/*
+        if (list = 0) {
+            do Display.printConstln("VT:get list=0");
+        }
+*/
         let node = getNode(list, key);
-        return node;
+        if (node = 0) {
+//            do Display.printConstln("VT:get node=0");
+            return -1;
+        } else {
+            return node.getValue();
+        }
     }
 
     method void popBlock(integer blockId) {

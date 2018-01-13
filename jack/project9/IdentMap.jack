@@ -9,15 +9,21 @@ class IdentMap {
         let i = 0;
         let sum = blockId;
         while (i < name.length()) {
-            let sum = sum + str.charAt(i);
+            let sum = sum + name.charAt(i);
             let i = i + 1;
         }
         return sum & 31;
     }
 
     constructor IdentMap new() {
+        var integer i;
+        let i = 0;
         let TAB_SZ = 32;
         let table = Array.new(TAB_SZ);
+        while (i < TAB_SZ) {
+            let table[i] = 0;
+            let i = i + 1;
+        }
         return this;
     }
 
@@ -42,12 +48,17 @@ class IdentMap {
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
         let element = Element.newProc(proc);
-        let node = getNode(list, name, blockId);
-        if (node = 0) {
+        if (list = 0) {
             let node = IdentMapNode.new(name, blockId, element);
             let list = List.new(node);
-            let table[h] = list.prepend(node);
-        } /* else: should be impossible */
+        } else {
+            let node = getNode(list, name, blockId);
+            if (node = 0) {
+                let node = IdentMapNode.new(name, blockId, element);
+            }
+            let list = list.prepend(node);
+        }
+        let table[h] = list;
         return;
     }
 
@@ -59,12 +70,25 @@ class IdentMap {
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
         let element = Element.newVar(type);
-        let node = getNode(list, name, blockId);
-        if (node = 0) {
+        if (list = 0) {
             let node = IdentMapNode.new(name, blockId, element);
             let list = List.new(node);
-            let table[h] = list.prepend(node);
+        } else {
+            let node = getNode(list, name, blockId);
+            if (node = 0) {
+                let node = IdentMapNode.new(name, blockId, element);
+            }
+            let list = list.prepend(node);
         }
+        let table[h] = list;
+/*  
+        do Display.printInt(h);
+        do Display.printConst(".");
+        do Display.printInt(list);
+        do Display.printConst(":");
+        do Display.printString(name);
+        do Display.printInt(blockId);
+*/
         return;
     }
 
@@ -74,6 +98,12 @@ class IdentMap {
         var IdentMapNode node;
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
+/*
+        do Display.printInt(h);
+        do Display.printConst(".");
+        do Display.printInt(list);
+        do Display.printConst(":");
+*/
         let node = getNode(list, name, blockId);
         if (node = 0) {
             return 0;

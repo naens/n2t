@@ -11,6 +11,19 @@ class AstPrint {
 
     /* variable "<name>" (<blockId>): <type> */
     function void varDecl(Item varDecl) {
+        var String name;
+        var integer blockId;
+        var integer type;
+        let name = AstSel.varName(varDecl);
+        let blockId = varDecl.getBlockId();
+        let type = AstSel.varType(varDecl);
+        do Display.printConst("variable ");
+        do Display.printString(name);
+        do Display.printConst(" (");
+        do Display.printInt(blockId);
+        do Display.printConst("): ");
+        do AstPrint.type(type);
+        do Display.newline();
         return;
     }
     
@@ -41,13 +54,13 @@ class AstPrint {
     }
 
     /* functions: <name>: func (<function blockId>)
-     * variables: <name>: var (<variable blockId>)
+     * variables: <name>: var (<variable blockId>) <type>
      * undefined: <name>: undef
      */
     function void ident(IdentMap identMap, Item ident) {
         var String name;
         var integer blockId;
-        var Item func;
+        var Element element;
         let name = AstSel.identName(ident);
         let blockId = ident.getBlockId();
         do Display.printString(name);
@@ -56,20 +69,27 @@ class AstPrint {
             do Display.printConstln("undef");
             return;
         }
-        let func = identMap.get(name, blockId);
-        if (func = 0) {
+        let element = identMap.get(name, blockId);
+        if (element.getType() = Const.T_PROCEDURE()) {
             do Display.printConst("func (");
         } else {
             do Display.printConst("var (");
         }
         do Display.printInt(blockId);
-        do Display.printConstln(")");
+        do Display.printConst(")");
+        if (~(element.getType() = Const.T_PROCEDURE())) {
+            do Display.printConst(" ");
+            do AstPrint.type(element.getType());
+        }
+        do Display.newline();
         return;
     }    
 
-   function void item(IdentMap identMap, Item item) {
+    /* print an item */
+    function void item(IdentMap identMap, Item item) {
         var List subItems;
         if (item.isTerminal()) {
+//            do Display.printConstln("term");
             if (item.getType() = Const.IDENT()) {
                 do AstPrint.ident(identMap, item);
             }
@@ -97,6 +117,21 @@ class AstPrint {
             }
             return;
         }
+    }
+
+    function void type(integer type) {
+        if (type = Const.T_STRING()) {
+            do Display.printConst("string");
+        } else {
+            if (type = Const.T_INTEGER()) {
+                do Display.printConst("integer");
+            } else {
+                if (type = Const.T_BOOLEAN()) {
+                    do Display.printConst("boolean");
+                }
+            }
+        }
+        return;
     }
     
 }

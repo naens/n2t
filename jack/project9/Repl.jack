@@ -56,8 +56,8 @@ class Repl {
             let item = Parser.parseLine(tokenizer); //tokenizer is clean
             if (~(item = 0)) {
 //                do Display.printConstln("parsing expression ok");
-                do item.print();
-                do Display.newline();
+//                do item.print();
+//                do Display.newline();
                 if (depth = 0) {
                     if (isBlockStat(item)) {
 //                        do Display.printConstln("set depth 1, append");

@@ -29,29 +29,50 @@ class Eva {
     method void pass1rec(VarTable varTable, Item item) {
         var String identName;
         var String varName;
-        var VarTableNode vtn;
         var String funName;
+        var integer identBlockId;
         var integer type;
         var List subItems;
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
-                let vtn = varTable.get(identName);
-                if (~(vtn = 0)) {
-                    do item.setBlockId(vtn.getValue());
+//                do Display.printConst("pass1rec: term name=");
+//                do Display.printString(identName);
+                let identBlockId = varTable.get(identName);
+                if (identBlockId = -1) {
+                    if ((blockId = 0) & (~(identMap.get(identName, 0) = 0))) {
+                        do item.setBlockId(0);
+//                        do Display.printConstln(" blockId=0 (from identMap)");
+                    } else {
+                        do item.setBlockId(-1);
+//                        do Display.printConstln(" blockId=undef");
+                    }
                 } else {
-                    do item.setBlockId(-1);
+                    do item.setBlockId(identBlockId);
+/*
+                    do Display.printConst(" blockId=");
+                    do Display.printInt(identBlockId);
+                    do Display.newline();
+*/
                 }
             }
             return;
         } else {
             if (item.getType() = Const.VAR_DECL()) {
                 let varName = AstSel.varName(item);
-                let blockId = blockId + 1;
                 let type = AstSel.varType(item);
+/*
+                do Display.printConst("pass1rec: var_decl name=");
+                do Display.printString(varName);
+                do Display.printConst(" blockId=");
+                do Display.printInt(blockId);
+                do Display.printConst(" type=");
+                do AstPrint.type(type);
+                do Display.newline();
+*/
                 do pass1rec(varTable, AstSel.varRest(item));
                 do identMap.putVar(varName, blockId, type);
-                do varTable.put(item, blockId);
+                do varTable.put(varName, blockId);
                 do item.setBlockId(blockId);
                 return;
             } else {
@@ -63,12 +84,15 @@ class Eva {
                     let subItems = AstSel.funRest(item);
                     do item.setBlockId(blockId);
                 } else {
-                    let subItems = item.getSubItems();
                     if (item.getType() = Const.DO_BLOCK()
                       | item.getType() = Const.DO_ITER()
                       | item.getType() = Const.DO_WHILE()) {
+                        do pass1rec(varTable, AstSel.blockStat(item));
                         let blockId = blockId + 1;
                         do item.setBlockId(blockId);
+                        let subItems = AstSel.blockRest(item);
+                    } else {
+                        let subItems = item.getSubItems();
                     }
                 }
             }

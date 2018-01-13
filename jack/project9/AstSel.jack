@@ -5,10 +5,12 @@ class AstSel {
      * [var_decl: declare ident type]
      */
     function String varName(Item varDecl) {
+        var Item item;
         var List subItems;
         let subItems = varDecl.getSubItems(); /* declare */
         let subItems = subItems.getNext();    /* ident */
-        return subItems.get();
+        let item = subItems.get();
+        return item.getStringValue();
     }
 
     /* return the type of the variable
@@ -73,6 +75,24 @@ class AstSel {
     function List funRest(Item funDecl) {
         var List subItems;
         let subItems = funDecl.getSubItems(); /* fun_stat */
+        return subItems.getNext();
+    }
+
+    /* returns block_stat of a block
+     * [bock: block_stat ...]
+     */
+    function Item blockStat(Item block) {
+        var List subItems;
+        let subItems = block.getSubItems();
+        return subItems.get();
+    }
+
+    /* returns declarations, units and end of a block
+     * [block: block_stat {declaration} {unit} end_stat]
+     */
+    function List blockRest(Item block) {
+        var List subItems;
+        let subItems = block.getSubItems();
         return subItems.getNext();
     }
 

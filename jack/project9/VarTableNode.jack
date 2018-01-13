@@ -25,7 +25,7 @@ class VarTableNode {
         if (~(varStack = 0)) {
             return varStack.get();
         }
-        return 0;
+        return -1;
     }
 
     method void pop() {
