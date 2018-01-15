@@ -86,17 +86,17 @@ class Repl {
                         }
                     }
                 } else {
-                    do Display.printConstln("depth > 0, append");
+//                    do Display.printConstln("depth > 0, append");
                     do tokenizer.appendNode(item);
                     if ((depth = 1) & (item.getType() = Const.END_STAT())) {
-                        do Display.printConstln("set depth 0, parse");
+//                        do Display.printConstln("set depth 0, parse");
                         let block = Parser.parseBlock(tokenizer);
                         if (block = 0) {
                             do Display.printConstln("bad block");
                         } else {
-                            do Display.printConst("parsed: ");
-                            do block.print();
-                            do Display.newline();
+//                            do Display.printConst("parsed: ");
+//                            do block.print();
+//                            do Display.newline();
                         }
                         if (ifs.checkIfs()) {
                         /* evaluate expression and print value */
@@ -123,7 +123,13 @@ class Repl {
              * Similar with blocks and conds.
              */
             do line.dispose();
-            do Display.printString(prompt);
+            if (depth = 0) {
+                do Display.printString(prompt);
+            } else {
+                do Display.printConst("DEP");
+                do Display.printInt(depth);
+                do Display.printConst(">");
+            }
             let line = Display.readln();
         }
         do tokenizer.dispose();
