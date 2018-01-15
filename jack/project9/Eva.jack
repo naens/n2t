@@ -10,10 +10,29 @@ class Eva {
     
     field IdentMap identMap;
 
-    field integer blockId;
+    field integer lastBlockId;
+    field integer currBlockId;
+
+    field List blockIdStack;
+
+    method void nextBlockId() {
+        let lastBlockId = lastBlockId + 1;
+        let blockIdStack = blockIdStack.prepend(lastBlockId);
+        let currBlockId = lastBlockId;
+        return;
+    }
+
+    method void popBlockId() {
+        let blockIdStack = blockIdStack.deleteFirst();
+        let currBlockId = blockIdStack.get();
+        return;
+    }
 
     constructor Eva new() {
         let identMap = IdentMap.new();
+        let lastBlockId = 0;
+        let blockIdStack = List.new(lastBlockId);
+        let currBlockId = 0;
         return this;
     }
 
@@ -31,29 +50,26 @@ class Eva {
         var String varName;
         var String funName;
         var integer identBlockId;
+        var integer endBlockId;
+        var integer tmp;
         var integer type;
         var List subItems;
+        var List funArgs;
+        var Item arg;
+        var Item subItem;
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
-//                do Display.printConst("pass1rec: term name=");
-//                do Display.printString(identName);
                 let identBlockId = varTable.get(identName);
                 if (identBlockId = -1) {
-                    if ((blockId = 0) & (~(identMap.get(identName, 0) = 0))) {
+                    if ((currBlockId = 0)
+                      & (~(identMap.get(identName, 0) = 0))) {
                         do item.setBlockId(0);
-//                        do Display.printConstln(" blockId=0 (from identMap)");
                     } else {
                         do item.setBlockId(-1);
-//                        do Display.printConstln(" blockId=undef");
                     }
                 } else {
                     do item.setBlockId(identBlockId);
-/*
-                    do Display.printConst(" blockId=");
-                    do Display.printInt(identBlockId);
-                    do Display.newline();
-*/
                 }
             }
             return;
@@ -61,35 +77,39 @@ class Eva {
             if (item.getType() = Const.VAR_DECL()) {
                 let varName = AstSel.varName(item);
                 let type = AstSel.varType(item);
-/*
-                do Display.printConst("pass1rec: var_decl name=");
-                do Display.printString(varName);
-                do Display.printConst(" blockId=");
-                do Display.printInt(blockId);
-                do Display.printConst(" type=");
-                do AstPrint.type(type);
-                do Display.newline();
-*/
                 do pass1rec(varTable, AstSel.varRest(item));
-                do identMap.putVar(varName, blockId, type);
-                do varTable.put(varName, blockId);
-                do item.setBlockId(blockId);
+                do identMap.putVar(varName, currBlockId, type);
+                do varTable.put(varName, currBlockId);
+                do item.setBlockId(currBlockId);
                 return;
             } else {
                 if (item.getType() = Const.FUN_DECL()) {
                     let funName = AstSel.funName(item);
-                    let blockId = blockId + 1;
-                    do pass1rec(varTable, AstSel.funStat(item));
-                    do identMap.putProc(funName, blockId, item);
+                    do varTable.put(funName, currBlockId);
+                    do identMap.putProc(funName, currBlockId, item);
+/*
+                    do Display.printConst("putProc:");
+                    do Display.printString(funName);
+                    do Display.printConst(":");
+                    do Display.printInt(currBlockId);
+                    do Display.newline();
+*/
+                    do nextBlockId();
+                    let funArgs = AstSel.funArgs(item);
+                    while (~(funArgs = 0)) {
+                        let arg = funArgs.get();
+                        do arg.setBlockId(currBlockId);
+                        let funArgs = funArgs.getNext();
+                    }
                     let subItems = AstSel.funRest(item);
-                    do item.setBlockId(blockId);
+                    do item.setBlockId(currBlockId);
                 } else {
                     if (item.getType() = Const.DO_BLOCK()
                       | item.getType() = Const.DO_ITER()
                       | item.getType() = Const.DO_WHILE()) {
                         do pass1rec(varTable, AstSel.blockStat(item));
-                        let blockId = blockId + 1;
-                        do item.setBlockId(blockId);
+                        do nextBlockId();
+                        do item.setBlockId(currBlockId);
                         let subItems = AstSel.blockRest(item);
                     } else {
                         let subItems = item.getSubItems();
@@ -100,8 +120,16 @@ class Eva {
                 do pass1rec(varTable, subItems.get());
                 let subItems = subItems.getNext();
             }
+
             if (item.getType() = Const.END_STAT()) {
-                do varTable.popBlock(blockId);
+//                let endBlockId = topBlockId();
+//                do Display.printConstln("set end blockId:");
+//                do Display.printInt(endBlockId);
+//                do Display.newline();
+                do item.setBlockId(currBlockId);
+                do varTable.popBlock(currBlockId);
+                do popBlockId();
+                return;
             }
             return;
         }
@@ -110,7 +138,6 @@ class Eva {
     method void pass1(Item item) {
         var VarTable varTable;
         let varTable = VarTable.new();
-        let blockId = 0;
         do pass1rec(varTable, item);
         do varTable.dispose();
         return;

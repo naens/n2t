@@ -4,7 +4,7 @@ class AstPrint {
      * for debug purposes
      */
 
-    /* function "<name>" (<blockId>) */
+    /* function {blockId} <name> (<blockId>) */
     function void funDecl(Item funDecl) {
         return;
     }
@@ -40,9 +40,14 @@ class AstPrint {
         return;
     }
 
+    /* end {<blockId>} <name> */
     function void endStat(Item endStat) {
         var String name;
-        do Display.printConst("end");
+        var integer blockId;
+        do Display.printConst("end {");
+        let blockId = endStat.getBlockId();
+        do Display.printInt(blockId);
+        do Display.printConst("}");
         let name = AstSel.endName(endStat);
         if (~(name = 0)) {
             do Display.printConst(" ");
@@ -103,11 +108,15 @@ class AstPrint {
                     do AstPrint.funDecl(item);
                     let subItems = AstSel.funRest(item);
                 } else {
-                    let subItems = item.getSubItems();
-                    if (item.getType() = Const.DO_BLOCK()
-                      | item.getType() = Const.DO_ITER()
-                      | item.getType() = Const.DO_WHILE()) {
-                        do AstPrint.block(item);
+                    if (item.getType() = Const.END_STAT()) {
+                        do AstPrint.endStat(item);
+                    } else {
+                        let subItems = item.getSubItems();
+                        if (item.getType() = Const.DO_BLOCK()
+                          | item.getType() = Const.DO_ITER()
+                          | item.getType() = Const.DO_WHILE()) {
+                            do AstPrint.block(item);
+                        }
                     }
                 }
             }
