@@ -39,12 +39,12 @@ and function node reference to functions in statements.
  * Using previously defined Functions
 
 ** Output format
- * Function Declarations: function "<name>" (<blockId>)
- * Varlable Declarations: variable "<name>" (<blockId>): <type>
- * Blocks: do_block / do_while / do_iter
- * End Statement: end ["<name>"]
+ * Function Declarations: function {blockId} <name> (<blockId>)[: <type]
+ * Varlable Declarations: variable <name> (<blockId>): <type>
+ * Blocks: do_block / do_while / do_iter {<blockId>}
+ * End Statement: end {<blockId>} [<name>]
  * Identifiers:
-    - functions: <name>: func (<function blockId>)
+    - functions: <name>: func {<blockId>} (<function blockId>) <type>
     - variables: <name>: var (<variable blockId>) <type>
     - undefined: <name>: undef
 
@@ -68,30 +68,77 @@ a: var (0) integer
 
 **** expr4
 REPL>a+b
-a: var(0) integer
+a: var (0) integer
 b: undef
 REPL>declare b boolean
 variable b (0): boolean
 REPL>b+2*a
-b: var(0) boolean
-a: var(0) integer
+b: var (0) boolean
+a: var (0) integer
 
 *** Assignments
 **** assign1
 REPL>c=a+b
 c: undef
-a: var(0) integer
-b: var(0) boolean
+a: var (0) integer
+b: var (0) boolean
 
 **** assign2
 REPL>declare c integer
 variable c (0): integer
 REPL>c=2*(a-1)/a
-c: var(0) integer
-a: var(0) integer
-a: var(0) integer
+c: var (0) integer
+a: var (0) integer
+a: var (0) integer
 
 *** Functions
+**** func1
+REPL>declare (f)
+DEP1>end f
+function {1} f (0)
+end {1} f
+REPL>f
+f: func {1} (0)
+
+**** func2
+REPL>declare (g a) boolean
+DEP1>declare a integer
+DEP1>return not a > c
+DEP1>end g
+function {2} g (0): boolean
+variable a (2): integer
+a: var (2) integer
+c: var (0) integer
+end {2} g
+REPL>g a
+g: func (0) boolean
+a: var (0) integer
+
+**** func3
+REPL>declare (h x) string
+DEP1>declare x integer
+DEP1>declare y integer
+DEP1>y=17
+DEP1>g (h (x+y))
+DEP1>return 'ok'
+DEP1>end (3) h
+function {3} h (0): string
+variable x (3): integer
+variable y (3): integer
+y: var (3) integer
+g: func {2} (0) boolean
+h: func {3} (0) string
+x: var (3) integer
+y: var (3) integer
+end {3} h
+REPL>declare s string
+variable s (0): string
+REPL>s = (h (f 15) + a)
+s: var (0) string
+h: func {3} (0) string
+f: func {1} (0) integer
+a: var (0) integer
+
 *** Blocks (Do, DoWhile, DoIter)
 *** Conditions
 *** Block in Functions
