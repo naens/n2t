@@ -140,7 +140,103 @@ f: func {1} (0) integer
 a: var (0) integer
 
 *** Blocks (Do, DoWhile, DoIter)
+**** do_block
+REPL>declare a integer
+variable a (0): integer
+REPL>declare b integer
+variable b (0): integer
+REPL>a=5
+a: var (0) integer
+REPL>b=50
+b: var (0) integer
+REPL>do
+DEP1>declare b integer
+DEP1>b=a+10
+DEP1>end
+do_block {1}
+variable b (1): integer
+b: var (1) integer
+a: var (0) integer
+end {1}
+REPL>b=a+1
+b: var (0) integer
+a: var (0) integer
+
+**** do_while
+REPL>declare d integer
+variable d (0): integer
+REPL>d = 5
+d: var (0): integer
+REPL>do while d > 0
+DEP1>d=d-1
+DEP1>end
+do_while {1}
+d: var (0) integer
+d: var (0) integer
+d: var (0) integer
+end {1}
+
+**** do_iter1
+REPL>declare x integer
+variable x (0): integer
+REPL>declare a integer
+variable a (0): integer
+REPL>a=0
+a: var (0) integer
+REPL>do x = 5 to 10
+DEP1>a = a + x
+DEP1>end
+do_iter {1}
+x: var (0) integer
+a: var (0) integer
+a: var (0) integer
+x: var (0) integer
+end {1}
+
+**** do_iter2
+REPL>declare c integer
+variable c (0): integer
+REPL>declare x integer
+variable x (0): integer
+REPL>x=2
+x: var (0) integer
+REPL>c=1
+c: var (0) integer
+REPL>do c = x * 2 to 40 by 3
+DEP1>declare a integer
+DEP1>a=c*x
+DEP1>x=x+1
+DEP1>end
+do_iter {1}
+c: var (0) integer
+x: var (0) integer
+variable a (1): integer
+a: var (1) integer
+c: var (0) integer
+x: var (0) integer
+x: var (0) integer
+x: var (0) integer
+end {1}
+
 *** Conditions
+**** cond1
+REPL>declare a integer
+variable a (0): integer
+REPL>declare b integer
+variable b (0): integer
+REPL>declare c integer
+variable c (0): integer
+REPL>if a > b then
+a: var (0) integer
+b: var (0) integer
+REPL>c=a
+c: var (0) integer
+a: var (0) integer
+REPL>else
+REPL>c=b
+c: var (0) integer
+b: var (0) integer
+
 *** Block in Functions
 *** Functions in Blocks
 *** Conditions in Blocks
