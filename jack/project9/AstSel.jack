@@ -103,9 +103,9 @@ class AstSel {
         return subItems.getNext();
     }
 
-    function Item elseStatIf(Item elseStat) {
+    function Item elseIfStatIf(Item elseIfStat) {
         var List subItems;
-        let subItems = elseStat.getSubItems();
+        let subItems = elseIfStat.getSubItems();
         let subItems = subItems.getNext();
         return subItems.get();
     }

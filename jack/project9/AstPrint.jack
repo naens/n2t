@@ -91,44 +91,63 @@ class AstPrint {
         }
         do Display.newline();
         return;
-    }    
+    }
+
+    function void items(IdentMap identMap, List items) {
+        while (~(items = 0)) {
+            do AstPrint.item(identMap, items.get());
+            let items = items.getNext();
+        }
+        return;
+    }
 
     /* print an item */
     function void item(IdentMap identMap, Item item) {
         var List subItems;
         if (item.isTerminal()) {
-//            do Display.printConstln("term");
             if (item.getType() = Const.IDENT()) {
                 do AstPrint.ident(identMap, item);
-            }
-            return;
-        } else {
-            if (item.getType() = Const.VAR_DECL()) {
-                do AstPrint.varDecl(item);
-                return;
             } else {
-                if (item.getType() = Const.FUN_DECL()) {
-                    do AstPrint.funDecl(item);
-                    let subItems = AstSel.funRest(item);
-                } else {
-                    if (item.getType() = Const.END_STAT()) {
-                        do AstPrint.endStat(item);
-                    } else {
-                        let subItems = item.getSubItems();
-                        if ((item.getType() = Const.DO_BLOCK())
-                            | ((item.getType() = Const.DO_ITER())
-                                | (item.getType() = Const.DO_WHILE()))) {
-                            do AstPrint.block(item);
-                        }
-                    }
+                if (item.getType() = Const.KW_ELSE()) {
+                    do Display.printConstln("else");
                 }
-            }
-            while (~(subItems = 0)) {
-                do AstPrint.item(identMap, subItems.get());
-                let subItems = subItems.getNext();
             }
             return;
         }
+
+        if (item.getType() = Const.VAR_DECL()) {
+            do AstPrint.varDecl(item);
+            return;
+        }
+
+        if (item.getType() = Const.FUN_DECL()) {
+            do AstPrint.funDecl(item);
+            let subItems = AstSel.funRest(item);
+            do AstPrint.items(identMap, subItems);
+            return;
+        }
+
+        if (item.getType() = Const.END_STAT()) {
+            do AstPrint.endStat(item);
+            return;
+        }
+
+        let subItems = item.getSubItems();
+        if (item.getType() = Const.IF_STAT()) {
+           do Display.printConstln("if");
+        } else {
+            if (item.getType() = Const.ELSE_IF_STAT()) {
+                do Display.printConstln("else-if");
+            } else {
+                if ((item.getType() = Const.DO_BLOCK())
+                    | ((item.getType() = Const.DO_ITER())
+                        | (item.getType() = Const.DO_WHILE()))) {
+                    do AstPrint.block(item);
+                }
+            }
+        }
+        do AstPrint.items(identMap, subItems);
+        return;
     }
 
     function void type(integer type) {
