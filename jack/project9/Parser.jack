@@ -32,7 +32,7 @@ class Parser {
         return item;
     }
 
-    /* unit = assignment | call | expression | block */
+    /* unit = assignment | call | expression | block | cond*/
     function Item parseUnit(Tokenizer tokenizer) {
         var Item item;
 
@@ -74,6 +74,12 @@ class Parser {
 
         /* do-while */
         let item = Parser.parseDoWhile(tokenizer);
+        if (~(item = 0)) {
+            return item;
+        }
+
+        /* cond */
+        let item = Parser.parseCond(tokenizer);
         if (~(item = 0)) {
             return item;
         }
@@ -212,6 +218,57 @@ class Parser {
             do tokenizer.emptyUnread();
             return 0;
         }
+    }
+
+    /* cond = if_stat unit {else_if_stat unit} [else unit] */
+    function Item parseCond(Tokenizer tokenizer) {
+        var Item ifStat;
+        var Item unit;
+        var Item elseIfStat;
+        var Item kw_else;
+        var Item result;
+
+        let result = Item.new();
+        do result.setTerminal(false);
+        do result.setType(Const.COND());
+
+        let ifStat = Parser.parseIfStat(tokenizer);
+        if (ifStat = 0) {
+            return 0;
+        }
+        do result.addSubItem(ifStat);
+
+        let unit = Parser.parseUnit(tokenizer);
+        if (unit = 0) {
+            return 0;
+        }
+        do result.addSubItem(unit);
+
+        let elseIfStat = Parser.parseElseIfStat(tokenizer);
+        while (~(elseIfStat = 0)) {
+            do result.addSubItem(elseIfStat);
+
+            let unit = Parser.parseUnit(tokenizer);
+            if (unit = 0) {
+                return 0;
+            }
+            do result.addSubItem(unit);
+
+            let elseIfStat = Parser.parseElseIfStat(tokenizer);
+        }
+
+        let kw_else = Parser.addTerminal(tokenizer, result, Const.KW_ELSE());
+        if (kw_else = 0) {
+            return result;
+        }
+
+        let unit = Parser.parseUnit(tokenizer);
+        if (unit = 0) {
+            return 0;
+        }
+        do result.addSubItem(unit);
+
+        return result;
     }
 
     function Item addTerminal(Tokenizer tokenizer, Item parent, integer type) {
@@ -378,14 +435,14 @@ class Parser {
     }
 
     /* 'else' or 'else' if-stat */
-    function Item parseElseStat(Tokenizer tokenizer) {
+    function Item parseElseIfStat(Tokenizer tokenizer) {
         var Item kw_else;
         var Item ifStat;
         var Item result;
         
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.ELSE_STAT());
+        do result.setType(Const.ELSE_IF_STAT());
 
         let kw_else = Parser.addTerminal(tokenizer, result, Const.KW_ELSE());
         if (kw_else = 0) {
@@ -395,9 +452,9 @@ class Parser {
 
         let ifStat = Parser.parseIfStat(tokenizer);
         if (ifStat = 0) {
-            return kw_else;
+            do result.dispose();
+            return 0;
         }
-
         do result.addSubItem(ifStat);
 
         return result;
@@ -1009,7 +1066,12 @@ class Parser {
             let result = Parser.parseIfStat(tokenizer);
         }
         if (type = Const.KW_ELSE()) {
-            let result = Parser.parseElseStat(tokenizer);
+            let result = Parser.parseElseIfStat(tokenizer);
+            if (result = 0) {
+                return item;
+            } else {
+                return result;
+            }
         }
         if (type = Const.KW_DO()) {
             let result = Parser.parseDo(tokenizer);
