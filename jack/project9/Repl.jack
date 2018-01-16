@@ -93,15 +93,19 @@ class Repl {
                         let block = Parser.parseBlock(tokenizer);
                         if (block = 0) {
                             do Display.printConstln("bad block");
-                        } else {
-//                            do Display.printConst("parsed: ");
-//                            do block.print();
-//                            do Display.newline();
                         }
+/*
+                         else {
+                            do Display.printConst("parsed: ");
+                            do block.print();
+                            do Display.newline();
+                        }
+*/
                         if (ifs.checkIfs()) {
                         /* evaluate expression and print value */
+//                            do Display.printConstln("evaluate block");
                             let value = eva.evaluate(block);
-                            do value.print();
+//                            do value.print();
                         }
                     }
                 }
