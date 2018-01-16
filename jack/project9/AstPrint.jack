@@ -28,15 +28,18 @@ class AstPrint {
     }
     
     function void block(Item block) {
-        if (item.getType() = Const.DO_BLOCK()) {
-            do Display.printConstln("do_block");
+        if (block.getType() = Const.DO_BLOCK()) {
+            do Display.printConst("do_block ");
         }
-        if (item.getType() = Const.DO_WHILE()) {
-            do Display.printConstln("do_while");
+        if (block.getType() = Const.DO_WHILE()) {
+            do Display.printConst("do_while ");
         }
-        if (item.getType() = Const.DO_ITER()) {
-            do Display.printConstln("do_iter");
+        if (block.getType() = Const.DO_ITER()) {
+            do Display.printConst("do_iter ");
         }
+        do Display.printConst("{");
+        do Display.printInt(block.getBlockId());
+        do Display.printConstln("}");
         return;
     }
 
@@ -112,9 +115,9 @@ class AstPrint {
                         do AstPrint.endStat(item);
                     } else {
                         let subItems = item.getSubItems();
-                        if (item.getType() = Const.DO_BLOCK()
-                          | item.getType() = Const.DO_ITER()
-                          | item.getType() = Const.DO_WHILE()) {
+                        if ((item.getType() = Const.DO_BLOCK())
+                            | ((item.getType() = Const.DO_ITER())
+                                | (item.getType() = Const.DO_WHILE()))) {
                             do AstPrint.block(item);
                         }
                     }

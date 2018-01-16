@@ -16,6 +16,7 @@ class Eva {
     field List blockIdStack;
 
     method void nextBlockId() {
+//        do Display.printConstln("nextBlockId");
         let lastBlockId = lastBlockId + 1;
         let blockIdStack = blockIdStack.prepend(lastBlockId);
         let currBlockId = lastBlockId;
@@ -23,6 +24,7 @@ class Eva {
     }
 
     method void popBlockId() {
+//        do Display.printConstln("popBlockId");
         let blockIdStack = blockIdStack.deleteFirst();
         let currBlockId = blockIdStack.get();
         return;
@@ -61,9 +63,8 @@ class Eva {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
                 let identBlockId = varTable.get(identName);
-                if (identBlockId = -1) {
-                    if ((currBlockId = 0)
-                      & (~(identMap.get(identName, 0) = 0))) {
+                if (identBlockId = (-1)) {
+                    if (~(identMap.get(identName, 0) = 0)) {
                         do item.setBlockId(0);
                     } else {
                         do item.setBlockId(-1);
@@ -78,6 +79,7 @@ class Eva {
                 let varName = AstSel.varName(item);
                 let type = AstSel.varType(item);
                 do pass1rec(varTable, AstSel.varRest(item));
+                /* TODO: throw error if (name,blockId) already declared */
                 do identMap.putVar(varName, currBlockId, type);
                 do varTable.put(varName, currBlockId);
                 do item.setBlockId(currBlockId);
@@ -86,6 +88,7 @@ class Eva {
                 if (item.getType() = Const.FUN_DECL()) {
                     let funName = AstSel.funName(item);
                     do varTable.put(funName, currBlockId);
+                    /* TODO: throw error if (name,blockId)  already declared */
                     do identMap.putProc(funName, currBlockId, item);
 /*
                     do Display.printConst("putProc:");
@@ -104,9 +107,15 @@ class Eva {
                     let subItems = AstSel.funRest(item);
                     do item.setBlockId(currBlockId);
                 } else {
-                    if (item.getType() = Const.DO_BLOCK()
-                      | item.getType() = Const.DO_ITER()
-                      | item.getType() = Const.DO_WHILE()) {
+/*
+                    do Display.printConstln("nonterm-3");
+                    do Display.printInt(item.getType());
+                    do Display.newline();
+                    do item.print();
+*/
+                    if ((item.getType() = Const.DO_BLOCK())
+                      | ((item.getType() = Const.DO_ITER())
+                         | (item.getType() = Const.DO_WHILE()))) {
                         do pass1rec(varTable, AstSel.blockStat(item));
                         do nextBlockId();
                         do item.setBlockId(currBlockId);
