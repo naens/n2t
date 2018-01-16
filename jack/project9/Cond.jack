@@ -7,9 +7,9 @@ class Cond {
     constructor Cond new(Value value) {
         if (value.getType() = Const.T_BOOLEAN()) {
             let value = value.getBooleanValue();
-            let entered = false;
-            let reversed = false;
         }
+        let entered = false;
+        let reversed = false;
         return this;
     }
 

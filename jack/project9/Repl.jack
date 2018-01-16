@@ -64,22 +64,27 @@ class Repl {
                         do tokenizer.appendNode(item);
                     } else {
                         if (item.getType() = Const.IF_STAT()) {
+//                            do Display.printConstln("IF");
                             let cond = Cond.new(eva.evaluate(item));
                             do ifs.ifCond(cond);
                         } else {
                             if (item.getType() = Const.KW_ELSE()) {
+//                                do Display.printConstln("ELSE");
+                                do Display.printConstln("else");
                                 do ifs.ifReverse();
                             } else {
-                                if (item.getType() = Const.ELSE_STAT()) {
+                                if (item.getType() = Const.ELSE_IF_STAT()) {
+//                                    do Display.printConstln("ELSE_IF_STAT");
+                                    do Display.printConstln("else");
                                     do ifs.ifReverse();
-                                    let elseIf = AstSel.elseStatIf(item);
+                                    let elseIf = AstSel.elseIfStatIf(item);
                                     let cond = Cond.new(eva.evaluate(elseIf));
                                     do ifs.ifCond(cond);
                                 } else {
                                     if (ifs.checkIfs()) {
                                     /* evaluate expression and print value */
                                         let value = eva.evaluate(item);
-                                        do value.print();
+//                                        do value.print();
                                     }
                                 }
                             }

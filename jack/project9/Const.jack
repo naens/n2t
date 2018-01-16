@@ -192,63 +192,63 @@ class Const {
     }
 
     function integer FUN_STAT() {
-        return 7001;
+        return 7010;
     }
 
     function integer FUN_DECL() {
-        return 7011;
-    }
-
-    function integer IF_STAT() {
-        return 7002;
-    }
-
-    function integer ELSE_STAT() {
-        return 7003;
-    }
-
-    function integer COND() {
-        return 7012;
-    }
-
-    function integer DO_BLOCK_STAT() {
-        return 7003;
-    }
-
-    function integer DO_BLOCK() {
-        return 7013;
-    }
-
-    function integer DO_WHILE_STAT() {
-        return 7004;
-    }
-
-    function integer DO_WHILE() {
-        return 7014;
-    }
-
-    function integer DO_ITER_STAT() {
-        return 7005;
-    }
-
-    function integer DO_ITER() {
-        return 7015;
-    }
-
-    function integer ASSIGN() {
         return 7020;
     }
 
-    function integer END_STAT() {
+    function integer IF_STAT() {
         return 7030;
     }
 
-    function integer RETURN() {
+    function integer ELSE_IF_STAT() {
         return 7040;
     }
 
-    function integer REL_OP() {
+    function integer COND() {
+        return 7050;
+    }
+
+    function integer DO_BLOCK_STAT() {
+        return 7060;
+    }
+
+    function integer DO_BLOCK() {
+        return 7070;
+    }
+
+    function integer DO_WHILE_STAT() {
+        return 7080;
+    }
+
+    function integer DO_WHILE() {
+        return 7090;
+    }
+
+    function integer DO_ITER_STAT() {
         return 7100;
+    }
+
+    function integer DO_ITER() {
+        return 7110;
+    }
+
+    function integer ASSIGN() {
+        return 7120;
+    }
+
+    function integer END_STAT() {
+        return 7130;
+    }
+
+    function integer RETURN() {
+        return 7140;
+    }
+
+    function integer REL_OP() {
+        return 7150;
     }
 
     function integer EXPR() {
