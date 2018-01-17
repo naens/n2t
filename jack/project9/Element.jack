@@ -20,6 +20,10 @@ class Element {
         return type;
     }
 
+    method Item getProcItem() {
+        return procedureItem;
+    }
+
     method void setValue(integer value) {
         if (~(valueStack = 0)) {
             do valueStack.set(value);
