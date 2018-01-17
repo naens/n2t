@@ -4,15 +4,36 @@ class AstPrint {
      * for debug purposes
      */
 
-    /* function {blockId} <name> (<blockId>) */
+    /* function {funInBlockId} <name> (<funDeclBlockId>) [: <type>] */
     function void funDecl(Item funDecl) {
+        var integer funInBlockId;
+        var integer funDeclBlockId;
+        var String name;
+        var integer type;
+        let name = AstSel.funName(funDecl);
+        let funInBlockId = AstSel.funInBlockId(funDecl);
+        let funDeclBlockId = AstSel.funDeclBlockId(funDecl);
+        let type = AstSel.funType(funDecl);
+        do Display.printConst("function ");
+        do Display.printConst(" {");
+        do Display.printInt(funInBlockId);
+        do Display.printConst("} ");
+        do Display.printString(name);
+        do Display.printConst(" (");
+        do Display.printInt(funDeclBlockId);
+        do Display.printConst(")");
+        if (~(type = Const.ILLEGAL())) {
+            do Display.printConst(": ");
+            do AstPrint.type(type);
+        }
+        do Display.newline();
         return;
     }
 
     /* variable "<name>" (<blockId>): <type> */
     function void varDecl(Item varDecl) {
-        var String name;
         var integer blockId;
+        var String name;
         var integer type;
         let name = AstSel.varName(varDecl);
         let blockId = varDecl.getBlockId();

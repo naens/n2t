@@ -60,6 +60,23 @@ class AstSel {
         return item.getStringValue();
     }
 
+    function integer funInBlockId(Item funDecl) {
+        var List subItems;
+        var Item item;
+        let subItems = funDecl.getSubItems();
+        let item = subItems.get(); /* fun_stat */
+        let subItems = item.getSubItems();
+        while ((~(item.getType() = Const.IDENT()))) {
+            let subItems = subItems.getNext();
+            let item = subItems.get();
+        }
+        return item.getBlockId();
+    }
+
+    function integer funDeclBlockId(Item funDecl) {
+        return funDecl.getBlockId();
+    }
+
     /* returns fun_stat of a function
      * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
      */
@@ -74,6 +91,31 @@ class AstSel {
             let item = subItems.get();
         }
         return subItems.getNext();
+    }
+
+    /* returns type of a function or Const.ILLEGAL() if no type
+     * [fun_decl: [fun_stat: declare ( ident {ident} ) [type]] ...]
+     */
+    function integer funType(Item funDecl) {
+        var List subItems;
+        var Item item;
+        let subItems = funDecl.getSubItems();
+        let item = subItems.get(); /* fun_stat */
+        let subItems = item.getSubItems();
+        while (~(subItems = 0)) {
+            let item = subItems.get();
+            let subItems = subItems.getNext();
+        }
+        if (item.getType() = Const.RW_BOOLEAN()) {
+            return Const.T_BOOLEAN();
+        }
+        if (item.getType() = Const.RW_INTEGER()) {
+            return Const.T_INTEGER();
+        }
+        if (item.getType() = Const.RW_STRING()) {
+            return Const.T_STRING();
+        }
+        return Const.ILLEGAL();
     }
 
     /* returns declarations, units and end of a function
