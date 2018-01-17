@@ -57,11 +57,21 @@ class Eva {
         var integer type;
         var List subItems;
         var List funArgs;
+        var Item funIdent;
         var Item arg;
         var Item subItem;
+//        do Display.printConst("item=");
+//        do item.print();
+//        do Display.newline();
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
+
+/*
+                do Display.printConst("varTable.get: ");
+                do Display.printString(identName);
+                do Display.newline();
+*/                
                 let identBlockId = varTable.get(identName);
                 if (identBlockId = (-1)) {
                     if (~(identMap.get(identName, 0) = 0)) {
@@ -90,13 +100,8 @@ class Eva {
                     do varTable.put(funName, currBlockId);
                     /* TODO: throw error if (name,blockId)  already declared */
                     do identMap.putProc(funName, currBlockId, item);
-/*
-                    do Display.printConst("putProc:");
-                    do Display.printString(funName);
-                    do Display.printConst(":");
-                    do Display.printInt(currBlockId);
-                    do Display.newline();
-*/
+                    let funIdent = AstSel.funIdent(item);
+                    do funIdent.setBlockId(currBlockId);
                     do nextBlockId();
                     let funArgs = AstSel.funArgs(item);
                     while (~(funArgs = 0)) {
@@ -107,12 +112,6 @@ class Eva {
                     let subItems = AstSel.funRest(item);
                     do item.setBlockId(currBlockId);
                 } else {
-/*
-                    do Display.printConstln("nonterm-3");
-                    do Display.printInt(item.getType());
-                    do Display.newline();
-                    do item.print();
-*/
                     if ((item.getType() = Const.DO_BLOCK())
                       | ((item.getType() = Const.DO_ITER())
                          | (item.getType() = Const.DO_WHILE()))) {

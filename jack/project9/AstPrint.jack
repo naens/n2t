@@ -14,8 +14,7 @@ class AstPrint {
         let funInBlockId = AstSel.funInBlockId(funDecl);
         let funDeclBlockId = AstSel.funDeclBlockId(funDecl);
         let type = AstSel.funType(funDecl);
-        do Display.printConst("function ");
-        do Display.printConst(" {");
+        do Display.printConst("function {");
         do Display.printInt(funInBlockId);
         do Display.printConst("} ");
         do Display.printString(name);
@@ -82,13 +81,16 @@ class AstPrint {
         return;
     }
 
-    /* functions: <name>: func (<function blockId>)
+    /* functions: <name>: func (<function blockId>) [<type>]
      * variables: <name>: var (<variable blockId>) <type>
      * undefined: <name>: undef
      */
     function void ident(IdentMap identMap, Item ident) {
         var String name;
         var integer blockId;
+        var Item funItem;
+        var integer funInBlockId;
+        var integer type;
         var Element element;
         let name = AstSel.identName(ident);
         let blockId = ident.getBlockId();
@@ -100,15 +102,33 @@ class AstPrint {
         }
         let element = identMap.get(name, blockId);
         if (element.getType() = Const.T_PROCEDURE()) {
-            do Display.printConst("func (");
+            let funItem = element.getProcItem();
+            let funInBlockId = AstSel.funInBlockId(funItem);
+            let type = AstSel.funType(funItem);
+/*
+            do Display.printConst("name=");
+            do Display.printString(name);
+            do Display.newline();
+            do Display.printConst("blockId=");
+            do Display.printInt(blockId);
+            do Display.newline();
+            do Display.printConst("func=");
+            do funItem.print();
+            do Display.newline();
+*/
+            do Display.printConst("func {");
+            do Display.printInt(funInBlockId);
+            do Display.printConst("} (");
+
         } else {
+            let type = element.getType();
             do Display.printConst("var (");
         }
         do Display.printInt(blockId);
         do Display.printConst(")");
-        if (~(element.getType() = Const.T_PROCEDURE())) {
+        if (~(type = Const.ILLEGAL())) {
             do Display.printConst(" ");
-            do AstPrint.type(element.getType());
+            do AstPrint.type(type);
         }
         do Display.newline();
         return;

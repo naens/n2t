@@ -61,6 +61,10 @@ class AstSel {
     }
 
     function integer funInBlockId(Item funDecl) {
+        return funDecl.getBlockId();
+    }
+
+    function integer funDeclBlockId(Item funDecl) {
         var List subItems;
         var Item item;
         let subItems = funDecl.getSubItems();
@@ -73,11 +77,23 @@ class AstSel {
         return item.getBlockId();
     }
 
-    function integer funDeclBlockId(Item funDecl) {
-        return funDecl.getBlockId();
+    /* returns function ident
+     * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
+     */
+    function Item funIdent(Item funDecl) {
+        var List subItems;
+        var Item item;
+        let subItems = funDecl.getSubItems();
+        let item = subItems.get(); /* fun_stat */
+        let subItems = item.getSubItems();
+        while (~(item.getType() = Const.IDENT())) {
+            let subItems = subItems.getNext();
+            let item = subItems.get();
+        }
+        return subItems.get();
     }
 
-    /* returns fun_stat of a function
+    /* returns function args
      * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
      */
     function List funArgs(Item funDecl) {
@@ -86,7 +102,7 @@ class AstSel {
         let subItems = funDecl.getSubItems();
         let item = subItems.get(); /* fun_stat */
         let subItems = item.getSubItems();
-        while ((~(item.getType() = Const.IDENT()))) {
+        while (~(item.getType() = Const.IDENT())) {
             let subItems = subItems.getNext();
             let item = subItems.get();
         }
