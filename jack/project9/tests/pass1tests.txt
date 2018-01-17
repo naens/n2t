@@ -259,6 +259,100 @@ REPL>a=2
 a: var (0) integer
 
 *** Block in Functions
+**** bif1
+REPL>declare a integer
+variable a (0): integer
+REPL>declare (f)
+DEP1>declare b integer
+DEP1>do
+DEP2>declare c integer
+DEP2>b=a+c
+DEP1>end
+DEP1>end f
+function {1} f (0)
+variable b (1): integer
+do_block {2}
+variable c (2): integer
+b: var (1) integer
+a: var (0) integer
+c: var (2) integer
+end {2}
+end {1} f
+REPL>f
+f: func {1} (0)
+
+**** bif2
+REPL>declare a integer
+variable a (0): integer
+REPL>declare (mult a b) integer
+DEP1>declare a integer
+DEP1>declare b integer
+DEP1>declare result integer
+DEP1>result = 0
+DEP1>do while b > 0
+DEP2>result = result + a
+DEP2>b = b - 1
+DEP2>end
+DEP1>return result
+DEP1>end mult
+function {1} mult (0): integer
+variable a (1): integer
+variable b (1): integer
+variable result (1): integer
+result: var (1) integer
+do_while {2}
+b: var (1) integer
+result: var (1) integer
+result: var (1) integer
+a: var (1) integer
+b: var (1) integer
+b: var (1) integer
+end {2}
+result: var (1) integer
+end {1} mult
+REPL>a=7
+a: var (0) integer
+REPL>mult 3 a
+mult: func {1} (0) integer
+a: var (0) integer
+
+**** bif3
+REPL>declare x integer
+variable x (0): integer
+REPL>declare y integer
+variable y (0): integer
+REPL>declare n integer
+variable y (0): integer
+REPL>x = 5
+x: var (0) integer
+REPL>y = 10
+y: var (0) integer
+REPL>declare (f) integer
+DEP1>declare i integer
+DEP1>declare res integer
+DEP1>res = 0
+DEP1>do i = x to y
+DEP2>res = 2 * res
+DEP2>end
+DEP1>return res
+DEP1>end f
+function {1} f (0): integer
+variable i (1): integer
+variable res (1): integer
+res: var (1) integer
+do_iter {2}
+i: var (1) integer
+x: var (0) integer
+y: var (0) integer
+res: var (1) integer
+res: var (1) integer
+end {2}
+res: var (1) integer
+end {1} f
+REPL>n = f
+n: var (0) integer
+f: func {1} (0) integer
+
 *** Functions in Blocks
 *** Conditions in Blocks
 *** Conditions in Functions
