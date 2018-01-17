@@ -48,17 +48,25 @@ class IdentMap {
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
         let element = Element.newProc(proc);
+        let node = IdentMapNode.new(name, blockId, element);
         if (list = 0) {
-            let node = IdentMapNode.new(name, blockId, element);
-            let list = List.new(node);
+            let table[h] = List.new(node);
         } else {
-            let node = getNode(list, name, blockId);
-            if (node = 0) {
-                let node = IdentMapNode.new(name, blockId, element);
-            }
-            let list = list.prepend(node);
+            let table[h] = list.prepend(node);
         }
-        let table[h] = list;
+/*
+        do Display.newline();
+        do Display.printConst("h=");
+        do Display.printInt(h);
+        do Display.printConst(",list=");
+        let list = table[h];
+        do Display.printInt(list);
+        do Display.printConst(",name=");
+        do Display.printString(name);
+        do Display.printConst(",blockId=");
+        do Display.printInt(blockId);
+        do Display.newline();
+*/
         return;
     }
 
@@ -70,25 +78,12 @@ class IdentMap {
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
         let element = Element.newVar(type);
+        let node = IdentMapNode.new(name, blockId, element);
         if (list = 0) {
-            let node = IdentMapNode.new(name, blockId, element);
-            let list = List.new(node);
+            let table[h] = List.new(node);
         } else {
-            let node = getNode(list, name, blockId);
-            if (node = 0) {
-                let node = IdentMapNode.new(name, blockId, element);
-            }
-            let list = list.prepend(node);
+            let table[h] = list.prepend(node);
         }
-        let table[h] = list;
-/*  
-        do Display.printInt(h);
-        do Display.printConst(".");
-        do Display.printInt(list);
-        do Display.printConst(":");
-        do Display.printString(name);
-        do Display.printInt(blockId);
-*/
         return;
     }
 
@@ -99,13 +94,20 @@ class IdentMap {
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
 /*
+        do Display.newline();
+        do Display.printConst("h=");
         do Display.printInt(h);
-        do Display.printConst(".");
+        do Display.printConst(",list=");
         do Display.printInt(list);
-        do Display.printConst(":");
+        do Display.printConst(",name=");
+        do Display.printString(name);
+        do Display.printConst(",blockId=");
+        do Display.printInt(blockId);
+        do Display.newline();
 */
         let node = getNode(list, name, blockId);
         if (node = 0) {
+//            do Display.printConstln("(IdentMap:not_found)");
             return 0;
         } else {
             return node.getElement();

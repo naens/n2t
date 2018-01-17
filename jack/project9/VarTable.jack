@@ -9,10 +9,16 @@ class VarTable {
         let i = 0;
         let sum = 0;
         while (i < key.length()) {
-            let sum = sum + key.charAt(i);
+            let sum = (sum*10) + key.charAt(i);
             let i = i + 1;
         }
+/*
+        do Display.printConst("hash=");
+        do Display.printInt(sum & 15);
+        do Display.newline();
+*/
         return sum & 15;
+//        return 2;
     }
 
     constructor VarTable new() {
@@ -31,6 +37,13 @@ class VarTable {
         var VarTableNode node;
         while (~(list = 0)) {
             let node = list.get();
+/*
+            do Display.printString("    GN:list=");
+            do Display.printInt(list);
+            do Display.printString(",node=");
+            do Display.printInt(node);
+            do Display.newline();
+*/
             if (Tools.stringEquals(node.getKey(), key)) {
                 return node;
             }
@@ -43,11 +56,11 @@ class VarTable {
         var List list;
         var integer h;
         var VarTableNode node;
+
 /*
                     do Display.printConst("VT:put table = ");
                     do Display.printInt(table);
                     do Display.newline();
-        do Display.newline();
         do Display.printConst("VT:put key=[");
         do Display.printString(key);
         do Display.printConstln("]");
@@ -64,20 +77,24 @@ class VarTable {
             let node = VarTableNode.new(key);
             let list = List.new(node);
             let table[h] = list;
-                    let list = table[h];
 /*
-                    do Display.printConst("VT:put list = table[h] = ");
+                    do Display.printConst("VT:put new list = table[h] = ");
                     do Display.printInt(list);
                     do Display.newline();
 */
         } else  {
 //            do Display.printConstln("VT:put list<>0");
-            let table[h] = list.prepend(node);
+
             let node = getNode(list, key);
             if (node = 0) {
-//                do Display.printConstln("VT:put node=0");
                 let node = VarTableNode.new(key);
             }
+            let table[h] = list.prepend(node);
+/*
+                    do Display.printConst("VT:put prepend list = table[h] = ");
+                    do Display.printInt(table[h]);
+                    do Display.newline();
+*/
         }
         do node.push(value);
         return;
@@ -88,8 +105,8 @@ class VarTable {
         var List list;
         var integer h;
         var VarTableNode node;
-/*
-        do Display.newline();
+
+/*        do Display.newline();
                     do Display.printConst("VT:get table = ");
                     do Display.printInt(table);
                     do Display.newline();
@@ -104,11 +121,13 @@ class VarTable {
         do Display.printConstln("]");
 */
         let list = table[h];
+
 /*
         if (list = 0) {
             do Display.printConstln("VT:get list=0");
         }
 */
+
         let node = getNode(list, key);
         if (node = 0) {
 //            do Display.printConstln("VT:get node=0");
