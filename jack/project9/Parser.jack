@@ -32,7 +32,7 @@ class Parser {
         return item;
     }
 
-    /* unit = assignment | call | expression | block | cond*/
+    /* unit = assignment | call | expression | block | cond */
     function Item parseUnit(Tokenizer tokenizer) {
         var Item item;
 
@@ -212,8 +212,11 @@ class Parser {
             }
             return result;
         } else {
-            do Display.printConstln("PARSE_BLOCK: tokenizer not empty");
+            do Display.printConst("PARSE_BLOCK: tokenizer not empty: ");
             do tmp.print();
+            do Display.newline();
+            do Display.printConst("PARSE_BLOCK: block=");
+            do result.print();
             do Display.newline();
             do tokenizer.emptyUnread();
             return 0;
@@ -232,19 +235,37 @@ class Parser {
         do result.setTerminal(false);
         do result.setType(Const.COND());
 
-        let ifStat = Parser.parseIfStat(tokenizer);
+        let ifStat = Parser.addNode(tokenizer, Const.IF_STAT());
         if (ifStat = 0) {
             return 0;
         }
         do result.addSubItem(ifStat);
-
+/*
+        do Display.printConstln("cond_a0");
+        let ifStat = Parser.parseIfStat(tokenizer);
+        do Display.printConstln("cond_a1");
+        if (ifStat = 0) {
+            do Display.printConstln("cond_a0");
+            return 0;
+        }
+        do Display.printConstln("cond_a2");
+        do result.addSubItem(ifStat);
+*/
         let unit = Parser.parseUnit(tokenizer);
         if (unit = 0) {
             return 0;
         }
+/*
+        do Display.printConstln("cond_b");
+        let unit = Parser.parseUnit(tokenizer);
+        if (unit = 0) {
+            return 0;
+        }
+*/
         do result.addSubItem(unit);
 
-        let elseIfStat = Parser.parseElseIfStat(tokenizer);
+//        let elseIfStat = Parser.parseElseIfStat(tokenizer);
+        let elseIfStat = Parser.addNode(tokenizer, Const.ELSE_IF_STAT());
         while (~(elseIfStat = 0)) {
             do result.addSubItem(elseIfStat);
 
@@ -253,10 +274,29 @@ class Parser {
                 return 0;
             }
             do result.addSubItem(unit);
-
-            let elseIfStat = Parser.parseElseIfStat(tokenizer);
+/*
+            let unit = Parser.parseUnit(tokenizer);
+            if (unit = 0) {
+                return 0;
+            }
+            do result.addSubItem(unit);
+*/
+//            let elseIfStat = Parser.parseElseIfStat(tokenizer);
+            let elseIfStat = Parser.addNode(tokenizer, Const.ELSE_IF_STAT());
         }
 
+        let kw_else = Parser.addNode(tokenizer, Const.KW_ELSE());
+        if (kw_else = 0) {
+            return result;
+        }
+        do result.addSubItem(kw_else);
+
+        let unit = Parser.parseUnit(tokenizer);
+        if (unit = 0) {
+            return 0;
+        }
+        do result.addSubItem(unit);
+/*
         let kw_else = Parser.addTerminal(tokenizer, result, Const.KW_ELSE());
         if (kw_else = 0) {
             return result;
@@ -267,7 +307,7 @@ class Parser {
             return 0;
         }
         do result.addSubItem(unit);
-
+*/
         return result;
     }
 
@@ -278,9 +318,11 @@ class Parser {
         if (terminal = 0) {
             return 0;
         }
-//        do Display.printConst("(((");
-//        do terminal.print();
-//        do Display.printConstln(")))");
+/*
+        do Display.printConst("(((addTerminal:");
+        do terminal.print();
+        do Display.printConstln(")))");
+*/
         if (~(terminal.getType() = type)) {
             do tokenizer.unread(terminal);
             return 0;
