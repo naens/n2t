@@ -354,6 +354,57 @@ n: var (0) integer
 f: func {1} (0) integer
 
 *** Functions in Blocks
+**** fubl1
+REPL>do
+DEP1>declare a integer
+DEP1>declare (f)
+DEP2>a=3
+DEP2>end f
+DEP1>f
+DEP1>a
+DEP1>end
+do_block {1}
+variable a (1): integer
+function {2} f (0)
+a: var (1): integer
+end {2} f
+f: func {2} (1)
+v: var (1): integer
+end {1}
+REPL>f
+f: undef
+REPL>a
+a: undef
+
+**** fubl2
+REPL>declare i integer
+variable i (0): integer
+REPL>declare a integer
+variable a (0): integer
+REPL>a = 0
+a: var (0)integer 
+REPL>do i = 1 to 5
+DEP1>declare (f) integer
+DEP2>if a mod i = 3 then
+DEP2>a=a+1
+DEP2>return a
+DEP2>end f
+DEP1>a = f
+DEP1>end
+do_iter {1}
+i: var (0) integer
+function {2} f (1): integer
+if
+a: var (0) integer
+i: var (0) integer
+a: var (0) integer
+a: var (0) integer
+a: var (0) integer
+end {2} f
+a: var (0) integer
+f: func {2} integer
+end {1}
+
 *** Conditions in Blocks
 *** Conditions in Functions
 *** Blocks in Blocks
