@@ -53,7 +53,7 @@ class Repl {
 //            do Display.println(line);
 //            do Display.newline();
             do tokenizer.setLine(line);
-            let item = Parser.parseLine(tokenizer); //tokenizer is clean
+            let item = LineParser.parseLine(tokenizer); //tokenizer is clean
             if (~(item = 0)) {
 //                do Display.printConstln("parsing expression ok");
 //                do item.print();
@@ -95,7 +95,7 @@ class Repl {
                     do tokenizer.appendNode(item);
                     if ((depth = 1) & (item.getType() = Const.END_STAT())) {
 //                        do Display.printConstln("set depth 0, parse");
-                        let block = Parser.parseBlock(tokenizer);
+                        let block = ParseLines.parseBlock(tokenizer);
                         if (block = 0) {
                             do Display.printConstln("bad block");
                         }
