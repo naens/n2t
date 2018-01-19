@@ -9,15 +9,15 @@ order.
 
 ** About pass1
 The purpose of the pass1 is to assign block id to variables in statements
-and function node reference to functions in statements.
+and procedure node reference to procedures in statements.
 
 ** What must be tested
- * The ability to tell whether an identifier is a function or a variable
+ * The ability to tell whether an identifier is a procedure or a variable
  * The ability to tell whether an identifier is declared
- * The ability to search among variables and functions defined in main block
- as well as in subblocks, functions and subfunctions (functions within
- blocks or within other functions)
- * The ability to assign the correct block id and function node to
+ * The ability to search among variables and procedures defined in main block
+ as well as in subblocks, procedures and subprocedures (procedures within
+ blocks or within other procedures)
+ * The ability to assign the correct block id and procedure node to
  identifiers
  * The block ids should be predictable.  Each evaluation should begin with a
  block id divisible by 100, so the last 2 digits must be predictable.
@@ -39,13 +39,13 @@ and function node reference to functions in statements.
  * Using previously defined Functions
 
 ** Output format
- * Function Declarations: function {blockId} <name> (<blockId>)[: <type]
+ * Procedure Declarations: procedure {blockId} <name> (<blockId>)[: <type]
  * Varlable Declarations: variable <name> (<blockId>): <type>
  * Blocks: do_block / do_while / do_iter {<blockId>}
  * End Statement: end {<blockId>} [<name>]
  * Cond: if / else / else-if
  * Identifiers:
-    - functions: <name>: func {<blockId>} (<function blockId>) <type>
+    - procedures: <name>: proc {<blockId>} (<procedure blockId>) <type>
     - variables: <name>: var (<variable blockId>) <type>
     - undefined: <name>: undef
 
@@ -93,29 +93,29 @@ a: var (0) integer
 a: var (0) integer
 
 *** Functions
-**** func1
+**** proc1
 REPL>declare (f)
 DEP1>end f
-function {1} f (0)
+procedure {1} f (0)
 end {1} f
 REPL>f
-f: func {1} (0)
+f: proc {1} (0)
 
-**** func2
+**** proc2
 REPL>declare (g a) boolean
 DEP1>declare a integer
 DEP1>return not a > c
 DEP1>end g
-function {2} g (0): boolean
+procedure {2} g (0): boolean
 variable a (2): integer
 a: var (2) integer
 c: var (0) integer
 end {2} g
 REPL>g a
-g: func (0) boolean
+g: proc (0) boolean
 a: var (0) integer
 
-**** func3
+**** proc3
 REPL>declare (h x) string
 DEP1>declare x integer
 DEP1>declare y integer
@@ -123,12 +123,12 @@ DEP1>y=17
 DEP1>g (h (x+y))
 DEP1>return 'ok'
 DEP1>end (3) h
-function {3} h (0): string
+procedure {3} h (0): string
 variable x (3): integer
 variable y (3): integer
 y: var (3) integer
-g: func {2} (0) boolean
-h: func {3} (0) string
+g: proc {2} (0) boolean
+h: proc {3} (0) string
 x: var (3) integer
 y: var (3) integer
 end {3} h
@@ -136,8 +136,8 @@ REPL>declare s string
 variable s (0): string
 REPL>s = (h (f 15) + a)
 s: var (0) string
-h: func {3} (0) string
-f: func {1} (0) integer
+h: proc {3} (0) string
+f: proc {1} (0) integer
 a: var (0) integer
 
 *** Blocks (Do, DoWhile, DoIter)
@@ -269,7 +269,7 @@ DEP2>declare c integer
 DEP2>b=a+c
 DEP1>end
 DEP1>end f
-function {1} f (0)
+procedure {1} f (0)
 variable b (1): integer
 do_block {2}
 variable c (2): integer
@@ -279,7 +279,7 @@ c: var (2) integer
 end {2}
 end {1} f
 REPL>f
-f: func {1} (0)
+f: proc {1} (0)
 
 **** bif2
 REPL>declare a integer
@@ -295,7 +295,7 @@ DEP2>b = b - 1
 DEP2>end
 DEP1>return result
 DEP1>end mult
-function {1} mult (0): integer
+procedure {1} mult (0): integer
 variable a (1): integer
 variable b (1): integer
 variable result (1): integer
@@ -313,7 +313,7 @@ end {1} mult
 REPL>a=7
 a: var (0) integer
 REPL>mult 3 a
-mult: func {1} (0) integer
+mult: proc {1} (0) integer
 a: var (0) integer
 
 **** bif3
@@ -336,7 +336,7 @@ DEP2>res = 2 * res
 DEP2>end
 DEP1>return res
 DEP1>end f
-function {1} f (0): integer
+procedure {1} f (0): integer
 variable i (1): integer
 variable res (1): integer
 res: var (1) integer
@@ -351,7 +351,7 @@ res: var (1) integer
 end {1} f
 REPL>n = f
 n: var (0) integer
-f: func {1} (0) integer
+f: proc {1} (0) integer
 
 *** Functions in Blocks
 **** fubl1
@@ -365,10 +365,10 @@ DEP1>a
 DEP1>end
 do_block {1}
 variable a (1): integer
-function {2} f (0)
+procedure {2} f (0)
 a: var (1): integer
 end {2} f
-f: func {2} (1)
+f: proc {2} (1)
 v: var (1): integer
 end {1}
 REPL>f
@@ -393,7 +393,7 @@ DEP1>a = f
 DEP1>end
 do_iter {1}
 i: var (0) integer
-function {2} f (1): integer
+procedure {2} f (1): integer
 if
 a: var (0) integer
 i: var (0) integer
@@ -402,12 +402,143 @@ a: var (0) integer
 a: var (0) integer
 end {2} f
 a: var (0) integer
-f: func {2} integer
+f: proc {2} integer
 end {1}
 
 *** Conditions in Blocks
+REPL>declare a integer
+variable a (0): integer
+REPL>a=0
+a: var (0) integer
+REPL>do while a < 10
+REPL>declare b integer
+REPL>b=0
+DEP1>if (a + b) mod 2 = 0 then
+DEP1>b = b + a
+DEP1>else
+DEP1>b = b *a
+DEP1>a = a + 1
+DEP1>end
+do_while {1}
+variable b (1): integer
+if
+a: var (0) integer
+b: var (1) integer
+b: var (1) integer
+b: var (1) integer
+a: var (0) integer
+else
+b: var (1) integer
+b: var (1) integer
+a: var (0) integer
+a: var (0) integer
+a: var (0) integer
+end {1}
+
 *** Conditions in Functions
+REPL>declare (fact n) integer
+DEP1>declare n integer
+DEP1>if n < 1 then
+DEP1>return 1
+DEP1>else
+DEP1>return n * (fact (n - 1))
+DEP1>end fact
+procedure {1} fact (0): integer
+variable n (1): integer
+if
+n: var (1) integer
+else
+n: var (1) integer
+fact: proc {1} (0) integer
+n: var (1) integer
+end {1} fact
+REPL>declare x integer
+variable x (0): integer
+REPL>x = 7
+x: var (0) integer
+REPL>fact x
+fact: proc {1} (0) integer
+x: var (0) integer
+
 *** Blocks in Blocks
+REPL>declare a integer
+variable a (0): integer
+REPL>do
+DEP1>declare b integer
+DEP1>do
+DEP1>declare c integer
+DEP1>a = b + c
+DEP1>end
+DEP1>end
+do_block {1}
+variable b (1): integer
+do_block {1}
+variable c (2): integer
+a: var (0) integer
+b: var (1) integer
+c: var (2) integer
+end {2}
+end {1}
+REPL>a = b + c
+a: var (0) integer
+b: undef
+c: undef
+
 *** Conditions in Conditions
+REPL>declare a integer
+variable a (0): integer
+REPL>declare b integer
+variable b (0): integer
+REPL>a = 1
+a: var (0) integer
+REPL>b = 2
+b: var (0) integer
+REPL>if a > b then
+if
+a: var (0) integer
+b: var (0) integer
+REPL>if b = 0 then
+if
+b: var (0) integer
+REPL>a = b
+a: var (0) integer
+b: var (0) integer
+REPL>else if b < a then
+else
+if
+b: var (0) integer
+a: var (0) integer
+REPL>b = a
+b: var (0) integer
+a: var (0) integer
+REPL>else
+else
+REPL>b = 0
+b: var (0) integer
+REPL>else
+REPL>b = a
+b: var (0) integer
+a: var (0) integer
+
 *** Functions in Functions
-*** Multilevel Tests
+REPL>declare (test)
+DEP1>declare x integer
+DEP1>declare (test2)
+DEP2>declare n integer
+DEP2>x = x + n
+DEP2>end test2
+DEP1>test2 x
+DEP1>end test
+procedure {1} test (0)
+variable x (1): integer
+procedure {2} test (1)
+variable n (2): integer
+x: var (1) integer
+x: var (1) integer
+n: var (2) integer
+end {2} test2
+test2: proc {2} (1)
+end {1} test
+x: var (1) integer
+REPL>test
+test: proc {1} (0)
