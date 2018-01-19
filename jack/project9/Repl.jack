@@ -14,7 +14,7 @@ class Repl {
         if (item = 0) {
             return false;
         }
-        if (item.getType() = Const.FUN_STAT()) {
+        if (item.getType() = Const.PROC_STAT()) {
             return true;
         }
         if (item.getType() = Const.DO_BLOCK_STAT()) {
@@ -128,7 +128,7 @@ class Repl {
              * If variable declaration, add to environment.
              * If function declaration, accumulate declaration until an
              * "END" input, and then evaluate and add to the environment.
-             * Functions can be nested.
+             * Procedures can be nested.
              * Similar with blocks and conds.
              */
             do line.dispose();

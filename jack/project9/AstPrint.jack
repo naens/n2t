@@ -4,22 +4,22 @@ class AstPrint {
      * for debug purposes
      */
 
-    /* function {funInBlockId} <name> (<funDeclBlockId>) [: <type>] */
-    function void funDecl(Item funDecl) {
-        var integer funInBlockId;
-        var integer funDeclBlockId;
+    /* function {procInBlockId} <name> (<procDeclBlockId>) [: <type>] */
+    function void procDecl(Item procDecl) {
+        var integer procInBlockId;
+        var integer procDeclBlockId;
         var String name;
         var integer type;
-        let name = AstSel.funName(funDecl);
-        let funInBlockId = AstSel.funInBlockId(funDecl);
-        let funDeclBlockId = AstSel.funDeclBlockId(funDecl);
-        let type = AstSel.funType(funDecl);
-        do Display.printConst("function {");
-        do Display.printInt(funInBlockId);
+        let name = AstSel.procName(procDecl);
+        let procInBlockId = AstSel.procInBlockId(procDecl);
+        let procDeclBlockId = AstSel.procDeclBlockId(procDecl);
+        let type = AstSel.procType(procDecl);
+        do Display.printConst("procedure {");
+        do Display.printInt(procInBlockId);
         do Display.printConst("} ");
         do Display.printString(name);
         do Display.printConst(" (");
-        do Display.printInt(funDeclBlockId);
+        do Display.printInt(procDeclBlockId);
         do Display.printConst(")");
         if (~(type = Const.ILLEGAL())) {
             do Display.printConst(": ");
@@ -81,15 +81,15 @@ class AstPrint {
         return;
     }
 
-    /* functions: <name>: func (<function blockId>) [<type>]
+    /* functions: <name>: proc (<function blockId>) [<type>]
      * variables: <name>: var (<variable blockId>) <type>
      * undefined: <name>: undef
      */
     function void ident(IdentMap identMap, Item ident) {
         var String name;
         var integer blockId;
-        var Item funItem;
-        var integer funInBlockId;
+        var Item procItem;
+        var integer procInBlockId;
         var integer type;
         var Element element;
         let name = AstSel.identName(ident);
@@ -102,9 +102,9 @@ class AstPrint {
         }
         let element = identMap.get(name, blockId);
         if (element.getType() = Const.T_PROCEDURE()) {
-            let funItem = element.getProcItem();
-            let funInBlockId = AstSel.funInBlockId(funItem);
-            let type = AstSel.funType(funItem);
+            let procItem = element.getProcItem();
+            let procInBlockId = AstSel.procInBlockId(procItem);
+            let type = AstSel.procType(procItem);
 /*
             do Display.printConst("name=");
             do Display.printString(name);
@@ -112,12 +112,12 @@ class AstPrint {
             do Display.printConst("blockId=");
             do Display.printInt(blockId);
             do Display.newline();
-            do Display.printConst("func=");
-            do funItem.print();
+            do Display.printConst("proc=");
+            do procItem.print();
             do Display.newline();
 */
-            do Display.printConst("func {");
-            do Display.printInt(funInBlockId);
+            do Display.printConst("proc {");
+            do Display.printInt(procInBlockId);
             do Display.printConst("} (");
 
         } else {
@@ -161,9 +161,9 @@ class AstPrint {
             return;
         }
 
-        if (item.getType() = Const.FUN_DECL()) {
-            do AstPrint.funDecl(item);
-            let subItems = AstSel.funRest(item);
+        if (item.getType() = Const.PROC_DECL()) {
+            do AstPrint.procDecl(item);
+            let subItems = AstSel.procRest(item);
             do AstPrint.items(identMap, subItems);
             return;
         }

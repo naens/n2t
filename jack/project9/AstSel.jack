@@ -45,13 +45,13 @@ class AstSel {
     }
 
     /* function selectors
-     * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
+     * [proc_decl: [proc_stat: declare ( ident {ident} ) ...] ...]
      */
-    function String funName(Item funDecl) {
+    function String procName(Item procDecl) {
         var List subItems;
         var Item item;
-        let subItems = funDecl.getSubItems();
-        let item = subItems.get(); /* fun_stat */
+        let subItems = procDecl.getSubItems();
+        let item = subItems.get(); /* proc_stat */
         let subItems = item.getSubItems();
         while ((~(item.getType() = Const.IDENT()))) {
             let subItems = subItems.getNext();
@@ -60,15 +60,15 @@ class AstSel {
         return item.getStringValue();
     }
 
-    function integer funInBlockId(Item funDecl) {
-        return funDecl.getBlockId();
+    function integer procInBlockId(Item procDecl) {
+        return procDecl.getBlockId();
     }
 
-    function integer funDeclBlockId(Item funDecl) {
+    function integer procDeclBlockId(Item procDecl) {
         var List subItems;
         var Item item;
-        let subItems = funDecl.getSubItems();
-        let item = subItems.get(); /* fun_stat */
+        let subItems = procDecl.getSubItems();
+        let item = subItems.get(); /* proc_stat */
         let subItems = item.getSubItems();
         while ((~(item.getType() = Const.IDENT()))) {
             let subItems = subItems.getNext();
@@ -78,13 +78,13 @@ class AstSel {
     }
 
     /* returns function ident
-     * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
+     * [proc_decl: [proc_stat: declare ( ident {ident} ) ...] ...]
      */
-    function Item funIdent(Item funDecl) {
+    function Item procIdent(Item procDecl) {
         var List subItems;
         var Item item;
-        let subItems = funDecl.getSubItems();
-        let item = subItems.get(); /* fun_stat */
+        let subItems = procDecl.getSubItems();
+        let item = subItems.get(); /* proc_stat */
         let subItems = item.getSubItems();
         while (~(item.getType() = Const.IDENT())) {
             let subItems = subItems.getNext();
@@ -94,13 +94,13 @@ class AstSel {
     }
 
     /* returns function args
-     * [fun_decl: [fun_stat: declare ( ident {ident} ) ...] ...]
+     * [proc_decl: [proc_stat: declare ( ident {ident} ) ...] ...]
      */
-    function List funArgs(Item funDecl) {
+    function List procArgs(Item procDecl) {
         var List subItems;
         var Item item;
-        let subItems = funDecl.getSubItems();
-        let item = subItems.get(); /* fun_stat */
+        let subItems = procDecl.getSubItems();
+        let item = subItems.get(); /* proc_stat */
         let subItems = item.getSubItems();
         while (~(item.getType() = Const.IDENT())) {
             let subItems = subItems.getNext();
@@ -110,13 +110,13 @@ class AstSel {
     }
 
     /* returns type of a function or Const.ILLEGAL() if no type
-     * [fun_decl: [fun_stat: declare ( ident {ident} ) [type]] ...]
+     * [proc_decl: [proc_stat: declare ( ident {ident} ) [type]] ...]
      */
-    function integer funType(Item funDecl) {
+    function integer procType(Item procDecl) {
         var List subItems;
         var Item item;
-        let subItems = funDecl.getSubItems();
-        let item = subItems.get(); /* fun_stat */
+        let subItems = procDecl.getSubItems();
+        let item = subItems.get(); /* proc_stat */
         let subItems = item.getSubItems();
         while (~(subItems = 0)) {
             let item = subItems.get();
@@ -135,11 +135,11 @@ class AstSel {
     }
 
     /* returns declarations, units and end of a function
-     * [fun_decl: fun_stat {declaration} {unit} end_stat]
+     * [proc_decl: proc_stat {declaration} {unit} end_stat]
      */
-    function List funRest(Item funDecl) {
+    function List procRest(Item procDecl) {
         var List subItems;
-        let subItems = funDecl.getSubItems(); /* fun_stat */
+        let subItems = procDecl.getSubItems(); /* proc_stat */
         return subItems.getNext();
     }
 

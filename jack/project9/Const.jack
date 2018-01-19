@@ -191,11 +191,11 @@ class Const {
         return 7000;
     }
 
-    function integer FUN_STAT() {
+    function integer PROC_STAT() {
         return 7010;
     }
 
-    function integer FUN_DECL() {
+    function integer PROC_DECL() {
         return 7020;
     }
 

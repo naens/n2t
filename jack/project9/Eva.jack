@@ -50,14 +50,14 @@ class Eva {
     method void pass1rec(VarTable varTable, Item item) {
         var String identName;
         var String varName;
-        var String funName;
+        var String procName;
         var integer identBlockId;
         var integer endBlockId;
         var integer tmp;
         var integer type;
         var List subItems;
-        var List funArgs;
-        var Item funIdent;
+        var List procArgs;
+        var Item procIdent;
         var Item arg;
         var Item subItem;
 //        do Display.printConst("item=");
@@ -95,21 +95,21 @@ class Eva {
                 do item.setBlockId(currBlockId);
                 return;
             } else {
-                if (item.getType() = Const.FUN_DECL()) {
-                    let funName = AstSel.funName(item);
-                    do varTable.put(funName, currBlockId);
+                if (item.getType() = Const.PROC_DECL()) {
+                    let procName = AstSel.procName(item);
+                    do varTable.put(procName, currBlockId);
                     /* TODO: throw error if (name,blockId)  already declared */
-                    do identMap.putProc(funName, currBlockId, item);
-                    let funIdent = AstSel.funIdent(item);
-                    do funIdent.setBlockId(currBlockId);
+                    do identMap.putProc(procName, currBlockId, item);
+                    let procIdent = AstSel.procIdent(item);
+                    do procIdent.setBlockId(currBlockId);
                     do nextBlockId();
-                    let funArgs = AstSel.funArgs(item);
-                    while (~(funArgs = 0)) {
-                        let arg = funArgs.get();
+                    let procArgs = AstSel.procArgs(item);
+                    while (~(procArgs = 0)) {
+                        let arg = procArgs.get();
                         do arg.setBlockId(currBlockId);
-                        let funArgs = funArgs.getNext();
+                        let procArgs = procArgs.getNext();
                     }
-                    let subItems = AstSel.funRest(item);
+                    let subItems = AstSel.procRest(item);
                     do item.setBlockId(currBlockId);
                 } else {
                     if ((item.getType() = Const.DO_BLOCK())

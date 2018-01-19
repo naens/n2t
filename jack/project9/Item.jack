@@ -164,17 +164,17 @@ class Item {
                 return;
             }
 
-            if (type = Const.FUN_STAT()) {
-                do Display.printConst("(fun-stat:");
+            if (type = Const.PROC_STAT()) {
+                do Display.printConst("(proc-stat:");
                 do printSubItems();
-                do Display.printConst(":fun-stat)");
+                do Display.printConst(":proc-stat)");
                 return;
             }
 
-            if (type = Const.FUN_DECL()) {
-                do Display.printConst("(fun-decl:");
+            if (type = Const.PROC_DECL()) {
+                do Display.printConst("(proc-decl:");
                 do printSubItems();
-                do Display.printConst(":fun-decl)");
+                do Display.printConst(":proc-decl)");
                 return;
             }
 
