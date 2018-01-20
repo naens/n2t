@@ -10,6 +10,12 @@ class IdentMapNode {
         return this;
     }
 
+    method void replaceElement(Element e) {
+        do element.dispose();
+        let element = e;
+        return;
+    }
+
     method integer getName() {
         return name;
     }
