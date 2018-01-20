@@ -686,7 +686,7 @@ class LineParser {
         return result;
     }
 
-    /* factor= [ "-" ]  number | ident | ( "(" call | expr ")") */
+    /* factor= [ "-" ]  number | string | ident | ( "(" call | expr ")") */
     function Item parseFactor(boolean first, Tokenizer tokenizer) {
         var Item sign;
         var Item token;
@@ -728,7 +728,8 @@ class LineParser {
         
 //        do Display.printConstln("factor:2");
 
-        if ((tokenType = Const.T_INTEGER()) | (tokenType = Const.IDENT())) {
+        if (((tokenType = Const.T_INTEGER()) | (tokenType = Const.IDENT()))
+            | (tokenType = Const.T_STRING())) {
             do result.addSubItem(token);
 //            do Display.printConstln("factor:2a");
             return result;
