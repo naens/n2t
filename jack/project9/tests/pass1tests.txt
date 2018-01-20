@@ -92,7 +92,7 @@ c: var (0) integer
 a: var (0) integer
 a: var (0) integer
 
-*** Functions
+*** Procedures
 **** proc1
 REPL>declare (f)
 DEP1>end f
@@ -122,7 +122,7 @@ DEP1>declare y integer
 DEP1>y=17
 DEP1>g (h (x+y))
 DEP1>return 'ok'
-DEP1>end (3) h
+DEP1>end
 procedure {3} h (0): string
 variable x (3): integer
 variable y (3): integer
@@ -322,7 +322,7 @@ variable x (0): integer
 REPL>declare y integer
 variable y (0): integer
 REPL>declare n integer
-variable y (0): integer
+variable n (0): integer
 REPL>x = 5
 x: var (0) integer
 REPL>y = 10
