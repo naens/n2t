@@ -38,6 +38,23 @@ class Eva {
         return this;
     }
 
+    /* returns true if variable already declared in ident map
+     * + print error message
+     */
+    function boolean checkDeclared(IdentMap identMap,
+      String name, integer blockId) {
+        var Element element;
+        let element = identMap.get(name, blockId);
+        if (element = 0) {
+            return false;
+        } else {
+            do Display.printConst("Identifier with name ");
+            do Display.printString(name);
+            do Display.printConstln(" is already declared in the block.");
+            return true;
+        }
+    }
+
     /* pass1: variable declaration: save in block id in vartable
      *        procedure declaration: save in block id in vartable
      *                               save in identmap
@@ -46,8 +63,9 @@ class Eva {
      * !! when identifier in code: first find block id
      *                             then check identmap (present => proc)
      *                             if procedure: link occurence to node
+     & return value: true on success, false on error
      */
-    method void pass1rec(VarTable varTable, Item item) {
+    method boolean pass1rec(VarTable varTable, Item item) {
         var String identName;
         var String varName;
         var String procName;
@@ -60,95 +78,100 @@ class Eva {
         var Item procIdent;
         var Item arg;
         var Item subItem;
-//        do Display.printConst("item=");
-//        do item.print();
-//        do Display.newline();
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
-
-/*
-                do Display.printConst("varTable.get: ");
-                do Display.printString(identName);
-                do Display.newline();
-*/                
                 let identBlockId = varTable.get(identName);
                 if (identBlockId = (-1)) {
                     if (~(identMap.get(identName, 0) = 0)) {
                         do item.setBlockId(0);
                     } else {
                         do item.setBlockId(-1);
+                        do Display.printConst("Identifier ");
+                        do Display.printString(identName);
+                        do Display.printConstln(" undefined.");
+                        return false;
                     }
                 } else {
                     do item.setBlockId(identBlockId);
                 }
             }
-            return;
-        } else {
-            if (item.getType() = Const.VAR_DECL()) {
-                let varName = AstSel.varName(item);
-                let type = AstSel.varType(item);
-                do pass1rec(varTable, AstSel.varRest(item));
-                /* TODO: throw error if (name,blockId) already declared */
-                do identMap.putVar(varName, currBlockId, type);
-                do varTable.put(varName, currBlockId);
-                do item.setBlockId(currBlockId);
-                return;
-            } else {
-                if (item.getType() = Const.PROC_DECL()) {
-                    let procName = AstSel.procName(item);
-                    do varTable.put(procName, currBlockId);
-                    /* TODO: throw error if (name,blockId)  already declared */
-                    do identMap.putProc(procName, currBlockId, item);
-                    let procIdent = AstSel.procIdent(item);
-                    do procIdent.setBlockId(currBlockId);
-                    do nextBlockId();
-                    let procArgs = AstSel.procArgs(item);
-                    while (~(procArgs = 0)) {
-                        let arg = procArgs.get();
-                        do arg.setBlockId(currBlockId);
-                        let procArgs = procArgs.getNext();
-                    }
-                    let subItems = AstSel.procRest(item);
-                    do item.setBlockId(currBlockId);
-                } else {
-                    if ((item.getType() = Const.DO_BLOCK())
-                      | ((item.getType() = Const.DO_ITER())
-                         | (item.getType() = Const.DO_WHILE()))) {
-                        do pass1rec(varTable, AstSel.blockStat(item));
-                        do nextBlockId();
-                        do item.setBlockId(currBlockId);
-                        let subItems = AstSel.blockRest(item);
-                    } else {
-                        let subItems = item.getSubItems();
-                    }
+            return true;
+        }
+
+        if (item.getType() = Const.VAR_DECL()) {
+            let varName = AstSel.varName(item);
+            let type = AstSel.varType(item);
+            if (currBlockId > 0) {
+                if (Eva.checkDeclared(identMap, varName, currBlockId)) {
+                    return false;
                 }
             }
-            while (~(subItems = 0)) {
-                do pass1rec(varTable, subItems.get());
-                let subItems = subItems.getNext();
-            }
+            do pass1rec(varTable, AstSel.varRest(item));
+            do identMap.putVar(varName, currBlockId, type);
+            do varTable.put(varName, currBlockId);
+            do item.setBlockId(currBlockId);
+            return true;
+        }
 
-            if (item.getType() = Const.END_STAT()) {
+        if (item.getType() = Const.PROC_DECL()) {
+            let procName = AstSel.procName(item);
+            if (currBlockId > 0) {
+                if (Eva.checkDeclared(identMap, procName, currBlockId)) {
+                    return false;
+                }
+            }
+            do varTable.put(procName, currBlockId);
+            do identMap.putProc(procName, currBlockId, item);
+            let procIdent = AstSel.procIdent(item);
+            do procIdent.setBlockId(currBlockId);
+            do nextBlockId();
+            let procArgs = AstSel.procArgs(item);
+            while (~(procArgs = 0)) {
+                let arg = procArgs.get();
+                do arg.setBlockId(currBlockId);
+                let procArgs = procArgs.getNext();
+            }
+            let subItems = AstSel.procRest(item);
+            do item.setBlockId(currBlockId);
+        } else {
+            if ((item.getType() = Const.DO_BLOCK())
+              | ((item.getType() = Const.DO_ITER())
+                 | (item.getType() = Const.DO_WHILE()))) {
+                do pass1rec(varTable, AstSel.blockStat(item));
+                do nextBlockId();
+                do item.setBlockId(currBlockId);
+                let subItems = AstSel.blockRest(item);
+            } else {
+                let subItems = item.getSubItems();
+            }
+        }
+        while (~(subItems = 0)) {
+            if (~pass1rec(varTable, subItems.get())) {
+                return false;
+            }
+            let subItems = subItems.getNext();
+        }
+        if (item.getType() = Const.END_STAT()) {
 //                let endBlockId = topBlockId();
 //                do Display.printConstln("set end blockId:");
 //                do Display.printInt(endBlockId);
 //                do Display.newline();
-                do item.setBlockId(currBlockId);
-                do varTable.popBlock(currBlockId);
-                do popBlockId();
-                return;
-            }
-            return;
+            do item.setBlockId(currBlockId);
+            do varTable.popBlock(currBlockId);
+            do popBlockId();
         }
+        return true;
     }
 
-    method void pass1(Item item) {
+    /* return true on success, false on error */
+    method boolean pass1(Item item) {
+        var boolean result;
         var VarTable varTable;
         let varTable = VarTable.new();
-        do pass1rec(varTable, item);
+        let result = pass1rec(varTable, item);
         do varTable.dispose();
-        return;
+        return result;
     }
 
     method Value execute(Item item) {
@@ -158,9 +181,13 @@ class Eva {
 
     /* execute method: performs the two passes */
     method Value evaluate(Item item) {
-        do pass1(item);
-        do AstPrint.item(identMap, item);
-        return execute(item);
+        if (pass1(item)) {
+            do AstPrint.item(identMap, item);
+            return execute(item);
+        } else {
+            do Display.printConstln("Pass1 failed.");
+            return 0;
+        }
     }
 
     method void dispose() {
