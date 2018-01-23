@@ -174,16 +174,104 @@ class Eva {
         return result;
     }
 
-    method Value execute(Item item) {
+    /* return value of a constant, variable or function call */
+    method Value evalTerminal(IdentMap identMap, Item item) {
+        var String name;
+        var integer blockId;
+        var Element element;
+
+        if (item.getType() = Const.IDENT()) {
+            let name = AstSel.identName(item);
+            let blockId = item.getBlockId();
+            if (blockId = (-1)) {
+                /* unknown (undeclared) identifier error */
+                return 0;
+            }
+            let element = identMap.get(name, blockId);
+            if (element.getType() = Const.T_PROCEDURE()) {
+                /* procedure call */
+                /* TODO */
+                return 0;
+            } else {
+                /* get variable value */
+                let element = identMap.get(name, blockId);
+                return element.getValue();
+            }
+        }
+
+        /* return constant value */
+        return item.getValue();
+    }
+
+    /* executes a procedure call and returns a value if value returned */
+    method Value execCall(IdentMap identMap, Item item) {
         /* TODO */
-        return item;
+        return 0;
+    }
+
+    /* returns the value of the expression */
+    method Value evalExpr(IdentMap identMap, Item item) {
+        /* TODO */
+        return 0;
+    }
+
+    method void execAssignment(Item item) {
+        /* TODO */
+        return;
+    }
+
+    method void execDoBlock(Item item) {
+        /* TODO */
+        return;
+    }
+
+    method void execDoIter(Item item) {
+        /* TODO */
+        return;
+    }
+
+    method void execDoWhile(Item item) {
+        /* TODO */
+        return;
+    }
+
+    /* only assignments, calls, exprs and blocks go here */
+    method Value execute(IdentMap identMap, Item item) {
+        if (item.getType() = Const.ASSIGN()) {
+            do execAssignment(item);
+            return 0;
+        }
+
+        if (item.getType() = Const.CALL()) {
+            return execCall(identMap, item);
+        }
+
+        if (item.getType() = Const.EXPR()) {
+            return evalExpr(identMap, item);
+        }
+
+        if (item.getType() = Const.DO_BLOCK()) {
+            do execDoBlock(item);
+            return 0;
+        }
+
+        if (item.getType() = Const.DO_ITER()) {
+            do execDoIter(item);
+            return 0;
+        }
+
+        if (item.getType() = Const.DO_WHILE()) {
+            do execDoWhile(item);
+            return 0;
+        }
+        return 0;
     }
 
     /* execute method: performs the two passes */
     method Value evaluate(Item item) {
         if (pass1(item)) {
             do AstPrint.item(identMap, item);
-            return execute(item);
+            return execute(identMap, item);
         } else {
             do Display.printConstln("Pass1 failed.");
             return 0;
