@@ -24,6 +24,10 @@ class Item {
         return terminal;
     }
 
+    method Value getValue() {
+        return value;
+    }
+
     method integer getBlockId() {
         return blockId;
     }

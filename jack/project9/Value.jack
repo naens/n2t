@@ -42,7 +42,9 @@ class Value {
     method void print() {
         var String intString;
         if (type = Const.T_STRING()) {
+            do Display.printConst("'");
             do Display.printString(stringValue);
+            do Display.printConst("'");
         }
         if (type = Const.T_INTEGER()) {
             let intString = String.new(Const.SCREEN_WIDTH());
@@ -57,6 +59,12 @@ class Value {
                 do Display.printConst("false");
             }
         }
+        return;
+    }
+
+    method void println() {
+        do print();
+        do Display.newline();
         return;
     }
 
