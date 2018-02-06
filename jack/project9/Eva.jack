@@ -175,7 +175,8 @@ class Eva {
     }
 
     /* return value of a constant, variable or function call */
-    method Value evalTerminal(IdentMap identMap, Item item) {
+    /* TODO: remove (useless method) */
+    method Value evalTerminal(Item item) {
         var String name;
         var integer blockId;
         var Element element;
@@ -204,13 +205,97 @@ class Eva {
     }
 
     /* executes a procedure call and returns a value if value returned */
-    method Value execCall(IdentMap identMap, Item item) {
+    method Value execCall(Item item) {
         /* TODO */
         return 0;
     }
 
+    method Value evalArithm(Item item) {
+        /* TODO */
+        return 0;
+    }
+
+    /* log_expr = true | false | (arithm [ rel_op arithm ]) */
+    method Value evalLogExpr(Item item) {
+        var Value arithm1;
+        var integer a1;
+        var integer opch1;
+        var integer opch2;
+        var Value arithm2;
+        var integer a2;
+        var List subItems;
+        var Item subItem;
+
+        let subItems = item.getSubItems();
+        let subItem = subItems.get();
+
+        /* test if boolean constant */
+        if ((subItem.getType() = Const.B_TRUE())
+            | (subItem.getType() = Const.B_FALSE())) {
+            return subItem.getValue();
+        }
+
+        /* get first arithm */
+        let arithm1 = evalArithm(subItem);
+        let subItems = subItems.getNext();
+        if (subItems = 0) {
+            if (arithm1.getType() = Const.T_BOOLEAN()) {
+                return arithm1;
+            } else {
+                return 0;
+            }
+        }
+        if (arithm1.getType() = Const.T_INTEGER()) {
+            let a1 = arithm1.getIntegerValue();
+        } else {
+            return 0;
+        }
+
+        /* get first op character */
+        let subItems = subItems.getNext();
+        let subItem = subItems.get();
+        let opch1 = subItem.getType();
+
+        /* get second op character */
+        let subItems = subItems.getNext();
+        let subItem = subItems.get();
+        if ((subItem.getType() = Const.CH_EQUALS())
+              | (subItem.getType() = Const.CH_GREATER())) {
+            let opch2 = subItem.getType();
+        } else {
+            let opch2 = 0;
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+        }
+
+        /* get second arithm */
+        let arithm2 = evalArithm(subItem);
+        if (~(arithm2.getType() = Const.T_INTEGER())) {
+            return 0;
+        }
+        let a2 = arithm2.getIntegerValue();
+
+        /* generate result value */
+        if (((opch1 = Const.CH_EQUALS()) | (opch2 = Const.CH_EQUALS()))
+              & (a1 = a2)) {
+            return Value.newBoolean(true);
+        }
+        
+        if (((opch1 = Const.CH_GREATER()) | (opch2 = Const.CH_GREATER()))
+              & (a1 > a2)) {
+            return Value.newBoolean(true);
+        }
+
+        if ((a1 < a2) & (opch1 = Const.CH_LOWER())) {
+            return Value.newBoolean(true);
+        }
+
+        return Value.newBoolean(false);
+    }
+
     /* returns the value of the expression */
-    method Value evalExpr(IdentMap identMap, Item item) {
+    /* expr = [not] log_expr { (and | or ) expr } */
+    method Value evalExpr(Item item) {
         /* TODO */
         return 0;
     }
@@ -236,18 +321,18 @@ class Eva {
     }
 
     /* only assignments, calls, exprs and blocks go here */
-    method Value execute(IdentMap identMap, Item item) {
+    method Value execute(Item item) {
         if (item.getType() = Const.ASSIGN()) {
             do execAssignment(item);
             return 0;
         }
 
         if (item.getType() = Const.CALL()) {
-            return execCall(identMap, item);
+            return execCall(item);
         }
 
         if (item.getType() = Const.EXPR()) {
-            return evalExpr(identMap, item);
+            return evalExpr(item);
         }
 
         if (item.getType() = Const.DO_BLOCK()) {
@@ -271,7 +356,7 @@ class Eva {
     method Value evaluate(Item item) {
         if (pass1(item)) {
             do AstPrint.item(identMap, item);
-            return execute(identMap, item);
+            return execute(item);
         } else {
             do Display.printConstln("Pass1 failed.");
             return 0;
