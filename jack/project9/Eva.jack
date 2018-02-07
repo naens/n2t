@@ -204,15 +204,208 @@ class Eva {
         return item.getValue();
     }
 
-    /* executes a procedure call and returns a value if value returned */
+    /* executes a procedure call and returns a value if value returned
+     * item can be ident OR [call: ident {param}]
+     */
     method Value execCall(Item item) {
-        /* TODO */
+        var Item ident;
+        var List subItems;
+        var Item subItem;
+        var List params;
+        var Value paramValue;
+
+        if (item.getType() = Const.IDENT()) {
+            let ident = item;
+            let params = 0;
+        }
+
+        if (ident.getType() = Const.CALL()) {
+            let subItems = item.getSubItems();
+            let ident = subItems.get();
+            let subItems = subItems.getNext();
+            let params = 0;
+            while (~(subItems = 0)) {
+                let subItem = subItems.get();
+                let paramValue = evalExpr(subItem);
+                if (params = 0) {
+                    let params = List.new(paramValue);
+                } else {
+                    do params.append(paramValue);
+                }
+            }
+        }
+
+        /* TODO: execute call */
         return 0;
     }
 
-    method Value evalArithm(Item item) {
-        /* TODO */
+    method Value signValue(boolean sign, integer value) {
+        if (~sign) {
+            return Value.newInteger(value);
+        } else {
+            return Value.newInteger(-value);
+        }
+    }
+
+    /* factor= [ "-" ]  number | string | ident | ( "(" call | expr ")") */
+    method Value evalFactor(Item item) {
+        var List subItems;
+        var Item subItem;
+        var boolean sign;
+        var String name;
+        var Element element;
+        var integer blockId;
+        var Value val;
+        var integer intval;
+
+        /* sign */
+        let subItems = item.getSubItems();
+        let subItem = subItems.get();
+        if (subItem.getType() = Const.CH_MINUS()) {
+            let sign = true;
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+        } else {
+            let sign = false;
+        }
+
+        /* number */
+        if (subItem.getType() = Const.T_INTEGER()) {
+            let intval = subItem.getIntegerValue();
+            return signValue(sign, intval);
+        }
+
+        /* string */
+        if (subItem.getType() = Const.T_STRING()) {
+            return subItem.getValue();
+        }
+
+        /* ident */
+        if (subItem.getType() = Const.IDENT()) {
+            let name = AstSel.identName(subItem);
+            let blockId = subItem.getBlockId();
+            let element = identMap.get(name, blockId);
+            if (element.getType() = Const.T_PROCEDURE()) {
+                /* procedure call */
+                let val = execCall(subItem);
+            } else {
+                /* variable */
+                let val = element.getValue();
+            }
+            let intval = value.getIntegerValue();
+            do val.dispose();
+            return signValue(sign, intval);
+        }
+
+        /* call-expr */
+        if (subItem.getType() = Const.CH_PAROP()) {
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+            if (subItem.getType() = Const.CALL()) {
+                let val = execCall(subItem);
+            }
+            if (subItem.getType() = Const.EXPR()) {
+                let val = evalExpr(subItem);
+            }
+            let intval = value.getIntegerValue();
+            do val.dispose();
+            return signValue(sign, intval);
+        }
+
         return 0;
+    }
+
+    /* term = factor { ( "*" | "/" | mod ) factor } */
+    method Value evalTerm(Item item) {
+        var Value factor;
+        var integer op;
+        var integer result;
+        var List subItems;
+        var Item subItem;
+        var integer termval;
+
+        let subItems = item.getSubItems();
+        let subItem = subItems.get();
+        let factor = evalFactor(subItem);
+
+        if (~(factor.getType() = Const.T_INTEGER())) {
+            return 0;
+        }
+
+        let termval = factor.getIntegerValue();
+        do factor.dispose();
+        let result = termval;
+
+        let subItems = subItems.getNext();
+        while (~(subItems = 0)) {
+            let subItem = subItems.get();
+            let op = subItem.getType();
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+            let factor = evalFactor(subItem);
+            if (~(factor.getType() = Const.T_INTEGER())) {
+                return 0;
+            }
+
+            let termval = factor.getIntegerValue();
+            do factor.dispose();
+            if (op = Const.CH_STAR()) {
+                let result = result * termval;
+            }
+            if (op = Const.CH_SLASH()) {
+                let result = result / termval;
+            }
+            if (op = Const.KW_MOD()) {
+                let result = result - (termval * (result / termval));
+            }
+            let subItems = subItems.getNext();
+        }
+
+        return Value.newInteger(result);
+    }
+
+    /* arithm = term {( "+" | "-" ) term } */
+    method Value evalArithm(Item item) {
+        var Value term;
+        var integer op;
+        var integer result;
+        var List subItems;
+        var Item subItem;
+
+        let subItems = item.getSubItems();
+        let subItem = subItems.get();
+        let term = evalTerm(subItem);
+
+        if (~(term.getType() = Const.T_INTEGER())) {
+            return 0;
+        }
+
+        let result = term.getIntegerValue();
+        do term.dispose();
+
+        let subItems = subItems.getNext();
+        while (~(subItems = 0)) {
+            let subItem = subItems.get();
+            let op = subItem.getType();
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+            let term = evalTerm(subItem);
+
+            if (~(term.getType() = Const.T_INTEGER())) {
+                return 0;
+            }
+
+            if (op = Const.CH_PLUS()) {
+                let result = result + term.getIntegerValue();
+            }
+            if (op = Const.CH_MINUS()) {
+                let result = result - term.getIntegerValue();
+            }
+            do term.dispose();
+            let subItems = subItems.getNext();
+        }
+
+        return Value.newInteger(result);
     }
 
     /* log_expr = true | false | (arithm [ rel_op arithm ]) */
@@ -247,6 +440,7 @@ class Eva {
         }
         if (arithm1.getType() = Const.T_INTEGER()) {
             let a1 = arithm1.getIntegerValue();
+            do arithm1.dispose();
         } else {
             return 0;
         }
@@ -274,6 +468,7 @@ class Eva {
             return 0;
         }
         let a2 = arithm2.getIntegerValue();
+        do arithm2.dispose();
 
         /* generate result value */
         if (((opch1 = Const.CH_EQUALS()) | (opch2 = Const.CH_EQUALS()))
