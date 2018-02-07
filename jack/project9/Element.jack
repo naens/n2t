@@ -24,7 +24,7 @@ class Element {
         return procedureItem;
     }
 
-    method void setValue(integer value) {
+    method void setValue(Value value) {
         if (~(valueStack = 0)) {
             do valueStack.set(value);
         }
@@ -43,7 +43,7 @@ class Element {
         return type = Const.T_PROCEDURE();
     }
 
-    method integer getValue() {
+    method Value getValue() {
         if (~(valueStack = 0)) {
             return valueStack.get();
         }
