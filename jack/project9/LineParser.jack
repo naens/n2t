@@ -748,6 +748,7 @@ class LineParser {
             do result.dispose();
             return 0;
         }
+        do result.addSubItem(token);
 
         let callOrExpr = LineParser.parseCallOrExpr(tokenizer);
         if (~(callOrExpr = 0)) {

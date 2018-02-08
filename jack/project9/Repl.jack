@@ -84,7 +84,12 @@ class Repl {
                                     if (ifs.checkIfs()) {
                                     /* evaluate expression and print value */
                                         let value = eva.evaluate(item);
-//                                        do value.print();
+                                        do Display.printConst("VALUE: ");
+                                        if (value = 0) {
+                                            do Display.printConstln("-");
+                                        } else {
+                                            do value.println();
+                                        }
                                     }
                                 }
                             }
@@ -110,7 +115,7 @@ class Repl {
                         /* evaluate expression and print value */
 //                            do Display.printConstln("evaluate block");
                             let value = eva.evaluate(block);
-//                            do value.print();
+//                            do value.println();
                         }
                     }
                 }
