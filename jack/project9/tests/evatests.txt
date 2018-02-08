@@ -1,0 +1,38 @@
+* Evaluation Tests
+
+** Expression Tests
+*** Factor
+**** factor test1
+REPL>5
+5
+
+**** factor test2
+REPL>'abc'
+'abc'
+
+**** factor test3
+REPL>-5
+-5
+
+**** factor test4
+REPL>-(-5)
+5
+
+*** Term
+
+*** Arithm
+
+*** Expr and LogExpr
+
+** Assignments and Variables
+
+** Condition Tests
+
+** Block and Loop Tests
+*** Do Block
+
+*** Do While
+
+*** Do Iter
+
+** Procedure Tests
