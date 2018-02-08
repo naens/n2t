@@ -174,36 +174,6 @@ class Eva {
         return result;
     }
 
-    /* return value of a constant, variable or function call */
-    /* TODO: remove (useless method) */
-    method Value evalTerminal(Item item) {
-        var String name;
-        var integer blockId;
-        var Element element;
-
-        if (item.getType() = Const.IDENT()) {
-            let name = AstSel.identName(item);
-            let blockId = item.getBlockId();
-            if (blockId = (-1)) {
-                /* unknown (undeclared) identifier error */
-                return 0;
-            }
-            let element = identMap.get(name, blockId);
-            if (element.getType() = Const.T_PROCEDURE()) {
-                /* procedure call */
-                /* TODO */
-                return 0;
-            } else {
-                /* get variable value */
-                let element = identMap.get(name, blockId);
-                return element.getValue();
-            }
-        }
-
-        /* return constant value */
-        return item.getValue();
-    }
-
     /* executes a procedure call and returns a value if value returned
      * item can be ident OR [call: ident {param}]
      */
@@ -213,6 +183,8 @@ class Eva {
         var Item subItem;
         var List params;
         var Value paramValue;
+
+        do Display.printConstln("execCall");
 
         if (item.getType() = Const.IDENT()) {
             let ident = item;
@@ -227,6 +199,9 @@ class Eva {
             while (~(subItems = 0)) {
                 let subItem = subItems.get();
                 let paramValue = evalExpr(subItem);
+                if (paramValue = 0) {
+                    return 0;
+                }
                 if (params = 0) {
                     let params = List.new(paramValue);
                 } else {
@@ -257,6 +232,8 @@ class Eva {
         var integer blockId;
         var Value val;
         var integer intval;
+
+//        do Display.printConstln("evalFactor");
 
         /* sign */
         let subItems = item.getSubItems();
@@ -292,7 +269,10 @@ class Eva {
                 /* variable */
                 let val = element.getValue();
             }
-            let intval = value.getIntegerValue();
+            if (val = 0) {
+                return 0;
+            }
+            let intval = val.getIntegerValue();
             do val.dispose();
             return signValue(sign, intval);
         }
@@ -307,7 +287,10 @@ class Eva {
             if (subItem.getType() = Const.EXPR()) {
                 let val = evalExpr(subItem);
             }
-            let intval = value.getIntegerValue();
+            if (val = 0) {
+                return 0;
+            }
+            let intval = val.getIntegerValue();
             do val.dispose();
             return signValue(sign, intval);
         }
@@ -324,13 +307,26 @@ class Eva {
         var Item subItem;
         var integer termval;
 
+//        do Display.printConstln("evalTerm");
+
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         let factor = evalFactor(subItem);
-
-        if (~(factor.getType() = Const.T_INTEGER())) {
+        if (factor = 0) {
+            do Display.printConstln("-- eval_term a");
             return 0;
         }
+
+        if (factor.getType() = Const.T_STRING()) {
+            return factor;
+        }
+
+        if (~(factor.getType() = Const.T_INTEGER())) {
+            do Display.printConstln("-- eval_term b");
+            return 0;
+        }
+        do Display.printConst("-- eval_term: factor=");
+        do factor.println();
 
         let termval = factor.getIntegerValue();
         do factor.dispose();
@@ -343,6 +339,9 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let factor = evalFactor(subItem);
+            if (factor = 0) {
+                return 0;
+            }
             if (~(factor.getType() = Const.T_INTEGER())) {
                 return 0;
             }
@@ -372,13 +371,26 @@ class Eva {
         var List subItems;
         var Item subItem;
 
+//        do Display.printConstln("evalArithm");
+
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         let term = evalTerm(subItem);
-
-        if (~(term.getType() = Const.T_INTEGER())) {
+        if (term = 0) {
+            do Display.printConstln("-- eval_arithm a");
             return 0;
         }
+
+        if (term.getType() = Const.T_STRING()) {
+            return term;
+        }
+
+        if (~(term.getType() = Const.T_INTEGER())) {
+            do Display.printConstln("-- eval_arithm b");
+            return 0;
+        }
+        do Display.printConst("-- eval_arithm: term=");
+        do term.println();
 
         let result = term.getIntegerValue();
         do term.dispose();
@@ -390,6 +402,9 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let term = evalTerm(subItem);
+            if (term = 0) {
+                return 0;
+            }
 
             if (~(term.getType() = Const.T_INTEGER())) {
                 return 0;
@@ -422,21 +437,30 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
 
+//        do Display.printConstln("evalLogExpr");
+
         /* test if boolean constant */
         if ((subItem.getType() = Const.B_TRUE())
             | (subItem.getType() = Const.B_FALSE())) {
+            do Display.printConstln("-- log_expr a");
             return subItem.getValue();
         }
 
         /* get first arithm */
         let arithm1 = evalArithm(subItem);
+        if (arithm1 = 0) {
+            do Display.printConstln("-- log_expr b");
+            return 0;
+        }
+        if (arithm1.getType() = Const.T_STRING()) {
+            return arithm1;
+        }
+
+        do Display.printConst("-- log_expr: arithm1=");
+        do arithm1.println();
         let subItems = subItems.getNext();
         if (subItems = 0) {
-            if (arithm1.getType() = Const.T_BOOLEAN()) {
-                return arithm1;
-            } else {
-                return 0;
-            }
+            return arithm1;
         }
         if (arithm1.getType() = Const.T_INTEGER()) {
             let a1 = arithm1.getIntegerValue();
@@ -464,6 +488,9 @@ class Eva {
 
         /* get second arithm */
         let arithm2 = evalArithm(subItem);
+        if (arithm2 = 0) {
+            return arithm2;
+        }
         if (~(arithm2.getType() = Const.T_INTEGER())) {
             return 0;
         }
@@ -491,8 +518,79 @@ class Eva {
     /* returns the value of the expression */
     /* expr = [not] log_expr { (and | or ) expr } */
     method Value evalExpr(Item item) {
-        /* TODO */
-        return 0;
+        var List subItems;
+        var Item neg;
+        var Item subItem;
+        var integer op;
+        var Item expr;
+        var Value currVal;
+        var boolean acc;
+        var boolean curr;
+
+//        do Display.printConstln("evalExpr");
+        do Display.printConst("-- expr: item=");
+        do item.println();
+
+        /* neg */
+        let subItems = item.getSubItems();
+        let subItem = subItems.get();
+        if (subItem.getType() = Const.KW_NOT()) {
+            let neg = subItem;
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+        } else {
+            let neg = 0;
+        }
+
+        /* log_expr */
+        if (subItem.getType() = Const.LOG_EXPR()) {
+            do Display.printConst("-- expr: subItem=");
+            do subItem.println();
+            let currVal = evalLogExpr(subItem);
+            if (currVal = 0) {
+                return 0;
+            }
+            if (currVal.getType() = Const.T_BOOLEAN()) {
+                let acc = currVal.getBooleanValue();
+                do currVal.dispose();
+            } else {
+                return currVal;
+            }
+        } else {
+            return 0;
+        }
+
+        let subItems = subItems.getNext();
+        while (~(subItems = 0)) {
+            let subItem = subItems.get();
+            let op = subItem.getType();
+
+            let subItems = subItems.getNext();
+            let subItem = subItems.get();
+            let currVal = evalExpr(subItem);
+            if (currVal = 0) {
+                return 0;
+            }
+
+            if (~(currVal.getType() = Const.T_BOOLEAN())) {
+                do currVal.dispose();
+                return 0;
+            }
+            let curr = currVal.getBooleanValue();
+            do currVal.dispose();
+
+            if (op = Const.KW_AND()) {
+                let acc = acc & curr;
+            } else {
+                if (op = Const.KW_OR()) {
+                    let acc = acc | curr;
+                }
+            }
+
+            let subItems = subItems.getNext();
+        }
+        
+        return Value.newBoolean(acc);
     }
 
     method void execAssignment(Item item) {
