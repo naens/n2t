@@ -19,10 +19,47 @@ REPL>-(-5)
 5
 
 *** Term
+**** term test1
+REPL>5*4
+20
+
+**** term test2
+REPL>-18/(-4)
+4
+
+**** term test3
+REPL>23 mod (1+2*2)
+3
 
 *** Arithm
+**** arithm1
+REPL>1+2+3
+6
+
+**** arithm2
+REPL>5 - 11 mod 3
+3
+
+**** arithm3
+REPL>3*4 - (2 + 30) / 4
+4
 
 *** Expr and LogExpr
+**** logexpr1
+REPL>true
+true
+
+**** logexpr2
+REPL>not false or not true
+true
+ 
+**** logexpr3
+REPL>3 > 4
+false
+
+**** logexpr4
+REPL>not 2 * 4 >= 12 - 10
+false
 
 ** Assignments and Variables
 

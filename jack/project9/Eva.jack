@@ -423,12 +423,48 @@ class Eva {
         return Value.newInteger(result);
     }
 
+    method boolean evalRel(integer a1, integer a2, Item relOp) {
+        var integer opch1;
+        var integer opch2;
+        var List subItems;
+        var Item subItem;
+
+        /* first character */
+        let subItems = relOp.getSubItems();
+        let subItem = subItems.get();
+        let opch1 = subItem.getType();
+
+        /* second character */
+        let subItems = subItems.getNext();
+        if (subItems = 0) {
+            let opch2 = 0;
+        } else {
+            let subItem = subItems.get();
+            let opch2 = subItem.getType();
+        }
+
+        if (( (opch1 = Const.CH_EQUALS()) | (opch2 = Const.CH_EQUALS()) )
+              & (a1 = a2)) {
+            return true;
+        }
+        
+        if (((opch1 = Const.CH_GREATER()) | (opch2 = Const.CH_GREATER()))
+              & (a1 > a2)) {
+            return true;
+        }
+
+        if ((a1 < a2) & (opch1 = Const.CH_LOWER())) {
+            return true;
+        }
+
+        return false;
+    }
+
     /* log_expr = true | false | (arithm [ rel_op arithm ]) */
     method Value evalLogExpr(Item item) {
         var Value arithm1;
         var integer a1;
-        var integer opch1;
-        var integer opch2;
+        var Item relOp;
         var Value arithm2;
         var integer a2;
         var List subItems;
@@ -438,10 +474,11 @@ class Eva {
         let subItem = subItems.get();
 
 //        do Display.printConstln("evalLogExpr");
+        do Display.printConst("-- log_expr: item=");
+        do item.println();
 
         /* test if boolean constant */
-        if ((subItem.getType() = Const.B_TRUE())
-            | (subItem.getType() = Const.B_FALSE())) {
+        if (subItem.getType() = Const.T_BOOLEAN()) {
             do Display.printConstln("-- log_expr a");
             return subItem.getValue();
         }
@@ -469,27 +506,15 @@ class Eva {
             return 0;
         }
 
-        /* get first op character */
-        let subItems = subItems.getNext();
-        let subItem = subItems.get();
-        let opch1 = subItem.getType();
-
-        /* get second op character */
-        let subItems = subItems.getNext();
-        let subItem = subItems.get();
-        if ((subItem.getType() = Const.CH_EQUALS())
-              | (subItem.getType() = Const.CH_GREATER())) {
-            let opch2 = subItem.getType();
-        } else {
-            let opch2 = 0;
-            let subItems = subItems.getNext();
-            let subItem = subItems.get();
-        }
+        /* get rel_op */
+        let relOp = subItems.get();
 
         /* get second arithm */
+        let subItems = subItems.getNext();
+        let subItem = subItems.get();
         let arithm2 = evalArithm(subItem);
         if (arithm2 = 0) {
-            return arithm2;
+            return 0;
         }
         if (~(arithm2.getType() = Const.T_INTEGER())) {
             return 0;
@@ -498,28 +523,14 @@ class Eva {
         do arithm2.dispose();
 
         /* generate result value */
-        if (((opch1 = Const.CH_EQUALS()) | (opch2 = Const.CH_EQUALS()))
-              & (a1 = a2)) {
-            return Value.newBoolean(true);
-        }
-        
-        if (((opch1 = Const.CH_GREATER()) | (opch2 = Const.CH_GREATER()))
-              & (a1 > a2)) {
-            return Value.newBoolean(true);
-        }
-
-        if ((a1 < a2) & (opch1 = Const.CH_LOWER())) {
-            return Value.newBoolean(true);
-        }
-
-        return Value.newBoolean(false);
+        return Value.newBoolean(evalRel(a1, a2, relOp));
     }
 
     /* returns the value of the expression */
     /* expr = [not] log_expr { (and | or ) expr } */
     method Value evalExpr(Item item) {
         var List subItems;
-        var Item neg;
+        var boolean is_neg;
         var Item subItem;
         var integer op;
         var Item expr;
@@ -535,11 +546,11 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         if (subItem.getType() = Const.KW_NOT()) {
-            let neg = subItem;
+            let is_neg = true;
             let subItems = subItems.getNext();
             let subItem = subItems.get();
         } else {
-            let neg = 0;
+            let is_neg = false;
         }
 
         /* log_expr */
@@ -553,6 +564,9 @@ class Eva {
             if (currVal.getType() = Const.T_BOOLEAN()) {
                 let acc = currVal.getBooleanValue();
                 do currVal.dispose();
+                if (is_neg) {
+                    let acc = ~acc;
+                }
             } else {
                 return currVal;
             }
