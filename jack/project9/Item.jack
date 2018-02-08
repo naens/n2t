@@ -305,4 +305,10 @@ class Item {
         return;
     }
 
+    method void println() {
+        do print();
+        do Display.newline();
+        return;
+    }
+
 }
