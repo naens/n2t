@@ -1,0 +1,22 @@
+class BuiltIn {
+    /* built-in functions */
+
+    function Value execByName(String name, List values) {
+        if (Tools.stringEqConst(name, "type")) {
+            do BuiltIn.type(values);
+            return 0;
+        }
+        return 0;
+    }
+
+    /* type function: types the (first) argument on the display */
+    function Value type(List values) {
+        var Value val;
+
+        let val = values.get();
+        do Display.printConst("TYPE: ");
+        do val.println();
+        return 0;
+    }
+
+}
