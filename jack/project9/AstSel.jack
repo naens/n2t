@@ -185,4 +185,21 @@ class AstSel {
         return ident.getStringValue();
     }
 
+    /* Assignments: ident "=" expr */
+    function Item assignVar(Item assign) {
+        var List subItems;
+
+        let subItems = assign.getSubItems();
+        return subItems.get();
+    }
+
+    function Item assignExpr(Item assign) {
+        var List subItems;
+
+        let subItems = assign.getSubItems(); /* ident */
+        let subItems = subItems.getNext();   /* "=" */
+        let subItems = subItems.getNext();   /* expr */
+        return subItems.get();
+    }
+
 }
