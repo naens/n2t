@@ -25,9 +25,11 @@ class Element {
     }
 
     method void setValue(Value value) {
-        if (~(valueStack = 0)) {
-            do valueStack.set(value);
+        if (valueStack = 0) {
+            /* can be 0 if blockId = 0 */
+            let valueStack = List.new(0);
         }
+        do valueStack.set(value);
         return;
     }
 
