@@ -607,8 +607,40 @@ class Eva {
         return Value.newBoolean(acc);
     }
 
+    /* execute assignment
+     * called only after pass1 succeed => variable is defined
+     */
     method void execAssignment(Item item) {
-        /* TODO */
+        var Item variable;
+        var Item expr;
+        var Value val;
+        var Element element;
+        var String name;
+        var integer blockId;
+
+        /* left side */
+        let variable = AstSel.assignVar(item);
+        let name = variable.getStringValue();
+        let blockId = variable.getBlockId();
+        let element = identMap.get(name, blockId);
+        if (element.getType() = Const.T_PROCEDURE()) {
+            do Display.printConst("error: assign to procedure ");
+            do Display.printString(name);
+            do Display.newline();
+            return;
+        }
+
+        /* right side */
+        let expr = AstSel.assignExpr(item);
+        let val = evalExpr(expr);
+        if (val = 0) {
+            do Display.printConstln("error: no value expression");
+            return;
+        }
+
+        /* set value */
+        do element.setValue(val);
+
         return;
     }
 
