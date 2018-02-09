@@ -35,6 +35,10 @@ class Eva {
         let lastBlockId = 0;
         let blockIdStack = List.new(lastBlockId);
         let currBlockId = 0;
+
+        /* put built in procedures in identMap */
+        do identMap.putBuiltIn("type", 0);
+
         return this;
     }
 
@@ -183,15 +187,19 @@ class Eva {
         var Item subItem;
         var List params;
         var Value paramValue;
+        var String name;
+        var integer blockId;
+        var Element element;
+        var Item procItem;
 
-        do Display.printConstln("execCall");
+//        do Display.printConstln("execCall");
 
         if (item.getType() = Const.IDENT()) {
             let ident = item;
             let params = 0;
         }
 
-        if (ident.getType() = Const.CALL()) {
+        if (item.getType() = Const.CALL()) {
             let subItems = item.getSubItems();
             let ident = subItems.get();
             let subItems = subItems.getNext();
@@ -207,11 +215,28 @@ class Eva {
                 } else {
                     do params.append(paramValue);
                 }
+                let subItems = subItems.getNext();
             }
         }
 
-        /* TODO: execute call */
-        return 0;
+        let name = ident.getStringValue();
+        let blockId = ident.getBlockId();
+        let element = identMap.get(name, blockId);
+//        do Display.printConstln("execCall 2");
+        if (element.isBuiltIn()) {
+            return BuiltIn.execByName(name, params);
+        } else {
+            if (~element.isProc()) {
+                do Display.printConst("tried to call non-procedure ");
+                do Display.printString(name);
+                do Display.newline();
+                return 0;
+            }
+
+            /* TODO: execute call from element*/
+            let procItem = element.getProcItem();
+            return 0;
+        }
     }
 
     method Value signValue(boolean sign, integer value) {
@@ -270,6 +295,9 @@ class Eva {
                 let val = element.getValue();
             }
             if (val = 0) {
+                do Display.printConst("error: unset variable ");
+                do Display.printString(name);
+                do Display.newline();
                 return 0;
             }
             let intval = val.getIntegerValue();
@@ -313,7 +341,7 @@ class Eva {
         let subItem = subItems.get();
         let factor = evalFactor(subItem);
         if (factor = 0) {
-            do Display.printConstln("-- eval_term a");
+//            do Display.printConstln("-- eval_term a");
             return 0;
         }
 
@@ -322,11 +350,11 @@ class Eva {
         }
 
         if (~(factor.getType() = Const.T_INTEGER())) {
-            do Display.printConstln("-- eval_term b");
+//            do Display.printConstln("-- eval_term b");
             return 0;
         }
-        do Display.printConst("-- eval_term: factor=");
-        do factor.println();
+//        do Display.printConst("-- eval_term: factor=");
+//        do factor.println();
 
         let termval = factor.getIntegerValue();
         do factor.dispose();
@@ -377,7 +405,7 @@ class Eva {
         let subItem = subItems.get();
         let term = evalTerm(subItem);
         if (term = 0) {
-            do Display.printConstln("-- eval_arithm a");
+//            do Display.printConstln("-- eval_arithm a");
             return 0;
         }
 
@@ -386,11 +414,11 @@ class Eva {
         }
 
         if (~(term.getType() = Const.T_INTEGER())) {
-            do Display.printConstln("-- eval_arithm b");
+//            do Display.printConstln("-- eval_arithm b");
             return 0;
         }
-        do Display.printConst("-- eval_arithm: term=");
-        do term.println();
+//        do Display.printConst("-- eval_arithm: term=");
+//        do term.println();
 
         let result = term.getIntegerValue();
         do term.dispose();
@@ -474,27 +502,27 @@ class Eva {
         let subItem = subItems.get();
 
 //        do Display.printConstln("evalLogExpr");
-        do Display.printConst("-- log_expr: item=");
-        do item.println();
+//        do Display.printConst("-- log_expr: item=");
+//        do item.println();
 
         /* test if boolean constant */
         if (subItem.getType() = Const.T_BOOLEAN()) {
-            do Display.printConstln("-- log_expr a");
+//            do Display.printConstln("-- log_expr a");
             return subItem.getValue();
         }
 
         /* get first arithm */
         let arithm1 = evalArithm(subItem);
         if (arithm1 = 0) {
-            do Display.printConstln("-- log_expr b");
+//            do Display.printConstln("-- log_expr b");
             return 0;
         }
         if (arithm1.getType() = Const.T_STRING()) {
             return arithm1;
         }
 
-        do Display.printConst("-- log_expr: arithm1=");
-        do arithm1.println();
+//        do Display.printConst("-- log_expr: arithm1=");
+//        do arithm1.println();
         let subItems = subItems.getNext();
         if (subItems = 0) {
             return arithm1;
@@ -539,8 +567,8 @@ class Eva {
         var boolean curr;
 
 //        do Display.printConstln("evalExpr");
-        do Display.printConst("-- expr: item=");
-        do item.println();
+//        do Display.printConst("-- expr: item=");
+//        do item.println();
 
         /* neg */
         let subItems = item.getSubItems();
@@ -555,8 +583,8 @@ class Eva {
 
         /* log_expr */
         if (subItem.getType() = Const.LOG_EXPR()) {
-            do Display.printConst("-- expr: subItem=");
-            do subItem.println();
+//            do Display.printConst("-- expr: subItem=");
+//            do subItem.println();
             let currVal = evalLogExpr(subItem);
             if (currVal = 0) {
                 return 0;
@@ -623,7 +651,7 @@ class Eva {
         let name = variable.getStringValue();
         let blockId = variable.getBlockId();
         let element = identMap.get(name, blockId);
-        if (element.getType() = Const.T_PROCEDURE()) {
+        if (element.isProc()) {
             do Display.printConst("error: assign to procedure ");
             do Display.printString(name);
             do Display.newline();
@@ -694,7 +722,7 @@ class Eva {
     /* execute method: performs the two passes */
     method Value evaluate(Item item) {
         if (pass1(item)) {
-            do AstPrint.item(identMap, item);
+//            do AstPrint.item(identMap, item);
             return execute(item);
         } else {
             do Display.printConstln("Pass1 failed.");
