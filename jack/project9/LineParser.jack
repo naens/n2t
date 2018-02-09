@@ -374,6 +374,7 @@ class LineParser {
         return result;
     }
 
+    /* assign = ident "=" expr */
     function Item parseAssign(Tokenizer tokenizer) {
         var Item ident;
         var Item ch_equals;
