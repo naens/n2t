@@ -3,17 +3,29 @@ class Element {
     field integer type;          /* procedure, integer, boolean, string */
     field Item procedureItem;    /* procedure Item in ast */
     field List valueStack;       /* variable: stack of values */
+    field boolean builtIn;
 
     constructor Element newProc(Item item) {
         let type = Const.T_PROCEDURE();
         let procedureItem = item;
+        let builtIn = false;
+        return this;
+    }
+
+    constructor Element newBuiltIn() {
+        let builtIn = true;
         return this;
     }
 
     constructor Element newVar(integer valueType) {
         let type = valueType;
         let valueStack = 0;
+        let builtIn = false;
         return this;
+    }
+
+    method boolean isBuiltIn() {
+        return builtIn;
     }
 
     method integer getType() {
