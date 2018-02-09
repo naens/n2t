@@ -645,7 +645,7 @@ class LineParser {
     }
 
     /* call = ident expr {expr} */
-    function Item parseCall(Tokenizer tokenizer) {
+    function Item parseCall(boolean allowSingleIdent, Tokenizer tokenizer) {
         var Item ident;
         var Item expr;
         var Item result;
@@ -661,6 +661,9 @@ class LineParser {
 
         let expr = LineParser.parseExpression(false, tokenizer);
         if (expr = 0) {
+            if (allowSingleIdent) {
+                return result;
+            }
             do tokenizer.unread(ident);
             do result.dispose();
             return 0;
@@ -677,7 +680,7 @@ class LineParser {
     /* call or expressions delimited by terminating token or end of line */
     function Item parseCallOrExpr(Tokenizer tokenizer) {
         var Item result;
-        let result = LineParser.parseCall(tokenizer);
+        let result = LineParser.parseCall(false, tokenizer);
         if (result = 0) {
             let result = LineParser.parseExpression(true, tokenizer);
         }
@@ -816,10 +819,10 @@ class LineParser {
         if (type = Const.KW_RETURN()) {
             let result = LineParser.parseReturn(tokenizer);
         }
-        if (result = 0) {
+        if (type = Const.IDENT()) {
             let result = LineParser.parseAssign(tokenizer);
             if (result = 0) {
-                let result = LineParser.parseCallOrExpr(tokenizer);
+                let result = LineParser.parseCall(true, tokenizer);
             }
         }
         let item = tokenizer.nextToken();

@@ -38,9 +38,9 @@ class VarTable {
         while (~(list = 0)) {
             let node = list.get();
 /*
-            do Display.printString("    GN:list=");
+            do Display.printConst("    GN:list=");
             do Display.printInt(list);
-            do Display.printString(",node=");
+            do Display.printConst(",node=");
             do Display.printInt(node);
             do Display.newline();
 */

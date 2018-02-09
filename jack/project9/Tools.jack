@@ -20,6 +20,13 @@ class Tools {
         return true;
     }
 
+    function boolean stringEqConst(String str, String const) {
+        var boolean result;
+        let result = Tools.stringEquals(str, const);
+        do const.dispose();
+        return result;
+    }
+
     function char lcChar(char c) {
         var char c;
         if ((c > 64) & (c < 91)) {

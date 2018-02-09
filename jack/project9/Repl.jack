@@ -48,7 +48,7 @@ class Repl {
 
         do Display.printString(prompt);
         let line = Display.readln();
-        while (~Tools.stringEquals(line, "quit")) {
+        while (~Tools.stringEqConst(line, "quit")) {
 //            do Display.printConst("You entered: ");
 //            do Display.println(line);
 //            do Display.newline();
@@ -84,12 +84,12 @@ class Repl {
                                     if (ifs.checkIfs()) {
                                     /* evaluate expression and print value */
                                         let value = eva.evaluate(item);
-                                        do Display.printConst("VALUE: ");
-                                        if (value = 0) {
-                                            do Display.printConstln("-");
-                                        } else {
-                                            do value.println();
-                                        }
+//                                        do Display.printConst("VALUE: ");
+//                                        if (value = 0) {
+//                                            do Display.printConstln("-");
+//                                        } else {
+//                                            do value.println();
+//                                        }
                                     }
                                 }
                             }

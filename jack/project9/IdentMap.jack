@@ -40,14 +40,12 @@ class IdentMap {
         return 0;
     }
 
-    method void putProc(String name, integer blockId, Item proc) {
+    method void putElement(String name, integer blockId, Element element) {
         var List list;
         var integer h;
         var IdentMapNode node;
-        var Element element;
         let h = IdentMap.hash(name, blockId);
         let list = table[h];
-        let element = Element.newProc(proc);
         let node = getNode(list, name, blockId);
         if (node = 0) {
             let node = IdentMapNode.new(name, blockId, element);
@@ -62,25 +60,24 @@ class IdentMap {
         return;
     }
 
-    method void putVar(String name, integer blockId, integer type) {
-        var List list;
-        var integer h;
-        var IdentMapNode node;
+    method void putProc(String name, integer blockId, Item proc) {
         var Element element;
-        let h = IdentMap.hash(name, blockId);
-        let list = table[h];
+        let element = Element.newProc(proc);
+        do putElement(name, blockId, element);
+        return;
+    }
+
+    method void putVar(String name, integer blockId, integer type) {
+        var Element element;
         let element = Element.newVar(type);
-        let node = getNode(list, name, blockId);
-        if (node = 0) {
-            let node = IdentMapNode.new(name, blockId, element);
-        } else {
-            do node.replaceElement(element);
-        }
-        if (list = 0) {
-            let table[h] = List.new(node);
-        } else {
-            let table[h] = list.prepend(node);
-        }
+        do putElement(name, blockId, element);
+        return;
+    }
+
+    method void putBuiltIn(String name, integer blockId) {
+        var Element element;
+        let element = Element.newBuiltIn();
+        do putElement(name, blockId, element);
         return;
     }
 

@@ -11,11 +11,11 @@ REPL>type 'abc'
 'abc'
 
 **** factor test3
-REPL>type -5
+REPL>type (-5)
 -5
 
 **** factor test4
-REPL>type -(-5)
+REPL>type (-(-5))
 5
 
 *** Term
