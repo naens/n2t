@@ -7,6 +7,9 @@ class Eva {
      * The evaluator needs to keep the variable values, they are stored
      * in object fields.
      */
+
+    field String PROC_RET;
+     
     
     field IdentMap identMap;
 
@@ -37,6 +40,7 @@ class Eva {
         let blockIdStack = List.new(lastBlockId);
         let currBlockId = 0;
         let procStack = List.new(0);
+        let PROC_RET = "$$$";
 
         /* put built in procedures in identMap */
         do identMap.putBuiltIn("type", 0);
@@ -134,6 +138,10 @@ class Eva {
             do nextBlockId();
             let procArgs = AstSel.procArgs(item);
             let procStack = procStack.prepend(currBlockId);
+            let type = AstSel.procType(item);
+            if (~(type = Const.ILLEGAL())) {
+                do identMap.putVar(PROC_RET, currBlockId, type);
+            }
             while (~(procArgs = 0)) {
                 let arg = procArgs.get();
                 do arg.setBlockId(currBlockId);
@@ -683,6 +691,11 @@ class Eva {
 
     /* return true if must return from procedure, otherwise false */
     method boolean execUnit(Item item) {
+        var Item retExpr;
+        var Value retVal;
+        var integer blockId;
+        var Element retEl;
+
         if (item.getType() = Const.ASSIGN()) {
             do execAssignment(item);
             return false;
@@ -691,11 +704,11 @@ class Eva {
         if (item.getType() = Const.RETURN()) {
             /* TODO: set return value for current procedure */
             /* return values: created in identMap on enter procedure */
-            /* let retExpr = AstSel.retExpr(unit); */
-            /* let retVal = evalExpr(retExpr); */
-            /* let blockId = item.getBlockId(); */
-            /* let retEl = identMap.get("return", blockId); */
-            /* do retEl.setValue(retVal); */
+            let retExpr = AstSel.retExpr(item);
+            let retVal = evalExpr(retExpr);
+            let blockId = item.getBlockId(); 
+            let retEl = identMap.get(PROC_RET, blockId);
+            do retEl.setValue(retVal);
             return true;
         }
 

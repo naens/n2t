@@ -351,6 +351,7 @@ class LineParser {
         return result;
     }
 
+    /* return = "return" <expr> */
     function Item parseReturn(Tokenizer tokenizer) {
         var Item kw_return;
         var Item expr;
@@ -359,8 +360,8 @@ class LineParser {
         let result = Item.new();
         do result.setType(Const.RETURN());
 
-        let kw_return = LineParser.addTerminal(tokenizer,
-             result, Const.KW_RETURN());
+        let kw_return = LineParser.addTerminal(tokenizer, result,
+            Const.KW_RETURN());
         if (kw_return = 0) {
             do result.dispose();
             return 0;

@@ -211,4 +211,12 @@ class AstSel {
         return subItems.get();
     }
 
+    function Item retExpr(Item ret) {
+        var List subItems;
+
+        let subItems = assign.getSubItems(); /* return */
+        let subItems = subItems.getNext();   /* expr */
+        return subItems.get();
+    }
+
 }
