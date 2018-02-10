@@ -47,6 +47,9 @@ class Ifs {
         var List list;
         var Cond cond;
         var boolean result;
+        var List currIfs;
+        var Cond currIf;
+
         if (ifs = 0) { // no ifs, nothing to do, command without ifs...
             return true;
         }
@@ -60,7 +63,14 @@ class Ifs {
         do cond.setEntered(true);
 
         let result =  getTotalCond();
-        let result = true; // TODO: fix condition evaluation
+        let result = true;
+
+        let currIfs = ifs;
+        while (~(currIfs = 0)) {
+            let currIf = currIfs.get();
+            let result = result & currIf.eval();
+            let currIfs = currIfs.getNext();
+        }
         return result;
     }
 
