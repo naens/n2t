@@ -33,7 +33,9 @@ class Repl {
         var String line;
         var Tokenizer tokenizer;
         var Item item;
-        var Item elseIf;
+        var Item ifCondItem;
+        var Value ifVal;
+        var boolean ifValBool;
         var integer depth;
         var Item block;
         var Ifs ifs;
@@ -65,20 +67,27 @@ class Repl {
                     } else {
                         if (item.getType() = Const.IF_STAT()) {
 //                            do Display.printConstln("IF");
-                            let cond = Cond.new(eva.evaluate(item));
+                            let ifCondItem = AstSel.ifCond(item);
+                            let ifVal = eva.evaluate(ifCondItem);
+//                            do Display.printConst("-- if: ");
+//                            do ifVal.println();
+                            let ifValBool = ifVal.getBooleanValue();
+                            let cond = Cond.new(ifValBool);
+                            do ifVal.dispose();
                             do ifs.ifCond(cond);
                         } else {
                             if (item.getType() = Const.KW_ELSE()) {
-//                                do Display.printConstln("ELSE");
-                                do Display.printConstln("else");
+//                                do Display.printConstln("else");
                                 do ifs.ifReverse();
                             } else {
                                 if (item.getType() = Const.ELSE_IF_STAT()) {
-//                                    do Display.printConstln("ELSE_IF_STAT");
-                                    do Display.printConstln("else");
+//                                    do Display.printConstln("else");
                                     do ifs.ifReverse();
-                                    let elseIf = AstSel.elseIfStatIf(item);
-                                    let cond = Cond.new(eva.evaluate(elseIf));
+                                    let ifCondItem = AstSel.elseIfCond(item);
+                                    let ifVal = eva.evaluate(ifCondItem);
+                                    let ifValBool = ifVal.getBooleanValue();
+                                    let cond = Cond.new(ifValBool);
+                                    do ifVal.dispose();
                                     do ifs.ifCond(cond);
                                 } else {
                                     if (ifs.checkIfs()) {

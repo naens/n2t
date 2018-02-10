@@ -161,11 +161,20 @@ class AstSel {
         return subItems.getNext();
     }
 
-    function Item elseIfStatIf(Item elseIfStat) {
+    function Item ifCond(Item ifStat) {
         var List subItems;
-        let subItems = elseIfStat.getSubItems();
+        let subItems = ifStat.getSubItems();
         let subItems = subItems.getNext();
         return subItems.get();
+    }
+
+    function Item elseIfCond(Item elseIfStat) {
+        var List subItems;
+        var Item ifStat;
+        let subItems = elseIfStat.getSubItems();
+        let subItems = subItems.getNext();
+        let ifStat = subItems.get();
+        return AstSel.ifCond(ifStat);
     }
 
     function String endName(Item endStat) {

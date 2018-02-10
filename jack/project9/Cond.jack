@@ -4,10 +4,8 @@ class Cond {
     field boolean entered;
     field boolean reversed;
 
-    constructor Cond new(Value value) {
-        if (value.getType() = Const.T_BOOLEAN()) {
-            let value = value.getBooleanValue();
-        }
+    constructor Cond new(boolean b) {
+        let value = b;
         let entered = false;
         let reversed = false;
         return this;
@@ -15,6 +13,14 @@ class Cond {
 
     method boolean getValue() {
         return value;
+    }
+
+    method boolean eval() {
+        if (reversed) {
+            return ~value;
+        } else {
+            return value;
+        }
     }
 
     method boolean isEntered() {

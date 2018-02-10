@@ -14,6 +14,7 @@ class Eva {
     field integer currBlockId;
 
     field List blockIdStack;
+    field List procStack;
 
     method void nextBlockId() {
 //        do Display.printConstln("nextBlockId");
@@ -35,6 +36,7 @@ class Eva {
         let lastBlockId = 0;
         let blockIdStack = List.new(lastBlockId);
         let currBlockId = 0;
+        let procStack = List.new(0);
 
         /* put built in procedures in identMap */
         do identMap.putBuiltIn("type", 0);
@@ -131,6 +133,7 @@ class Eva {
             do procIdent.setBlockId(currBlockId);
             do nextBlockId();
             let procArgs = AstSel.procArgs(item);
+            let procStack = procStack.prepend(currBlockId);
             while (~(procArgs = 0)) {
                 let arg = procArgs.get();
                 do arg.setBlockId(currBlockId);
@@ -147,6 +150,9 @@ class Eva {
                 do item.setBlockId(currBlockId);
                 let subItems = AstSel.blockRest(item);
             } else {
+                if (item.getType() = Const.RETURN()) {
+                    do item.setBlockId(procStack.get());
+                }
                 let subItems = item.getSubItems();
             }
         }
@@ -163,6 +169,9 @@ class Eva {
 //                do Display.newline();
             do item.setBlockId(currBlockId);
             do varTable.popBlock(currBlockId);
+            if (currBlockId = procStack.get()) {
+                let procStack = procStack.deleteFirst();
+            }
             do popBlockId();
         }
         return true;
@@ -672,19 +681,74 @@ class Eva {
         return;
     }
 
-    method void execDoBlock(Item item) {
-        /* TODO */
-        return;
+    /* return true if must return from procedure, otherwise false */
+    method boolean execUnit(Item item) {
+        if (item.getType() = Const.ASSIGN()) {
+            do execAssignment(item);
+            return false;
+        }
+
+        if (item.getType() = Const.RETURN()) {
+            /* TODO: set return value for current procedure */
+            /* return values: created in identMap on enter procedure */
+            /* let retExpr = AstSel.retExpr(unit); */
+            /* let retVal = evalExpr(retExpr); */
+            /* let blockId = item.getBlockId(); */
+            /* let retEl = identMap.get("return", blockId); */
+            /* do retEl.setValue(retVal); */
+            return true;
+        }
+
+        if (item.getType() = Const.CALL()) {
+            do execCall(item);
+            return false;
+        }
+
+        if (item.getType() = Const.DO_BLOCK()) {
+            do execDoBlock(item);
+            return false;
+        }
+
+        if (item.getType() = Const.DO_ITER()) {
+            do execDoIter(item);
+            return false;
+        }
+
+        if (item.getType() = Const.DO_WHILE()) {
+            do execDoWhile(item);
+            return false;
+        }
+
+        /* other items (declarations) that don't need to be executed */
+        return false;
     }
 
-    method void execDoIter(Item item) {
-        /* TODO */
-        return;
+    /* return true if must return from last procedure, otherwise false */
+    method boolean execDoBlock(Item item) {
+        var List subItems;
+        var Item subItem;
+
+        do Display.printConstln("-- do_block");
+        let subItems = item.getSubItems();
+        while (~(subItems = 0)) {
+            let subItem = subItems.get();
+            if (execUnit(subItem)) {
+                /* TODO: exit current procedure: return called */
+                return true;
+            }
+            let subItems = subItems.getNext();
+        }
+        return false;
     }
 
-    method void execDoWhile(Item item) {
+    method boolean execDoIter(Item item) {
         /* TODO */
-        return;
+        return false;
+    }
+
+    method boolean execDoWhile(Item item) {
+        /* TODO */
+        return false;
     }
 
     /* only assignments, calls, exprs and blocks go here */
