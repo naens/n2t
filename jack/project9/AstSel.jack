@@ -161,6 +161,91 @@ class AstSel {
         return subItems.getNext();
     }
 
+    function List blockUnits(Item block) {
+        var List subItems;
+        var Item subItem;
+
+        let subItems = block.getSubItems(); /* stat */
+        let subItems = subItems.getNext(); /* {decl} or {unit} */
+
+        while (~(subItems = 0)) {
+            let subItem = subItems.get();
+            if ((~(subItem.getType() = Const.PROC_DECL()))
+                     & (~(subItem.getType() = Const.VAR_DECL()))) {
+                return subItems;
+            }
+            let subItems = subItems.getNext();
+        }
+        return 0;
+    }
+
+    /* do_while_stat = "do" "while" (call | expr) */
+    function Item doWhileCond(Item doWhile) {
+        var List subItems;
+        var Item stat;
+        let stat = AstSel.blockStat(doWhile);
+        let subItems = stat.getSubItems();	/* do */
+        let subItems = subItems.getNext();  /* while */
+        let subItems = subItems.getNext();  /* (call | expr) */
+        return subItems.get();
+    }
+
+    /* do_iter = "do" ident "=" expr "to" expr ["by" expr] */
+    function Item doIterLoopVar(Item doIter) {
+        var Item stat;
+        var List subItems;
+        var Item subItem;
+        let stat = AstSel.blockStat(doIter);
+        let subItems = stat.getSubItems(); /* "do" */
+        let subItems = subItems.getNext(); /* ident */
+        return subItems.get();
+    }
+
+    function Item doIterInitExpr(Item doIter) {
+        var Item stat;
+        var List subItems;
+        var Item subItem;
+        let stat = AstSel.blockStat(doIter);
+        let subItems = stat.getSubItems(); /* "do" */
+        let subItems = subItems.getNext(); /* ident */
+        let subItems = subItems.getNext(); /* "=" */
+        let subItems = subItems.getNext(); /* init-expr */
+        return subItems.get();
+    }
+
+    function Item doIterToExpr(Item doIter) {
+        var Item stat;
+        var List subItems;
+        var Item subItem;
+        let stat = AstSel.blockStat(doIter);
+        let subItems = stat.getSubItems(); /* "do" */
+        let subItems = subItems.getNext(); /* ident */
+        let subItems = subItems.getNext(); /* "=" */
+        let subItems = subItems.getNext(); /* init-expr */
+        let subItems = subItems.getNext(); /* "to" */
+        let subItems = subItems.getNext(); /* to-expr */
+        return subItems.get();
+    }
+
+    function Item doIterByExpr(Item doIter) {
+        var Item stat;
+        var List subItems;
+        var Item subItem;
+        let stat = AstSel.blockStat(doIter);
+        let subItems = stat.getSubItems(); /* "do" */
+        let subItems = subItems.getNext(); /* ident */
+        let subItems = subItems.getNext(); /* "=" */
+        let subItems = subItems.getNext(); /* init-expr */
+        let subItems = subItems.getNext(); /* "to" */
+        let subItems = subItems.getNext(); /* to-expr */
+        let subItems = subItems.getNext(); /* "by" */
+        if (subItems = 0) {
+            return 0;
+        }
+        let subItems = subItems.getNext(); /* by-expr */
+        return subItems.get();
+    }
+
     function Item ifCond(Item ifStat) {
         var List subItems;
         let subItems = ifStat.getSubItems();

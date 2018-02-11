@@ -8,9 +8,6 @@ class Eva {
      * in object fields.
      */
 
-    field String PROC_RET;
-     
-    
     field IdentMap identMap;
 
     field integer lastBlockId;
@@ -40,7 +37,6 @@ class Eva {
         let blockIdStack = List.new(lastBlockId);
         let currBlockId = 0;
         let procStack = List.new(0);
-        let PROC_RET = "$$$";
 
         /* put built in procedures in identMap */
         do identMap.putBuiltIn("type", 0);
@@ -138,10 +134,6 @@ class Eva {
             do nextBlockId();
             let procArgs = AstSel.procArgs(item);
             let procStack = procStack.prepend(currBlockId);
-            let type = AstSel.procType(item);
-            if (~(type = Const.ILLEGAL())) {
-                do identMap.putVar(PROC_RET, currBlockId, type);
-            }
             while (~(procArgs = 0)) {
                 let arg = procArgs.get();
                 do arg.setBlockId(currBlockId);
@@ -250,8 +242,10 @@ class Eva {
                 return 0;
             }
 
-            /* TODO: execute call from element*/
             let procItem = element.getProcItem();
+
+            /* TODO: execute call from element*/
+
             return 0;
         }
     }
@@ -296,7 +290,7 @@ class Eva {
 
         /* string */
         if (subItem.getType() = Const.T_STRING()) {
-            return subItem.getValue();
+            return Value.copy(subItem.getValue());
         }
 
         /* ident */
@@ -309,7 +303,7 @@ class Eva {
                 let val = execCall(subItem);
             } else {
                 /* variable */
-                let val = element.getValue();
+                let val = Value.copy(element.getValue());
             }
             if (val = 0) {
                 do Display.printConst("error: unset variable ");
@@ -507,6 +501,7 @@ class Eva {
 
     /* log_expr = true | false | (arithm [ rel_op arithm ]) */
     method Value evalLogExpr(Item item) {
+        var Value value;
         var Value arithm1;
         var integer a1;
         var Item relOp;
@@ -525,7 +520,8 @@ class Eva {
         /* test if boolean constant */
         if (subItem.getType() = Const.T_BOOLEAN()) {
 //            do Display.printConstln("-- log_expr a");
-            return subItem.getValue();
+            let value = subItem.getValue();
+            return Value.newBoolean(value.getBooleanValue());
         }
 
         /* get first arithm */
@@ -569,6 +565,16 @@ class Eva {
 
         /* generate result value */
         return Value.newBoolean(evalRel(a1, a2, relOp));
+    }
+
+    method Value evalCallOrExpr(Item item) { 
+        if (item.getType() = Const.CALL()) {
+            return execCall(item);
+        }
+        if (item.getType() = Const.EXPR()) {
+            return evalExpr(item);
+        }
+        return 0;
     }
 
     /* returns the value of the expression */
@@ -652,45 +658,69 @@ class Eva {
         return Value.newBoolean(acc);
     }
 
-    /* execute assignment
-     * called only after pass1 succeed => variable is defined
-     */
-    method void execAssignment(Item item) {
-        var Item variable;
+    method void assignValue(Item variable, Value value) {
         var Item expr;
-        var Value val;
+        var Value oldVal;
         var Element element;
         var String name;
         var integer blockId;
 
         /* left side */
-        let variable = AstSel.assignVar(item);
         let name = variable.getStringValue();
         let blockId = variable.getBlockId();
         let element = identMap.get(name, blockId);
+        if (element = 0) {
+            do Display.printConst("error: unknown vairable ");
+            do Display.printString(name);
+            do Display.newline();
+            return;
+        }
         if (element.isProc()) {
             do Display.printConst("error: assign to procedure ");
             do Display.printString(name);
             do Display.newline();
             return;
         }
+        let oldVal = element.getValue();
+        if (~(oldVal = 0)) {
+            do oldVal.dispose();
+        }
 
         /* right side */
-        let expr = AstSel.assignExpr(item);
-        let val = evalExpr(expr);
-        if (val = 0) {
+        if (value = 0) {
             do Display.printConstln("error: no value expression");
             return;
         }
 
         /* set value */
-        do element.setValue(val);
+        do element.setValue(value);
 
         return;
     }
 
-    /* return true if must return from procedure, otherwise false */
-    method boolean execUnit(Item item) {
+    /* execute assignment
+     * called only after pass1 succeed => variable is defined
+     */
+    method void execAssignment(Item item) {
+        var Item variable;
+        var Item expr;
+        var Value value;
+
+        /* left side */
+        let variable = AstSel.assignVar(item);
+
+        /* right side */
+        let expr = AstSel.assignExpr(item);
+        let value = evalExpr(expr);
+
+        /* set value */
+        do assignValue(variable, value);
+
+        return;
+    }
+
+    /* return value if must return from procedure, otherwise 0 */
+    method Value execUnit(Item item) {
         var Item retExpr;
         var Value retVal;
         var integer blockId;
@@ -698,7 +728,7 @@ class Eva {
 
         if (item.getType() = Const.ASSIGN()) {
             do execAssignment(item);
-            return false;
+            return 0;
         }
 
         if (item.getType() = Const.RETURN()) {
@@ -706,62 +736,262 @@ class Eva {
             /* return values: created in identMap on enter procedure */
             let retExpr = AstSel.retExpr(item);
             let retVal = evalExpr(retExpr);
-            let blockId = item.getBlockId(); 
-            let retEl = identMap.get(PROC_RET, blockId);
-            do retEl.setValue(retVal);
-            return true;
+            return retVal;
         }
 
         if (item.getType() = Const.CALL()) {
-            do execCall(item);
-            return false;
+            return execCall(item);
         }
 
         if (item.getType() = Const.DO_BLOCK()) {
-            do execDoBlock(item);
-            return false;
+            return execDoBlock(item);
         }
 
         if (item.getType() = Const.DO_ITER()) {
-            do execDoIter(item);
-            return false;
+            return execDoIter(item);
         }
 
         if (item.getType() = Const.DO_WHILE()) {
-            do execDoWhile(item);
-            return false;
+            return execDoWhile(item);
+        }
+
+        if (item.getType() = Const.COND()) {
+            return execCond(item);
         }
 
         /* other items (declarations) that don't need to be executed */
-        return false;
+        return 0;
     }
 
-    /* return true if must return from last procedure, otherwise false */
-    method boolean execDoBlock(Item item) {
+    /* return value if must return from last procedure, otherwise 0 */
+    method Value execDoBlock(Item item) {
         var List subItems;
         var Item subItem;
+        var Value val;
 
         do Display.printConstln("-- do_block");
         let subItems = item.getSubItems();
         while (~(subItems = 0)) {
             let subItem = subItems.get();
-            if (execUnit(subItem)) {
-                /* TODO: exit current procedure: return called */
-                return true;
+            let val = execUnit(subItem);
+            if (~(val = 0)) {
+                return val;
             }
             let subItems = subItems.getNext();
         }
-        return false;
+        return 0;
     }
 
-    method boolean execDoIter(Item item) {
-        /* TODO */
-        return false;
+    method integer getExprInt(Item expr) {
+        var integer result;
+        var Value val;
+
+        let val = evalExpr(expr);
+        if (val = 0) {
+            return 12222;
+        }
+        let result = val.getIntegerValue();
+        if (val.getType() = Const.T_INTEGER()) {
+            let result = val.getIntegerValue();
+            do val.dispose();
+            return result;
+        }
+        return 13333;
     }
 
-    method boolean execDoWhile(Item item) {
-        /* TODO */
-        return false;
+    method Element getIdentElement(Item ident) {
+        var String name;
+        var integer blockId;
+        let name = AstSel.identName(ident);
+        let blockId = ident.getBlockId();
+        if (blockId = (-1)) {
+            return 0;
+        }
+        return identMap.get(name, blockId);
+    }
+
+    method Value execDoIter(Item item) {
+        var Item loopVar;
+        var integer loopVarVal;
+        var Element loopVarElement;
+        var Value loopVarElementValue;
+        var Item initExpr;
+        var integer initVal;
+        var Item toExpr;
+        var integer toVal;
+        var Item byExpr;
+        var integer byVal;
+        var boolean finished;
+
+        var List units;
+        var List currUnits;
+        var Item unit;
+        var Value unitVal;
+
+        /* get condition */
+        let loopVar = AstSel.doIterLoopVar(item);
+        let loopVarElement = getIdentElement(loopVar);
+        if (loopVarElement = 0) {
+            return 0;
+        }
+
+        let initExpr = AstSel.doIterInitExpr(item);
+        let initVal = getExprInt(initExpr);
+
+        do assignValue(loopVar, Value.newInteger(initVal));
+
+        let toExpr = AstSel.doIterToExpr(item);
+        let toVal = getExprInt(toExpr);
+
+        let byExpr = AstSel.doIterByExpr(item);
+        if (byExpr = 0) {
+            let byVal = 1;
+        } else {
+            let byVal = getExprInt(byExpr);
+        }
+        if (byVal > 0) {
+            let finished = (initVal > toVal);
+        } else {
+            let finished = (initVal < toVal);
+        }
+
+        /* loop */
+        let units = AstSel.blockUnits(item);
+        while (~finished) {
+            let currUnits = units;
+            while (~(currUnits = 0)) {
+                let unit = currUnits.get();
+                let unitVal = execUnit(unit);
+                if (~(unitVal = 0)) {
+                    return unitVal;
+                }
+                let currUnits = currUnits.getNext();
+            }
+
+            /* test condition */
+            let loopVarElementValue = loopVarElement.getValue();
+            let loopVarVal = loopVarElementValue.getIntegerValue();
+
+            let toVal = getExprInt(toExpr);
+            if (byExpr = 0) {
+                let byVal = 1;
+            } else {
+                let byVal = getExprInt(byExpr);
+            }
+
+            /* set loopVar to loopVar + byVal */
+            let loopVarVal = loopVarVal + byVal;
+            do assignValue(loopVar, Value.newInteger(loopVarVal));
+    
+            if (byVal > 0) {
+                let finished = (loopVarVal > toVal);
+            } else {
+                let finished = (loopVarVal < toVal);
+            }
+            if (loopVarVal = 0) {
+                let finished = true;
+            }
+        }
+        return 0;
+    }
+
+    method Value execDoWhile(Item item) {
+        var Item condExpr;
+        var Value condVal;
+        var boolean condBool;
+        var List units;
+        var List currUnits;
+        var Item unit;
+        var Value unitVal;
+
+        let condExpr = AstSel.doWhileCond(item);
+        let condVal = evalCallOrExpr(condExpr);
+        let condBool = condVal.getBooleanValue();
+        do condVal.dispose();
+        let units = AstSel.blockUnits(item);
+        while (condBool) {
+            let currUnits = units;
+            while (~(currUnits = 0)) {
+                let unit = currUnits.get();
+                let unitVal = execUnit(unit);
+                if (~(unitVal = 0)) {
+                    return unitVal;
+                }
+                let currUnits = currUnits.getNext();
+            }
+            let condVal = evalCallOrExpr(condExpr);
+            let condBool = condVal.getBooleanValue();
+            do condVal.dispose();
+        }
+        
+        return 0;
+    }
+
+    /* cond = if_stat unit {else_if_stat unit} [else unit] */
+    method Value execCond(Item item) {
+        var List subItems;
+        var Item stat;
+        var Item condExpr;
+        var Item unit;
+        var Value exprVal;
+        var boolean boolVal;
+        var boolean hasNext;
+
+        /* if_stat */
+        let subItems = item.getSubItems();
+        let stat = subItems.get();
+        let condExpr = AstSel.ifCond(stat);
+        let exprVal = evalExpr(condExpr);
+        let boolVal = exprVal.getBooleanValue();
+
+        /* unit */
+        let subItems = subItems.getNext();
+        if (boolVal) {
+            let unit = subItems.get();
+            return execUnit(unit);
+        }
+        do exprVal.dispose();
+
+        /* {else_if_stat unit} */
+        let subItems = subItems.getNext();
+        if (subItems = 0) {
+            let hasNext = false;
+        } else {
+            let stat = subItems.get();
+            let hasNext = (stat.getType() = Const.ELSE_IF_STAT());
+        }
+
+        while (hasNext) {
+            /* else_if_stat */
+            let condExpr = AstSel.elseIfCond(stat);
+            let exprVal = evalExpr(condExpr);
+            let boolVal = exprVal.getBooleanValue();
+
+            /* unit */
+            let subItems = subItems.getNext();
+            if (boolVal) {
+                let unit = subItems.get();
+                return execUnit(unit);
+            }
+            do exprVal.dispose();
+
+            let subItems = subItems.getNext();
+            if (subItems = 0) {
+                let hasNext = false;
+            } else {
+                let stat = subItems.get();
+                let hasNext = (stat.getType() = Const.ELSE_IF_STAT());
+            }
+        }
+
+        /* [else unit] */
+        if (subItems = 0) { /* subItems -> else */
+            return 0;
+        }
+
+        let subItems = subItems.getNext(); /* unit */
+        let unit = subItems.get();
+        return execUnit(unit);
     }
 
     /* only assignments, calls, exprs and blocks go here */
