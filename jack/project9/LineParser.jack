@@ -279,6 +279,7 @@ class LineParser {
         return result;
     }
 
+    /* do_while_stat = "do" "while" (call | expr) */
     function Item parseDoWhileStat(Tokenizer tokenizer) {
         var Item kw_do;
         var Item kw_while;
