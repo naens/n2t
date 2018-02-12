@@ -194,35 +194,39 @@ class Eva {
         var Item ident;
         var List subItems;
         var Item subItem;
-        var List params;
+        var List paramValues;
         var Value paramValue;
         var String name;
         var integer blockId;
         var Element element;
         var Item procItem;
+        var List procRest; /* declarations and then units of procedure */
+        var List paramIdents;
+        var boolean hasMoreDeclarations;
+        var Value unitValue;
 
 //        do Display.printConstln("execCall");
 
         if (item.getType() = Const.IDENT()) {
             let ident = item;
-            let params = 0;
+            let paramValues = 0;
         }
 
         if (item.getType() = Const.CALL()) {
             let subItems = item.getSubItems();
             let ident = subItems.get();
             let subItems = subItems.getNext();
-            let params = 0;
+            let paramValues = 0;
             while (~(subItems = 0)) {
                 let subItem = subItems.get();
                 let paramValue = evalExpr(subItem);
                 if (paramValue = 0) {
                     return 0;
                 }
-                if (params = 0) {
-                    let params = List.new(paramValue);
+                if (paramValues = 0) {
+                    let paramValues = List.new(paramValue);
                 } else {
-                    do params.append(paramValue);
+                    do paramValues.append(paramValue);
                 }
                 let subItems = subItems.getNext();
             }
@@ -233,7 +237,7 @@ class Eva {
         let element = identMap.get(name, blockId);
 //        do Display.printConstln("execCall 2");
         if (element.isBuiltIn()) {
-            return BuiltIn.execByName(name, params);
+            return BuiltIn.execByName(name, paramValues);
         } else {
             if (~element.isProc()) {
                 do Display.printConst("tried to call non-procedure ");
@@ -244,7 +248,71 @@ class Eva {
 
             let procItem = element.getProcItem();
 
-            /* TODO: execute call from element*/
+            /* get procedure parameter identifier list */
+            let paramIdents = AstSel.procArgs(procItem);
+
+            /* variable declarations: push */
+            let procRest = AstSel.blockRest(procItem);
+            if (procRest = 0) {
+                let hasMoreDeclarations = false;
+            } else {
+                let subItem = procRest.get();
+                let hasMoreDeclarations = 
+                    (subItem.getType() = Const.PROC_DECL())
+                    | (subItem.getType() = Const.VAR_DECL());
+            }
+            while (hasMoreDeclarations) {
+                if (subItem.getType() = Const.VAR_DECL()) {
+                    let name = AstSel.varName(subItem);
+                    let blockId = subItem.getBlockId();
+                    let element = identMap.get(name, blockId);
+                    do element.push();
+                }
+                let procRest = procRest.getNext();
+                if (procRest = 0) {
+                    let hasMoreDeclarations = false;
+                } else {
+                    let subItem = procRest.get();
+                    let hasMoreDeclarations = 
+                        (subItem.getType() = Const.PROC_DECL())
+                        | (subItem.getType() = Const.VAR_DECL());
+                }
+            }
+
+            /* assign values of params to ident list */
+            let subItem = paramIdents.get();
+            while (~(subItem.getType() = Const.CH_PARCL())) {
+                if (paramValues = 0) {
+                    do Display.printConstln("call: not enough parameters");
+                    return 0;
+                }
+                let name = subItem.getStringValue();
+                let blockId = subItem.getBlockId();
+                let element = identMap.get(name, blockId);
+                let paramValue = paramValues.get();
+                if (~(element.getType() = paramValue.getType())) {
+                    do Display.printConstln("call: wrong parameter type");
+                    return 0;
+                }
+                do element.setValue(paramValue);
+                let paramIdents = paramIdents.getNext();
+                let paramValues = paramValues.getNext();
+                let subItem = paramIdents.get();
+            }
+            if (~(paramValues = 0)) {
+                do Display.printConstln("call: too many arguments");
+                return 0;
+            }
+            
+            /* execute procedure units */
+            while (~(procRest = 0)) {
+                let subItem = procRest.get();
+                let unitValue = execUnit(subItem);
+                if (~(unitValue = 0)) {
+                    return unitValue;
+                }
+                let procRest = procRest.getNext();
+            }
 
             return 0;
         }
@@ -311,9 +379,13 @@ class Eva {
                 do Display.newline();
                 return 0;
             }
-            let intval = val.getIntegerValue();
-            do val.dispose();
-            return signValue(sign, intval);
+            if (val.getType() = Const.T_INTEGER()) {
+                let intval = val.getIntegerValue();
+                do val.dispose();
+                return signValue(sign, intval);
+            } else {
+                return val;
+            }
         }
 
         /* call-expr */
@@ -357,6 +429,10 @@ class Eva {
         }
 
         if (factor.getType() = Const.T_STRING()) {
+            return factor;
+        }
+
+        if (factor.getType() = Const.T_BOOLEAN()) {
             return factor;
         }
 
@@ -421,6 +497,10 @@ class Eva {
         }
 
         if (term.getType() = Const.T_STRING()) {
+            return term;
+        }
+
+        if (term.getType() = Const.T_BOOLEAN()) {
             return term;
         }
 
@@ -531,6 +611,9 @@ class Eva {
             return 0;
         }
         if (arithm1.getType() = Const.T_STRING()) {
+            return arithm1;
+        }
+        if (arithm1.getType() = Const.T_BOOLEAN()) {
             return arithm1;
         }
 
@@ -732,10 +815,11 @@ class Eva {
         }
 
         if (item.getType() = Const.RETURN()) {
-            /* TODO: set return value for current procedure */
             /* return values: created in identMap on enter procedure */
             let retExpr = AstSel.retExpr(item);
             let retVal = evalExpr(retExpr);
+            let blockId = item.getBlockId();
+            do identMap.popBlock(blockId);
             return retVal;
         }
 
@@ -769,7 +853,6 @@ class Eva {
         var Item subItem;
         var Value val;
 
-        do Display.printConstln("-- do_block");
         let subItems = item.getSubItems();
         while (~(subItems = 0)) {
             let subItem = subItems.get();
