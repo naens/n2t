@@ -19,3 +19,5 @@ fp.*
 *.out
 
 FunctionCalls
+
+.class
