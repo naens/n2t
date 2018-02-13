@@ -1,33 +1,46 @@
-import java.io.File;
+import java.io.*;
+import java.util.regex.*;
 
 public class Parser {
 
     private File file;
-    private String cmd;
-    private String arg1;
-    private String arg2;
+    private FileReader fileReader;
+    private BufferedReader bufferedReader;
 
-    public String getCmd() {
-        return cmd;
+    public Parser(File file) {
+        try {
+	    this.file = file;
+	    fileReader = new FileReader(file);
+	    bufferedReader = new BufferedReader(fileReader);
+        } catch (IOException e) {
+	    e.printStackTrace();
+        }
     }
 
-    public String getArg1() {
-        return arg1;
-    }
-
-    public String getArg2() {
-        return arg2;
-    }
-
-    public Parser(String fileName) {
-        // TODO: open file
-    }
-
-    public void advance() {
-        //TODO: read one line of code and set cmd, arg1 and arg2
+    public String[] advance() {
+        try {
+	    String line;
+	    while ((line = bufferedReader.readLine()) != null) {
+                Pattern pattern = Pattern.compile("[^ ].*");
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    String s = matcher.group();
+                    if (s.matches("[a-z].*")) {
+                        return s.split(" +");
+                    }
+                }
+            }
+        } catch (IOException e) {
+	    e.printStackTrace();
+        }
+        return null;
     }
 
     public void close() {
-        // TODO: close file
+        try {
+            fileReader.close();
+        } catch (IOException e) {
+	    e.printStackTrace();
+        }
     }
 }
