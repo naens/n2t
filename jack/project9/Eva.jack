@@ -204,6 +204,7 @@ class Eva {
         var List paramIdents;
         var boolean hasMoreDeclarations;
         var Value unitValue;
+        var integer procType;
 
 //        do Display.printConstln("execCall");
 
@@ -266,6 +267,11 @@ class Eva {
                     let name = AstSel.varName(subItem);
                     let blockId = subItem.getBlockId();
                     let element = identMap.get(name, blockId);
+                    do Display.printConst("-- execCall: push ");
+                    do Display.printString(name);
+                    do Display.printConst(" blockId=");
+                    do Display.printInt(blockId);
+                    do Display.newline();
                     do element.push();
                 }
                 let procRest = procRest.getNext();
@@ -289,6 +295,13 @@ class Eva {
                 let name = subItem.getStringValue();
                 let blockId = subItem.getBlockId();
                 let element = identMap.get(name, blockId);
+                if (element = 0) {
+                    do Display.printConst("call: missing declaration of variable ");
+                    do Display.printString(name);
+                    do Display.newline();
+                    /* TODO: ?check during pass1? */
+                    return 0;
+                }
                 let paramValue = paramValues.get();
                 if (~(element.getType() = paramValue.getType())) {
                     do Display.printConstln("call: wrong parameter type");
@@ -305,15 +318,35 @@ class Eva {
             }
             
             /* execute procedure units */
+            let blockId = procItem.getBlockId();
+            let procType = AstSel.procType(procItem);
             while (~(procRest = 0)) {
                 let subItem = procRest.get();
                 let unitValue = execUnit(subItem);
                 if (~(unitValue = 0)) {
+                    do identMap.popBlock(blockId);
+                    /* check return type */
+                    if (procType = Const.ILLEGAL()) {
+                        do Display.printConstln("error: procedure without return type");
+                        do unitValue.dispose();
+                        return 0;
+                    }
+                    if (~(procType = unitValue.getType())) {
+                        do Display.printConstln("error: wrong return value type");
+                        do unitValue.dispose();
+                        return 0;
+                    }
                     return unitValue;
                 }
                 let procRest = procRest.getNext();
             }
 
+            do identMap.popBlock(blockId);
+
+            /* check no return value needed  */
+            if (~(procType = Const.ILLEGAL())) {
+                do Display.printConstln("error: procedure didn't return a value");
+            }
             return 0;
         }
     }
@@ -819,7 +852,6 @@ class Eva {
             let retExpr = AstSel.retExpr(item);
             let retVal = evalExpr(retExpr);
             let blockId = item.getBlockId();
-            do identMap.popBlock(blockId);
             return retVal;
         }
 
