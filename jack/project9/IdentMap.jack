@@ -122,41 +122,21 @@ class IdentMap {
     method void popBlock(integer blockId) {
         var List list;
         var integer i;
-        var boolean first;
-        var boolean needAdvance;
-        var List prev;
         var List next;
         var IdentMapNode node;
         var Element element;
         let i = 0;
         while (i < TAB_SZ) {
-            let first = true;
             let list = table[i];
             while (~(list = 0)) {
-                let needAdvance = true;
                 let node = list.get();
                 if (node.getBlockId() = blockId) {
                     let element = node.getElement();
-                    if (~element.isProc()) {
+                    if (~(element.isProc())) {
                         do element.pop();
-                        if (element.isEmpty()) {
-                            let next = list.getNext();
-                            if (first) {
-                                let table[i] = next;
-                            } else {
-                                do prev.setNext(next);
-                            }
-                            do element.dispose();
-                            let list = list.deleteFirst();
-                            let needAdvance = false;
-                        }
                     }
                 }
-                if (needAdvance) {
-                    let prev = list;
-                    let list = list.getNext();
-                    let first = false;
-                }
+                let list = list.getNext();
             }
             let i = i + 1;
         }

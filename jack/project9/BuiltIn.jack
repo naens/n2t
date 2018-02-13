@@ -12,10 +12,10 @@ class BuiltIn {
     /* type function: types the (first) argument on the display */
     function Value type(List values) {
         var Value val;
-
         let val = values.get();
         do Display.printConst("TYPE: ");
         do val.println();
+        do val.dispose();
         return 0;
     }
 
