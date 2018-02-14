@@ -2,6 +2,11 @@ import java.io.*;
 
 public class VMTranslator {
 
+    public static String getNoExtName(File file) {
+        String name = file.getName();
+        return name.substring(0, name.lastIndexOf('.'));
+    }
+
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.out.println("usage: java VMTranslator <file/dir>");
@@ -27,21 +32,59 @@ public class VMTranslator {
             programName = file.getName();
             inFiles = file.listFiles(vmFilter);
         } else {
-            String name = file.getName();
             inFiles = new File[1];
             inFiles[0] = file;
-            programName = name.substring(0, name.lastIndexOf('.'));
+            programName = getNoExtName(file);
         }
 
-        System.out.println("output file name = " + programName + ".asm");
-        System.out.println("output file dir  = " + dir.getCanonicalPath());
+        File outFile = new File(dir, programName + ".asm");
+        System.out.println("output file = " + outFile.getCanonicalPath());
+        CodeWriter codeWriter = new CodeWriter(outFile);
         for (File f : inFiles) {
+            String moduleName = getNoExtName(f);
+            codeWriter.setModuleName(moduleName);
             Parser parser = new Parser(f);
             String[] strs;
             while ((strs = parser.advance()) != null) {
                 System.out.println(String.join(" ", strs));
+                doCmd(codeWriter, strs);
             }
             parser.close();
         }
+        codeWriter.writeRestore();
+        codeWriter.close();
     }
+
+    private static void doCmd(CodeWriter cw, String[] strs) {
+        switch (strs[0]) {
+        case "push":
+            cw.writePush(strs[1], Integer.parseInt(strs[2]));
+            break;
+        case "pop":
+            cw.writePop(strs[1], Integer.parseInt(strs[2]));
+            break;
+        case "label":
+            cw.writeLabel(strs[1]);
+            break;
+        case "goto":
+            cw.writeGoto(strs[1]);
+            break;
+        case "if-goto":
+            cw.writeIfGoto(strs[1]);
+            break;
+        case "return":
+            cw.writeReturn();
+            break;
+        case "call":
+            cw.writeCall(strs[1], Integer.parseInt(strs[2]));
+            break;
+        case "function":
+            cw.writeFunction(strs[1], Integer.parseInt(strs[2]));
+            break;
+        default:
+            cw.writeArithm(strs[0]);
+            break;
+        }
+    }
+
 }

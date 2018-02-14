@@ -1,28 +1,31 @@
-import java.io.File;
+import java.io.*;
 
 public class CodeWriter {
 
     private File file;
-    private String name;
+    private FileWriter fileWriter;
     private String moduleName;
     private String functionName;
+    private int n;
 
-    public CodeWriter(String name) {
+    public CodeWriter(File file) {
         // TODO: create/open file, set name
-        this.name = name;
+        this.file = file;
+        try {
+            fileWriter = new FileWriter(file);
+        } catch (IOException e) {
+	    e.printStackTrace();
+        }
+        n = 0;
     }
 
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
     public void writeInit(int n) {}
 
-    public void writeArithm(int n, String operation) {}
+    public void writeArithm(String operation) {}
 
     public void writePush(String segment, int index) {}
 
@@ -36,13 +39,17 @@ public class CodeWriter {
 
     public void writeReturn() {}
 
-    public void writeCall(int n, int num) {}
+    public void writeCall(String func, int nVars) {}
 
     public void writeRestore() {}
 
-    public void writeFunction(int num) {}
+    public void writeFunction(String func, int nArgs) {}
 
     public void close() {
-        // TODO: close file
+        try {
+            fileWriter.close();
+        } catch (IOException e) {
+	    e.printStackTrace();
+        }
     }
 }
