@@ -83,6 +83,19 @@ REPL>type c - 9
 
 ** Block and Loop Tests
 *** Do Block
+**** test1
+REPL>declare a integer
+REPL>a=1
+REPL>type a
+1
+REPL>do
+REPL>declare a integer
+REPL>a=10
+REPL>type a
+REPL>end
+10
+REPL>type a
+1
 
 *** Do While
 
