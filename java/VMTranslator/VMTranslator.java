@@ -8,6 +8,7 @@ public class VMTranslator {
     }
 
     public static void main(String[] args) throws IOException {
+        boolean writeEnv;
         if (args.length != 1) {
             System.out.println("usage: java VMTranslator <file/dir>");
             return;
@@ -29,30 +30,36 @@ public class VMTranslator {
         };
         String programName;
         if (file.isDirectory()) {
+            writeEnv = true;
             programName = file.getName();
             inFiles = file.listFiles(vmFilter);
         } else {
+            writeEnv = false;
             inFiles = new File[1];
             inFiles[0] = file;
             programName = getNoExtName(file);
         }
 
         File outFile = new File(dir, programName + ".asm");
-        System.out.println("output file = " + outFile.getCanonicalPath());
+//        System.out.println("output file = " + outFile.getCanonicalPath());
         CodeWriter codeWriter = new CodeWriter(outFile);
-        codeWriter.writeInit();
+        if (writeEnv) {
+            codeWriter.writeInit();
+        }
         for (File f : inFiles) {
             String moduleName = getNoExtName(f);
             codeWriter.setModuleName(moduleName);
             Parser parser = new Parser(f);
             String[] strs;
             while ((strs = parser.advance()) != null) {
-                System.out.println(String.join(" ", strs));
+//                System.out.println(String.join(" ", strs));
                 doCmd(codeWriter, strs);
             }
             parser.close();
         }
-        codeWriter.writeRestore();
+        if (writeEnv) {
+            codeWriter.writeRestore();
+        }
         codeWriter.close();
     }
 
