@@ -98,7 +98,43 @@ REPL>type a
 1
 
 *** Do While
+**** do_while1
+REPL>declare a integer
+REPL>declare b integer
+REPL>declare c integer
+REPL>a=7
+REPL>b=8
+REPL>c=0
+REPL>do while a > 0
+REPL>c=c+b
+REPL>a=a-1
+REPL>end
+REPL>type c
+56
 
 *** Do Iter
+**** do_iter1
+REPL>declare a integer
+REPL>do a=5 to 9 by 2
+REPL>type a
+REPL>end
+5
+7
+9
+
+**** do_iter2
+REPL>declare a integer
+REPL>do a=4 to 6
+REPL>declare x integer
+REPL>x=a*2
+REPL>type a
+REPL>type x
+REPL>end
+4
+8
+5
+10
+6
+12
 
 ** Procedure Tests
