@@ -40,6 +40,7 @@ public class VMTranslator {
         File outFile = new File(dir, programName + ".asm");
         System.out.println("output file = " + outFile.getCanonicalPath());
         CodeWriter codeWriter = new CodeWriter(outFile);
+        codeWriter.writeInit();
         for (File f : inFiles) {
             String moduleName = getNoExtName(f);
             codeWriter.setModuleName(moduleName);
@@ -85,6 +86,7 @@ public class VMTranslator {
             cw.writeArithm(strs[0]);
             break;
         }
+        cw.incN();
     }
 
 }
