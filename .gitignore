@@ -9,6 +9,7 @@ wa.sub
 *.asm
 *.vm
 *.com
+*.tmp
 
 fp.*
 *.tst
