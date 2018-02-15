@@ -138,3 +138,106 @@ REPL>end
 12
 
 ** Procedure Tests
+*** a. no return value tests
+**** proc test a1
+REPL>declare (p)
+DEP1>type 'abcd'
+DEP1>end p
+REPL>p
+'abcd'
+
+**** proc test a2
+REPL>declare (pp n)
+DEP1>declare n integer
+DEP1>type n*7
+DEP1>end pp
+REPL>pp 213
+1491
+
+**** proc test a3
+REPL>declare s string
+REPL>declare (proc)
+DEP1>type s
+end proc
+REPL>declare (scope)
+DEP1>declare s string
+DEP1>s='dynamic'
+DEP1>proc
+DEP1>end scope
+REPL>s='lexical'
+REPL>scope
+'lexical'
+
+**** proc test a4
+REPL>declare (test)
+DEP1>declare x integer
+DEP1>declare (test2 n)
+DEP2>declare n integer
+DEP2>x=x+n
+DEP2>type x
+DEP2>end test2
+DEP1>x=100
+DEP1>test2 1
+DEP1>test2 2
+DEP1>test2 3
+DEP1>end test
+REPL>test
+101
+103
+106
+
+*** b. procedures with return value
+**** proc test b1
+REPL>declare (sum n) integer
+DEP1>declare n integer
+DEP1>declare r integer
+DEP1>r=0
+DEP1>do while n > 0
+DEP1>r=r+n
+DEP1>n=n-1
+DEP1>end
+DEP1>return r
+DEP1>end sum
+REPL>type (sum 4)
+10
+REPL>type (sum 7)
+28
+
+**** proc test b2
+REPL>declare (fib n) integer
+DEP1>declare n integer
+DEP1>if n < 2 then
+DEP1>return n
+DEP1>else
+DEP1>return (fib n-1) + (fib n-2)
+DEP1>end fib
+REPL>type (fib 4)
+3
+REPL>type (fib 7)
+13
+
+**** proc test b3
+REPL>declare (mult a b) integer
+DEP1>declare a integer
+DEP1>declare b integer
+DEP1>declare (rec a b acc) integer
+DEP2>declare a integer
+DEP2>declare b integer
+DEP2>declare acc integer
+DEP2>if b = 0 then
+DEP2>return acc
+DEP2>else if b-b/2*2 = 0 then
+DEP2>return (rec 2*a b/2 acc)
+DEP2>else
+DEP2>return (rec a b-1 acc+a)
+DEP2>end rec
+DEP1>return (rec a b 0)
+DEP1>end mult
+REPL>type (mult 3 6)
+18
+REPL>type (mult 17 77)
+1309
+REPL>type (mult 20 0)
+0
+REPL>type (mult 0 100)
+0
