@@ -267,11 +267,13 @@ class Eva {
                     let name = AstSel.varName(subItem);
                     let blockId = subItem.getBlockId();
                     let element = identMap.get(name, blockId);
+/*
                     do Display.printConst("-- execCall: push ");
                     do Display.printString(name);
                     do Display.printConst(" blockId=");
                     do Display.printInt(blockId);
                     do Display.newline();
+*/
                     do element.push();
                 }
                 let procRest = procRest.getNext();
@@ -391,7 +393,8 @@ class Eva {
 
         /* string */
         if (subItem.getType() = Const.T_STRING()) {
-            return Value.copy(subItem.getValue());
+            let val = subItem.getValue();
+            return Value.copy(val);
         }
 
         /* ident */
@@ -404,7 +407,14 @@ class Eva {
                 let val = execCall(subItem);
             } else {
                 /* variable */
-                let val = Value.copy(element.getValue());
+                let val = element.getValue();
+                if (val = 0) {
+                    do Display.printConst("undefined identifier: ");
+                    do Display.printString(subItem.getStringValue());
+                    do Display.newline();
+                    return 0;
+                }
+                let val = Value.copy(val);
             }
             if (val = 0) {
                 do Display.printConst("error: unset variable ");
