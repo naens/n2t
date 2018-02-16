@@ -1,0 +1,30 @@
+#+TITLE: REPL
+
+* Overview
++This+ is a small shell built on top of the Jack Operating System.  It can
+be used to define and execute commands and procedures.
+
+* Built-in Commands
+The built in commands serve as a way for the user to interact with the
+system: print results, list available variables, and similar.
+
+ - ~type <expression>~: display the value of an expression
+ - ~assign <string expression> <expression>~: assign the value of expression
+to the variable, the name of which is the value of the string expression
+ - ~list~: display the names of available variables
+ - ~help~: run help program, which explains how to use the system
+ - ~erase <str-expr?var>~: undefine a variable
+ - ~execute <string expression>~: execute the contents of the value returned
+by the string expression
+
+
+* Language Description
+** Varable Declarations
+** Statements
+** Conditions
+** Do Blocks
+** Do While
+** Iterative Do
+** Procedures
+
+* Other
