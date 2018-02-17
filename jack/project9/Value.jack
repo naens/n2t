@@ -1,7 +1,7 @@
 class Value {
     field integer type;
     field String stringValue;
-    field integer integerValue;    
+    field integer integerValue;
     field boolean booleanValue;
 
     constructor Value newString(String s) {
@@ -24,9 +24,12 @@ class Value {
 
     constructor Value copy(Value value) {
         let type = value.getType();
-        let stringValue = value.getStringValue();
-        let integerValue = value.getIntegerValue();
-        let booleanValue = value.getBooleanValue();
+        if (type = Const.T_STRING()) {
+            let stringValue = Tools.stringCopy(value.getStringValue());
+        } else {
+            let integerValue = value.getIntegerValue();
+            let booleanValue = value.getBooleanValue();
+        }
         return this;
     }
 
