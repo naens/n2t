@@ -95,7 +95,7 @@ class Ifs {
     // else encountered: reverse condition
     method void ifReverse() {
         var Cond cond;
-        
+
         if (ifs = 0) {
             do Display.printConstln("else no if");
             return;

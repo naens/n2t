@@ -14,7 +14,7 @@ class Eva {
     field integer currBlockId;
 
     field List blockIdStack;
-    field List procStack;
+//    field List procStack;
 
     method void nextBlockId() {
 //        do Display.printConstln("nextBlockId");
@@ -36,10 +36,11 @@ class Eva {
         let lastBlockId = 0;
         let blockIdStack = List.new(lastBlockId);
         let currBlockId = 0;
-        let procStack = List.new(0);
+//        let procStack = List.new(0);
 
         /* put built in procedures in identMap */
-        do identMap.putBuiltIn("type", 0);
+        do identMap.putBuiltIn("type", 0, Const.T_PROCEDURE());
+        do identMap.putBuiltIn("list", 0, Const.T_PROCEDURE());
 
         return this;
     }
@@ -133,7 +134,7 @@ class Eva {
             do procIdent.setBlockId(currBlockId);
             do nextBlockId();
             let procArgs = AstSel.procArgs(item);
-            let procStack = procStack.prepend(currBlockId);
+//            let procStack = procStack.prepend(currBlockId);
             while (~(procArgs = 0)) {
                 let arg = procArgs.get();
                 do arg.setBlockId(currBlockId);
@@ -150,9 +151,10 @@ class Eva {
                 do item.setBlockId(currBlockId);
                 let subItems = AstSel.blockRest(item);
             } else {
-                if (item.getType() = Const.RETURN()) {
-                    do item.setBlockId(procStack.get());
-                }
+//                if (item.getType() = Const.RETURN()) {
+//                    do item.setBlockId(procStack.get());
+//                }
+                do item.setBlockId(currBlockId);
                 let subItems = item.getSubItems();
             }
         }
@@ -169,9 +171,9 @@ class Eva {
 //                do Display.newline();
             do item.setBlockId(currBlockId);
             do varTable.popBlock(currBlockId);
-            if (currBlockId = procStack.get()) {
-                let procStack = procStack.deleteFirst();
-            }
+//            if (currBlockId = procStack.get()) {
+//                let procStack = procStack.deleteFirst();
+//            }
             do popBlockId();
         }
         return true;
@@ -205,6 +207,7 @@ class Eva {
         var boolean hasMoreDeclarations;
         var Value unitValue;
         var integer procType;
+        var Item parent;
 
 //        do Display.printConstln("execCall");
 
@@ -238,7 +241,8 @@ class Eva {
         let element = identMap.get(name, blockId);
 //        do Display.printConstln("execCall 2");
         if (element.isBuiltIn()) {
-            return BuiltIn.execByName(name, paramValues);
+            let parent = item.getParent();
+            return BuiltIn.execByName(name, identMap, paramValues, parent);
         } else {
             if (~element.isProc()) {
                 do Display.printConst("tried to call non-procedure ");
@@ -258,7 +262,7 @@ class Eva {
                 let hasMoreDeclarations = false;
             } else {
                 let subItem = procRest.get();
-                let hasMoreDeclarations = 
+                let hasMoreDeclarations =
                     (subItem.getType() = Const.PROC_DECL())
                     | (subItem.getType() = Const.VAR_DECL());
             }
@@ -281,7 +285,7 @@ class Eva {
                     let hasMoreDeclarations = false;
                 } else {
                     let subItem = procRest.get();
-                    let hasMoreDeclarations = 
+                    let hasMoreDeclarations =
                         (subItem.getType() = Const.PROC_DECL())
                         | (subItem.getType() = Const.VAR_DECL());
                 }
@@ -318,7 +322,7 @@ class Eva {
                 do Display.printConstln("call: too many arguments");
                 return 0;
             }
-            
+
             /* execute procedure units */
             let blockId = procItem.getBlockId();
             let procType = AstSel.procType(procItem);
@@ -444,9 +448,13 @@ class Eva {
             if (val = 0) {
                 return 0;
             }
-            let intval = val.getIntegerValue();
-            do val.dispose();
-            return signValue(sign, intval);
+            if (val.getType() = Const.T_INTEGER()) {
+                let intval = val.getIntegerValue();
+                do val.dispose();
+                return signValue(sign, intval);
+            } else {
+                return val;
+            }
         }
 
         return 0;
@@ -609,7 +617,7 @@ class Eva {
               & (a1 = a2)) {
             return true;
         }
-        
+
         if (((opch1 = Const.CH_GREATER()) | (opch2 = Const.CH_GREATER()))
               & (a1 > a2)) {
             return true;
@@ -636,7 +644,6 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
 
-//        do Display.printConstln("evalLogExpr");
 //        do Display.printConst("-- log_expr: item=");
 //        do item.println();
 
@@ -693,7 +700,7 @@ class Eva {
         return Value.newBoolean(evalRel(a1, a2, relOp));
     }
 
-    method Value evalCallOrExpr(Item item) { 
+    method Value evalCallOrExpr(Item item) {
         if (item.getType() = Const.CALL()) {
             return execCall(item);
         }
@@ -715,7 +722,6 @@ class Eva {
         var boolean acc;
         var boolean curr;
 
-//        do Display.printConstln("evalExpr");
 //        do Display.printConst("-- expr: item=");
 //        do item.println();
 
@@ -732,7 +738,7 @@ class Eva {
 
         /* log_expr */
         if (subItem.getType() = Const.LOG_EXPR()) {
-//            do Display.printConst("-- expr: subItem=");
+//            do Display.printConst("-- expr: log_expr subItem=");
 //            do subItem.println();
             let currVal = evalLogExpr(subItem);
             if (currVal = 0) {
@@ -780,7 +786,7 @@ class Eva {
 
             let subItems = subItems.getNext();
         }
-        
+
         return Value.newBoolean(acc);
     }
 
@@ -861,7 +867,9 @@ class Eva {
             /* return values: created in identMap on enter procedure */
             let retExpr = AstSel.retExpr(item);
             let retVal = evalExpr(retExpr);
-            let blockId = item.getBlockId();
+//            let blockId = item.getBlockId();
+//            do Display.printConst("-- execUnit: return, retVal=");
+//            do retVal.println();
             return retVal;
         }
 
@@ -1007,7 +1015,7 @@ class Eva {
             /* set loopVar to loopVar + byVal */
             let loopVarVal = loopVarVal + byVal;
             do assignValue(loopVar, Value.newInteger(loopVarVal));
-    
+
             if (byVal > 0) {
                 let finished = (loopVarVal > toVal);
             } else {
@@ -1048,7 +1056,7 @@ class Eva {
             let condBool = condVal.getBooleanValue();
             do condVal.dispose();
         }
-        
+
         return 0;
     }
 

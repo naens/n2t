@@ -5,10 +5,12 @@ class Item {
     field integer blockId;
     field Value value;
     field List subItems;
+    field Item parent;
 
     constructor Item new() {
         let subItems = 0;
         let value = 0;
+        let parent = 0;
         return this;
     }
 
@@ -76,11 +78,21 @@ class Item {
         } else {
             do subItems.append(item);
         }
+        do item.setParent(this);
         return;
     }
 
     method LIst getSubItems() {
         return subItems;
+    }
+
+    method Item getParent() {
+        return parent;
+    }
+
+    method void setParent(Item parentItem) {
+        let parent = parentItem;
+        return;
     }
 
     method void dispose() {
@@ -138,26 +150,26 @@ class Item {
                 do Display.printChar(type);
 //                do Display.printConst(">");
                 return;
-            }   
+            }
             if ((type = Const.KW_DECLARE()) | (type = Const.KW_DO())
                 | (type = Const.KW_WHILE()) | (type = Const.KW_IF())
                 | (type = Const.KW_THEN()) | (type = Const.KW_ELSE())
                 | (type = Const.KW_TO()) | (type = Const.KW_BY())
                 | (type = Const.KW_END()) | (type = Const.KW_AND())
-                | (type = Const.KW_OR()) | (type = Const.KW_NOT()) 
+                | (type = Const.KW_OR()) | (type = Const.KW_NOT())
                 | (type = Const.KW_MOD()) | (type = Const.KW_RETURN())) {
                 do Display.printConst("<keyword:");
                 do Display.printString(Keywords.getKeywordString(type));
                 do Display.printConst(">");
                 return;
-            }   
+            }
             if ((type = Const.RW_INTEGER()) | (type = Const.RW_STRING())
                 | (type = Const.RW_BOOLEAN())) {
                 do Display.printConst("<type:");
                 do Display.printString(Keywords.getKeywordString(type));
                 do Display.printConst(">");
                 return;
-            }   
+            }
 
             do Display.printConst("<unknown_terminal>");
             return;

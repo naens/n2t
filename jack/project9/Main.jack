@@ -1,15 +1,14 @@
 class Main {
     function void main() {
-        var Repl repl;
+        var Shell shell;
         do Display.init();
         do Keywords.init();
 
-        let repl = Repl.new();
-        do repl.run();
+        let shell = Shell.new();
+        do shell.run();
 
-        do repl.dispose();
+        do shell.dispose();
         do Keywords.finalize();
         return;
     }
 }
-    

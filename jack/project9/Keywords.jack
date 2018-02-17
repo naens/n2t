@@ -229,5 +229,5 @@ class Keywords {
         do strIllegal.dispose();
         return;
     }
-    
+
 }

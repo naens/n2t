@@ -24,7 +24,7 @@ class List {
     method void set(integer d) {
         let data = d;
         return;
-    } 
+    }
 
     method void append(integer data) {
         if (next = 0) {

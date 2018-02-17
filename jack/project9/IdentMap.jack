@@ -74,9 +74,9 @@ class IdentMap {
         return;
     }
 
-    method void putBuiltIn(String name, integer blockId) {
+    method void putBuiltIn(String name, integer blockId, integer type) {
         var Element element;
-        let element = Element.newBuiltIn();
+        let element = Element.newBuiltIn(type);
         do putElement(name, blockId, element);
         return;
     }
@@ -93,6 +93,14 @@ class IdentMap {
         } else {
             return node.getElement();
         }
+    }
+
+    method Array getTable() {
+        return table;
+    }
+
+    method integer getTableArraySize() {
+        return TAB_SZ;
     }
 
     /* looks for all elements of blockId and pushes them */

@@ -65,7 +65,7 @@ class Display {
             do Output.printChar(c);
             let column = column + 1;
         } else {
-            let column = 0;   
+            let column = 0;
             if (row < (Const.SCREEN_HEIGHT() - 1)) {
                 do Output.printChar(c);
                 let row = row + 1;

@@ -46,7 +46,7 @@ class AstPrint {
         do Display.newline();
         return;
     }
-    
+
     function void block(Item block) {
         if (block.getType() = Const.DO_BLOCK()) {
             do Display.printConst("do_block ");
@@ -200,10 +200,18 @@ class AstPrint {
             } else {
                 if (type = Const.T_BOOLEAN()) {
                     do Display.printConst("boolean");
+                } else {
+                    if (type = Const.T_PROCEDURE()) {
+                        do Display.printConst("procedure");
+                    } else {
+                        do Display.printConst("unknown_type(");
+                        do Display.printInt(type);
+                        do Display.printConst(")");
+                    }
                 }
             }
         }
         return;
     }
-    
+
 }

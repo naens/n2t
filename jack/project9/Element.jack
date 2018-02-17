@@ -12,7 +12,8 @@ class Element {
         return this;
     }
 
-    constructor Element newBuiltIn() {
+    constructor Element newBuiltIn(integer builtInType) {
+        let type = builtInType;
         let builtIn = true;
         return this;
     }
