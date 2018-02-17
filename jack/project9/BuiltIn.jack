@@ -1,22 +1,79 @@
 class BuiltIn {
     /* built-in functions */
 
-    function Value execByName(String name, List values) {
+    function Value execByName(String name, IdentMap identMap,
+             List values, Item item) {
         if (Tools.stringEqConst(name, "type")) {
             do BuiltIn.type(values);
             return 0;
         }
+        if (Tools.stringEqConst(name, "list")) {
+            do BuiltIn.list(identMap, item);
+            return 0;
+        }
+        /* TODO: assign, help, ?exec/run/eval, ?erase/del/unset */
         return 0;
     }
 
     /* type function: types the (first) argument on the display */
-    function Value type(List values) {
+    function void type(List values) {
         var Value val;
         let val = values.get();
         do Display.printConst("TYPE: ");
         do val.println();
         do val.dispose();
-        return 0;
+        return;
+    }
+
+    /* list variables of every block from current to 0 */
+    function void list(IdentMap identMap, Item item) {
+        var integer blockId;
+        var integer tmp;
+
+        let blockId = item.getBlockId();
+        while (~(blockId = 0)) {
+            do BuiltIn.listByBlockId(identMap, blockId);
+            let tmp = item.getParent();
+            while (tmp = blockId) {
+                let tmp = item.getParent();
+            }
+            let blockId = tmp;
+        }
+        return;
+    }
+
+    /* list function: list variable names in IdentMap with blockId */
+    function void listByBlockId(IdentMap identMap, integer blockId) {
+        var Array table;
+        var List list;
+        var integer i;
+        var integer size;
+        var IdentMapNode node;
+        var Element element;
+        var string name;
+        var integer type;
+
+        let table = identMap.getTable();
+        let i = 0;
+        let size = identMap.getTableArraySize();
+        while (i < size) {
+            let list = table[i];
+            while (~(list = 0)) {
+                let node = list.get();
+                if (node.getBlockId() = blockId) {
+                    let name = node.getName();
+                    do Display.printString(name);
+                    do Display.printConst(": ");
+                    let element = node.getElement();
+                    let type = element.getType();
+                    do AstPrint.type(type);
+                    do Display.newline();
+                }
+                let list = list.getNext();
+            }
+            let i = i + 1;
+        }
+        return;
     }
 
 }
