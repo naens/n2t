@@ -1,11 +1,10 @@
-class Repl {
+class Shell {
 
     field String prompt;
 
-    constructor Repl new() {
+    constructor Shell new() {
         let prompt = "REPL>";
-        do Display.newline();
-        do Display.printConstln("You are in a REPL!");
+        do Display.printConstln("Welcome to the Shell!");
         do Display.newline();
         return this;
     }
@@ -166,7 +165,7 @@ class Repl {
     method void dispose() {
         do prompt.dispose();
         do Memory.deAlloc(this);
-        do Display.printConst("REPL Terminated.");
+        do Display.printConst("Shell Terminated.");
         return;
     }
 }
