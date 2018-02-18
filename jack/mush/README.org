@@ -1,7 +1,7 @@
-#+TITLE: REPL
+#+TITLE: MUSH
 
 * Overview
-+This+ is a small shell built on top of the Jack Operating System.  It can
+MUSH (Moronic Unexciting Shell) is a small shell built on top of the Jack Operating System.  It can
 be used to define and execute commands and procedures.
 
 * Built-in Commands

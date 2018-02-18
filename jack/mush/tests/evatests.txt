@@ -3,80 +3,80 @@
 ** Expression Tests
 *** Factor
 **** factor test1
-REPL>type 5
+MUSH>type 5
 5
 
 **** factor test2
-REPL>type 'abc'
+MUSH>type 'abc'
 'abc'
 
 **** factor test3
-REPL>type (-5)
+MUSH>type (-5)
 -5
 
 **** factor test4
-REPL>type (-(-5))
+MUSH>type (-(-5))
 5
 
 *** Term
 **** term test1
-REPL>type 5*4
+MUSH>type 5*4
 20
 
 **** term test2
-REPL>type -18/(-4)
+MUSH>type -18/(-4)
 4
 
 **** term test3
-REPL>type 23 mod (1+2*2)
+MUSH>type 23 mod (1+2*2)
 3
 
 *** Arithm
 **** arithm1
-REPL>type 1+2+3
+MUSH>type 1+2+3
 6
 
 **** arithm2
-REPL>type 5 - 11 mod 3
+MUSH>type 5 - 11 mod 3
 3
 
 **** arithm3
-REPL>type 3*4 - (2 + 30) / 4
+MUSH>type 3*4 - (2 + 30) / 4
 4
 
 *** Expr and LogExpr
 **** logexpr1
-REPL>type true
+MUSH>type true
 true
 
 **** logexpr2
-REPL>type not false or not true
+MUSH>type not false or not true
 true
  
 **** logexpr3
-REPL>type 3 > 4
+MUSH>type 3 > 4
 false
 
 **** logexpr4
-REPL>type not 2 * 4 >= 12 - 10
+MUSH>type not 2 * 4 >= 12 - 10
 false
 
 ** Assignments and Variables
 *** assign1
-REPL>declare a integer
-REPL>a=4
-REPL>type a
+MUSH>declare a integer
+MUSH>a=4
+MUSH>type a
 4
-REPL>a=5
-REPL>type a*10
+MUSH>a=5
+MUSH>type a*10
 50
 
 *** assign2
-REPL>declare b integer
-REPL>b=5
-REPL>declare c integer
-REPL>c = b * 12
-REPL>type c - 9
+MUSH>declare b integer
+MUSH>b=5
+MUSH>declare c integer
+MUSH>c = b * 12
+MUSH>type c - 9
 51
 
 ** Condition Tests
@@ -84,52 +84,52 @@ REPL>type c - 9
 ** Block and Loop Tests
 *** Do Block
 **** test1
-REPL>declare a integer
-REPL>a=1
-REPL>type a
+MUSH>declare a integer
+MUSH>a=1
+MUSH>type a
 1
-REPL>do
-REPL>declare a integer
-REPL>a=10
-REPL>type a
-REPL>end
+MUSH>do
+MUSH>declare a integer
+MUSH>a=10
+MUSH>type a
+MUSH>end
 10
-REPL>type a
+MUSH>type a
 1
 
 *** Do While
 **** do_while1
-REPL>declare a integer
-REPL>declare b integer
-REPL>declare c integer
-REPL>a=7
-REPL>b=8
-REPL>c=0
-REPL>do while a > 0
-REPL>c=c+b
-REPL>a=a-1
-REPL>end
-REPL>type c
+MUSH>declare a integer
+MUSH>declare b integer
+MUSH>declare c integer
+MUSH>a=7
+MUSH>b=8
+MUSH>c=0
+MUSH>do while a > 0
+MUSH>c=c+b
+MUSH>a=a-1
+MUSH>end
+MUSH>type c
 56
 
 *** Do Iter
 **** do_iter1
-REPL>declare a integer
-REPL>do a=5 to 9 by 2
-REPL>type a
-REPL>end
+MUSH>declare a integer
+MUSH>do a=5 to 9 by 2
+MUSH>type a
+MUSH>end
 5
 7
 9
 
 **** do_iter2
-REPL>declare a integer
-REPL>do a=4 to 6
-REPL>declare x integer
-REPL>x=a*2
-REPL>type a
-REPL>type x
-REPL>end
+MUSH>declare a integer
+MUSH>do a=4 to 6
+MUSH>declare x integer
+MUSH>x=a*2
+MUSH>type a
+MUSH>type x
+MUSH>end
 4
 8
 5
@@ -140,36 +140,36 @@ REPL>end
 ** Procedure Tests
 *** a. no return value tests
 **** proc test a1
-REPL>declare (p)
+MUSH>declare (p)
 DEP1>type 'abcd'
 DEP1>end p
-REPL>p
+MUSH>p
 'abcd'
 
 **** proc test a2
-REPL>declare (pp n)
+MUSH>declare (pp n)
 DEP1>declare n integer
 DEP1>type n*7
 DEP1>end pp
-REPL>pp 213
+MUSH>pp 213
 1491
 
 **** proc test a3
-REPL>declare s string
-REPL>declare (proc)
+MUSH>declare s string
+MUSH>declare (proc)
 DEP1>type s
 end proc
-REPL>declare (scope)
+MUSH>declare (scope)
 DEP1>declare s string
 DEP1>s='dynamic'
 DEP1>proc
 DEP1>end scope
-REPL>s='lexical'
-REPL>scope
+MUSH>s='lexical'
+MUSH>scope
 'lexical'
 
 **** proc test a4
-REPL>declare (test)
+MUSH>declare (test)
 DEP1>declare x integer
 DEP1>declare (test2 n)
 DEP2>declare n integer
@@ -181,14 +181,14 @@ DEP1>test2 1
 DEP1>test2 2
 DEP1>test2 3
 DEP1>end test
-REPL>test
+MUSH>test
 101
 103
 106
 
 *** b. procedures with return value
 **** proc test b1
-REPL>declare (sum n) integer
+MUSH>declare (sum n) integer
 DEP1>declare n integer
 DEP1>declare r integer
 DEP1>r=0
@@ -198,26 +198,26 @@ DEP1>n=n-1
 DEP1>end
 DEP1>return r
 DEP1>end sum
-REPL>type (sum 4)
+MUSH>type (sum 4)
 10
-REPL>type (sum 7)
+MUSH>type (sum 7)
 28
 
 **** proc test b2
-REPL>declare (fib n) integer
+MUSH>declare (fib n) integer
 DEP1>declare n integer
 DEP1>if n < 2 then
 DEP1>return n
 DEP1>else
 DEP1>return (fib n-1) + (fib n-2)
 DEP1>end fib
-REPL>type (fib 4)
+MUSH>type (fib 4)
 3
-REPL>type (fib 7)
+MUSH>type (fib 7)
 13
 
 **** proc test b3
-REPL>declare (mult a b) integer
+MUSH>declare (mult a b) integer
 DEP1>declare a integer
 DEP1>declare b integer
 DEP1>declare (rec a b acc) integer
@@ -233,11 +233,11 @@ DEP2>return (rec a b-1 acc+a)
 DEP2>end rec
 DEP1>return (rec a b 0)
 DEP1>end mult
-REPL>type (mult 3 6)
+MUSH>type (mult 3 6)
 18
-REPL>type (mult 17 77)
+MUSH>type (mult 17 77)
 1309
-REPL>type (mult 20 0)
+MUSH>type (mult 20 0)
 0
-REPL>type (mult 0 100)
+MUSH>type (mult 0 100)
 0

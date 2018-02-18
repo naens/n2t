@@ -52,57 +52,57 @@ and procedure node reference to procedures in statements.
 ** Tests
 *** Expressions
 **** expr1
-REPL>5
+MUSH>5
 
 **** expr2
-REPL>a
+MUSH>a
 a: undef
 
 **** expr3
-REPL>declare a integer
+MUSH>declare a integer
 varibale a (0): integer
-REPL>a
+MUSH>a
 a: var (0) integer
-REPL>a+a
+MUSH>a+a
 a: var (0) integer
 a: var (0) integer
 
 **** expr4
-REPL>a+b
+MUSH>a+b
 a: var (0) integer
 b: undef
-REPL>declare b boolean
+MUSH>declare b boolean
 variable b (0): boolean
-REPL>b+2*a
+MUSH>b+2*a
 b: var (0) boolean
 a: var (0) integer
 
 *** Assignments
 **** assign1
-REPL>c=a+b
+MUSH>c=a+b
 c: undef
 a: var (0) integer
 b: var (0) boolean
 
 **** assign2
-REPL>declare c integer
+MUSH>declare c integer
 variable c (0): integer
-REPL>c=2*(a-1)/a
+MUSH>c=2*(a-1)/a
 c: var (0) integer
 a: var (0) integer
 a: var (0) integer
 
 *** Procedures
 **** proc1
-REPL>declare (f)
+MUSH>declare (f)
 DEP1>end f
 procedure {1} f (0)
 end {1} f
-REPL>f
+MUSH>f
 f: proc {1} (0)
 
 **** proc2
-REPL>declare (g a) boolean
+MUSH>declare (g a) boolean
 DEP1>declare a integer
 DEP1>return not a > c
 DEP1>end g
@@ -111,12 +111,12 @@ variable a (2): integer
 a: var (2) integer
 c: var (0) integer
 end {2} g
-REPL>g a
+MUSH>g a
 g: proc (0) boolean
 a: var (0) integer
 
 **** proc3
-REPL>declare (h x) string
+MUSH>declare (h x) string
 DEP1>declare x integer
 DEP1>declare y integer
 DEP1>y=17
@@ -132,9 +132,9 @@ h: proc {3} (0) string
 x: var (3) integer
 y: var (3) integer
 end {3} h
-REPL>declare s string
+MUSH>declare s string
 variable s (0): string
-REPL>s = (h (f 15) + a)
+MUSH>s = (h (f 15) + a)
 s: var (0) string
 h: proc {3} (0) string
 f: proc {1} (0) integer
@@ -142,15 +142,15 @@ a: var (0) integer
 
 *** Blocks (Do, DoWhile, DoIter)
 **** do_block
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>declare b integer
+MUSH>declare b integer
 variable b (0): integer
-REPL>a=5
+MUSH>a=5
 a: var (0) integer
-REPL>b=50
+MUSH>b=50
 b: var (0) integer
-REPL>do
+MUSH>do
 DEP1>declare b integer
 DEP1>b=a+10
 DEP1>end
@@ -159,16 +159,16 @@ variable b (1): integer
 b: var (1) integer
 a: var (0) integer
 end {1}
-REPL>b=a+1
+MUSH>b=a+1
 b: var (0) integer
 a: var (0) integer
 
 **** do_while
-REPL>declare d integer
+MUSH>declare d integer
 variable d (0): integer
-REPL>d = 5
+MUSH>d = 5
 d: var (0): integer
-REPL>do while d > 0
+MUSH>do while d > 0
 DEP1>d=d-1
 DEP1>end
 do_while {1}
@@ -178,13 +178,13 @@ d: var (0) integer
 end {1}
 
 **** do_iter1
-REPL>declare x integer
+MUSH>declare x integer
 variable x (0): integer
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>a=0
+MUSH>a=0
 a: var (0) integer
-REPL>do x = 5 to 10
+MUSH>do x = 5 to 10
 DEP1>a = a + x
 DEP1>end
 do_iter {1}
@@ -195,15 +195,15 @@ x: var (0) integer
 end {1}
 
 **** do_iter2
-REPL>declare c integer
+MUSH>declare c integer
 variable c (0): integer
-REPL>declare x integer
+MUSH>declare x integer
 variable x (0): integer
-REPL>x=2
+MUSH>x=2
 x: var (0) integer
-REPL>c=1
+MUSH>c=1
 c: var (0) integer
-REPL>do c = x * 2 to 40 by 3
+MUSH>do c = x * 2 to 40 by 3
 DEP1>declare a integer
 DEP1>a=c*x
 DEP1>x=x+1
@@ -221,48 +221,48 @@ end {1}
 
 *** Conditions
 **** cond1
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>declare b integer
+MUSH>declare b integer
 variable b (0): integer
-REPL>declare c integer
+MUSH>declare c integer
 variable c (0): integer
-REPL>if a > b then
+MUSH>if a > b then
 if
 a: var (0) integer
 b: var (0) integer
-REPL>c=a
+MUSH>c=a
 c: var (0) integer
 a: var (0) integer
-REPL>else
+MUSH>else
 else
-REPL>c=b
+MUSH>c=b
 c: var (0) integer
 b: var (0) integer
 
 **** cond2
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>if true then
+MUSH>if true then
 if
-REPL>a=0
+MUSH>a=0
 a: var (0) integer
-REPL>else if a < 3 then
+MUSH>else if a < 3 then
 else
 if
 a: var (0) integer
-REPL>a=1
+MUSH>a=1
 a: var (0) integer
-REPL>else
+MUSH>else
 else
-REPL>a=2
+MUSH>a=2
 a: var (0) integer
 
 *** Block in Functions
 **** bif1
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>declare (f)
+MUSH>declare (f)
 DEP1>declare b integer
 DEP1>do
 DEP2>declare c integer
@@ -278,13 +278,13 @@ a: var (0) integer
 c: var (2) integer
 end {2}
 end {1} f
-REPL>f
+MUSH>f
 f: proc {1} (0)
 
 **** bif2
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>declare (mult a b) integer
+MUSH>declare (mult a b) integer
 DEP1>declare a integer
 DEP1>declare b integer
 DEP1>declare result integer
@@ -310,24 +310,24 @@ b: var (1) integer
 end {2}
 result: var (1) integer
 end {1} mult
-REPL>a=7
+MUSH>a=7
 a: var (0) integer
-REPL>mult 3 a
+MUSH>mult 3 a
 mult: proc {1} (0) integer
 a: var (0) integer
 
 **** bif3
-REPL>declare x integer
+MUSH>declare x integer
 variable x (0): integer
-REPL>declare y integer
+MUSH>declare y integer
 variable y (0): integer
-REPL>declare n integer
+MUSH>declare n integer
 variable n (0): integer
-REPL>x = 5
+MUSH>x = 5
 x: var (0) integer
-REPL>y = 10
+MUSH>y = 10
 y: var (0) integer
-REPL>declare (f) integer
+MUSH>declare (f) integer
 DEP1>declare i integer
 DEP1>declare res integer
 DEP1>res = 0
@@ -349,13 +349,13 @@ res: var (1) integer
 end {2}
 res: var (1) integer
 end {1} f
-REPL>n = f
+MUSH>n = f
 n: var (0) integer
 f: proc {1} (0) integer
 
 *** Functions in Blocks
 **** fubl1
-REPL>do
+MUSH>do
 DEP1>declare a integer
 DEP1>declare (f)
 DEP2>a=3
@@ -371,19 +371,19 @@ end {2} f
 f: proc {2} (1)
 v: var (1): integer
 end {1}
-REPL>f
+MUSH>f
 f: undef
-REPL>a
+MUSH>a
 a: undef
 
 **** fubl2
-REPL>declare i integer
+MUSH>declare i integer
 variable i (0): integer
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>a = 0
+MUSH>a = 0
 a: var (0)integer 
-REPL>do i = 1 to 5
+MUSH>do i = 1 to 5
 DEP1>declare (f) integer
 DEP2>if a mod i = 3 then
 DEP2>a=a+1
@@ -406,13 +406,13 @@ f: proc {2} integer
 end {1}
 
 *** Conditions in Blocks
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>a=0
+MUSH>a=0
 a: var (0) integer
-REPL>do while a < 10
-REPL>declare b integer
-REPL>b=0
+MUSH>do while a < 10
+MUSH>declare b integer
+MUSH>b=0
 DEP1>if (a + b) mod 2 = 0 then
 DEP1>b = b + a
 DEP1>else
@@ -436,7 +436,7 @@ a: var (0) integer
 end {1}
 
 *** Conditions in Functions
-REPL>declare (fact n) integer
+MUSH>declare (fact n) integer
 DEP1>declare n integer
 DEP1>if n < 1 then
 DEP1>return 1
@@ -452,18 +452,18 @@ n: var (1) integer
 fact: proc {1} (0) integer
 n: var (1) integer
 end {1} fact
-REPL>declare x integer
+MUSH>declare x integer
 variable x (0): integer
-REPL>x = 7
+MUSH>x = 7
 x: var (0) integer
-REPL>fact x
+MUSH>fact x
 fact: proc {1} (0) integer
 x: var (0) integer
 
 *** Blocks in Blocks
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>do
+MUSH>do
 DEP1>declare b integer
 DEP1>do
 DEP1>declare c integer
@@ -479,49 +479,49 @@ b: var (1) integer
 c: var (2) integer
 end {2}
 end {1}
-REPL>a = b + c
+MUSH>a = b + c
 a: var (0) integer
 b: undef
 c: undef
 
 *** Conditions in Conditions
-REPL>declare a integer
+MUSH>declare a integer
 variable a (0): integer
-REPL>declare b integer
+MUSH>declare b integer
 variable b (0): integer
-REPL>a = 1
+MUSH>a = 1
 a: var (0) integer
-REPL>b = 2
+MUSH>b = 2
 b: var (0) integer
-REPL>if a > b then
+MUSH>if a > b then
 if
 a: var (0) integer
 b: var (0) integer
-REPL>if b = 0 then
+MUSH>if b = 0 then
 if
 b: var (0) integer
-REPL>a = b
+MUSH>a = b
 a: var (0) integer
 b: var (0) integer
-REPL>else if b < a then
+MUSH>else if b < a then
 else
 if
 b: var (0) integer
 a: var (0) integer
-REPL>b = a
+MUSH>b = a
 b: var (0) integer
 a: var (0) integer
-REPL>else
+MUSH>else
 else
-REPL>b = 0
+MUSH>b = 0
 b: var (0) integer
-REPL>else
-REPL>b = a
+MUSH>else
+MUSH>b = a
 b: var (0) integer
 a: var (0) integer
 
 *** Functions in Functions
-REPL>declare (test)
+MUSH>declare (test)
 DEP1>declare x integer
 DEP1>declare (test2)
 DEP2>declare n integer
@@ -540,5 +540,5 @@ end {2} test2
 test2: proc {2} (1)
 end {1} test
 x: var (1) integer
-REPL>test
+MUSH>test
 test: proc {1} (0)

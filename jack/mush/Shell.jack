@@ -3,8 +3,8 @@ class Shell {
     field String prompt;
 
     constructor Shell new() {
-        let prompt = "REPL>";
-        do Display.printConstln("Welcome to the Shell!");
+        let prompt = "MUSH>";
+        do Display.printConstln("Welcome to MUSH!");
         do Display.newline();
         return this;
     }
@@ -165,7 +165,7 @@ class Shell {
     method void dispose() {
         do prompt.dispose();
         do Memory.deAlloc(this);
-        do Display.printConst("Shell Terminated.");
+        do Display.printConst("MUSH Terminated.");
         return;
     }
 }
