@@ -222,7 +222,6 @@ class Eva {
         var boolean hasMoreDeclarations;
         var Value unitValue;
         var integer procType;
-        var Item parent;
 
 //        do Display.printConst("-- execCall[A]: item=");
 //        do item.println();
@@ -233,24 +232,18 @@ class Eva {
             let paramValues = 0;
         }
 
-//        do Display.printConst("-- execCall[B]: item=");
-//        do item.println();
         if (item.getType() = Const.CALL()) {
             let subItems = item.getSubItems();
             let ident = subItems.get();
-//            do Display.printConst("-- execCall[B]: ident=");
-//            do ident.println();
             let subItems = subItems.getNext();
             let paramValues = 0;
             while (~(subItems = 0)) {
                 let subItem = subItems.get();
                 let paramValue = evalExpr(subItem);
-//                do Display.printConst("-- execCall: param=");
-//                do paramValue.println();
-//                if (~Eva.chkVal(paramValue)) {
+                if (~Eva.chkVal(paramValue)) {
                     /* TODO: dispose? */
-//                    return paramValue;
-//                }
+                    return paramValue;
+                }
                 if (paramValues = 0) {
                     let paramValues = List.new(paramValue);
                 } else {
@@ -272,8 +265,7 @@ class Eva {
         let element = identMap.get(name, blockId);
 //        do Display.printConstln("execCall 2");
         if (element.isBuiltIn()) {
-            let parent = item.getParent();
-            return BuiltIn.execByName(name, identMap, paramValues, parent);
+            return BuiltIn.execByName(name, identMap, paramValues, item);
         } else {
             if (~element.isProc()) {
                 do Display.printConst("tried to call non-procedure ");

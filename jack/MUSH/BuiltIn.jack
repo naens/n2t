@@ -42,6 +42,7 @@ class BuiltIn {
             }
             let blockId = tmp;
         }
+        do BuiltIn.listByBlockId(identMap, 0);
         return;
     }
 

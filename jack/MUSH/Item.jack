@@ -347,7 +347,7 @@ class Item {
 
         while (~(tmpSubItems = 0)) {
             let subItem = tmpSubItems.get();
-            do subItem.dispose();
+//            do subItem.dispose();
             let tmpSubItems = tmpSubItems.getNext();
         }
 
