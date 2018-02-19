@@ -224,8 +224,8 @@ class Eva {
         var integer procType;
         var Item parent;
 
-        do Display.printConst("-- execCall[A]: item=");
-        do item.println();
+//        do Display.printConst("-- execCall[A]: item=");
+//        do item.println();
 //        do Display.printConstln("execCall");
 
         if (item.getType() = Const.IDENT()) {
@@ -233,20 +233,20 @@ class Eva {
             let paramValues = 0;
         }
 
-        do Display.printConst("-- execCall[B]: item=");
-        do item.println();
+//        do Display.printConst("-- execCall[B]: item=");
+//        do item.println();
         if (item.getType() = Const.CALL()) {
             let subItems = item.getSubItems();
             let ident = subItems.get();
-            do Display.printConst("-- execCall[B]: ident=");
-            do ident.println();
+//            do Display.printConst("-- execCall[B]: ident=");
+//            do ident.println();
             let subItems = subItems.getNext();
             let paramValues = 0;
             while (~(subItems = 0)) {
                 let subItem = subItems.get();
                 let paramValue = evalExpr(subItem);
-                do Display.printConst("-- execCall: param=");
-                do paramValue.println();
+//                do Display.printConst("-- execCall: param=");
+//                do paramValue.println();
 //                if (~Eva.chkVal(paramValue)) {
                     /* TODO: dispose? */
 //                    return paramValue;
@@ -260,8 +260,8 @@ class Eva {
             }
         }
 
-        do Display.printConst("-- execCall[C]: item=");
-        do item.println();
+//        do Display.printConst("-- execCall[C]: item=");
+//        do item.println();
 //        do Display.printConst("-- execCall: name=");
         let name = ident.getStringValue();
 //        do Display.printString(name);

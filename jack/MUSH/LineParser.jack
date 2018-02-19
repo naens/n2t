@@ -7,11 +7,13 @@ class LineParser {
         if (terminal = 0) {
             return 0;
         }
-/*
-        do Display.printConst("(((addTerminal:");
-        do terminal.print();
-        do Display.printConstln(")))");
-*/
+
+//        do Display.printConst("(((addTerminal:");
+//        do terminal.print();
+//        do Display.printConst(":");
+//        do Display.printInt(terminal);
+//        do Display.printConstln(")))");
+
         if (~(terminal.getType() = type)) {
             do tokenizer.unread(terminal);
             return 0;
@@ -396,7 +398,6 @@ class LineParser {
         let ch_equals = LineParser.addTerminal(tokenizer, result, Const.CH_EQUALS());
         if (ch_equals = 0) {
             do tokenizer.unread(ident);
-            do result.dispose();
             return 0;
         }
 
