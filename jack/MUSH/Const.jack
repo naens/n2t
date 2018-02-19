@@ -280,4 +280,8 @@ class Const {
         return -1;
     }
 
+    function integer QUIT() {
+        return 1;
+    }
+
 }

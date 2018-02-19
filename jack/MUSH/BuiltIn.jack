@@ -11,6 +11,9 @@ class BuiltIn {
             do BuiltIn.list(identMap, item);
             return 0;
         }
+        if (Tools.stringEqConst(name, "quit")) {
+            return Const.QUIT();
+        }
         /* TODO: assign, help, ?exec/run/eval, ?erase/del/unset */
         return 0;
     }

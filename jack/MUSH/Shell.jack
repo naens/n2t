@@ -46,10 +46,12 @@ class Shell {
         let ifs = Ifs.new();
         let eva = Eva.new();
         let depth = 0;
+        let value = 0;
 
         do Display.printString(prompt);
         let line = Display.readln();
-        while (~Tools.stringEqConst(line, "quit")) {
+//        while (~Tools.stringEqConst(line, "quit")) {
+        while (~(value = Const.QUIT())) {
 //            do Display.printConst("You entered: ");
 //            do Display.println(line);
 //            do Display.newline();
@@ -91,8 +93,11 @@ class Shell {
                                 } else {
                                     if (ifs.checkIfs()) {
                                     /* evaluate expression and print value */
+//                                        do Display.printConstln("evaluate item");
                                         let value = eva.evaluate(item);
-//                                        do Display.printConst("VALUE: ");
+//                                        do Display.printString("value=");
+//                                        do Display.printInt(value);
+//                                        do Display.newline();
 //                                        if (value = 0) {
 //                                            do Display.printConstln("-");
 //                                        } else {
@@ -123,6 +128,9 @@ class Shell {
                         /* evaluate expression and print value */
 //                            do Display.printConstln("evaluate block");
                             let value = eva.evaluate(block);
+//                            do Display.printString("value=");
+//                            do Display.printInt(value);
+//                            do Display.newline();
 //                            do value.println();
                         }
                     }
@@ -145,14 +153,16 @@ class Shell {
              * Similar with blocks and conds.
              */
             do line.dispose();
-            if (depth = 0) {
-                do Display.printString(prompt);
-            } else {
-                do Display.printConst("DEP");
-                do Display.printInt(depth);
-                do Display.printConst(">");
+            if (~(value = 1)) {
+                if (depth = 0) {
+                    do Display.printString(prompt);
+                } else {
+                    do Display.printConst("DEP");
+                    do Display.printInt(depth);
+                    do Display.printConst(">");
+                }
+                let line = Display.readln();
             }
-            let line = Display.readln();
         }
         do tokenizer.dispose();
         do ifs.dispose();

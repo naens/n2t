@@ -41,6 +41,7 @@ class Eva {
         /* put built in procedures in identMap */
         do identMap.putBuiltIn("type", 0, Const.T_PROCEDURE());
         do identMap.putBuiltIn("list", 0, Const.T_PROCEDURE());
+        do identMap.putBuiltIn("quit", 0, Const.T_PROCEDURE());
 
         return this;
     }
@@ -189,6 +190,20 @@ class Eva {
         return result;
     }
 
+    /* check whether value is a valid value object */
+    method boolean chkVal(Value value) {
+        if (value = 0) {
+            return false;
+        }
+        if (value = Const.QUIT()) {
+            return false;
+        }
+        if (value = Const.ILLEGAL()) {
+            return false;
+        }
+        return true;
+    }
+
     /* executes a procedure call and returns a value if value returned
      * item can be ident OR [call: ident {param}]
      */
@@ -224,8 +239,9 @@ class Eva {
             while (~(subItems = 0)) {
                 let subItem = subItems.get();
                 let paramValue = evalExpr(subItem);
-                if (paramValue = 0) {
-                    return 0;
+                if (~chkVal(paramValue)) {
+                    /* TODO: dispose? */
+                    return paramValue;
                 }
                 if (paramValues = 0) {
                     let paramValues = List.new(paramValue);
@@ -409,6 +425,9 @@ class Eva {
             if (element.getType() = Const.T_PROCEDURE()) {
                 /* procedure call */
                 let val = execCall(subItem);
+                if (val = Const.QUIT()) {
+                    return Const.QUIT();
+                }
             } else {
                 /* variable */
                 let val = element.getValue();
@@ -445,8 +464,8 @@ class Eva {
             if (subItem.getType() = Const.EXPR()) {
                 let val = evalExpr(subItem);
             }
-            if (val = 0) {
-                return 0;
+            if (~chkVal(val)) {
+                return val;
             }
             if (val.getType() = Const.T_INTEGER()) {
                 let intval = val.getIntegerValue();
@@ -474,7 +493,7 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         let factor = evalFactor(subItem);
-        if (factor = 0) {
+        if (~chkVal(factor)) {
 //            do Display.printConstln("-- eval_term a");
             return 0;
         }
@@ -505,8 +524,8 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let factor = evalFactor(subItem);
-            if (factor = 0) {
-                return 0;
+            if (~chkVal(factor)) {
+                return factor;
             }
             if (~(factor.getType() = Const.T_INTEGER())) {
                 return 0;
@@ -542,9 +561,9 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         let term = evalTerm(subItem);
-        if (term = 0) {
+        if (~chkVal(term)) {
 //            do Display.printConstln("-- eval_arithm a");
-            return 0;
+            return term;
         }
 
         if (term.getType() = Const.T_STRING()) {
@@ -572,8 +591,8 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let term = evalTerm(subItem);
-            if (term = 0) {
-                return 0;
+            if (~chkVal(term)) {
+                return term;
             }
 
             if (~(term.getType() = Const.T_INTEGER())) {
@@ -656,9 +675,9 @@ class Eva {
 
         /* get first arithm */
         let arithm1 = evalArithm(subItem);
-        if (arithm1 = 0) {
+        if (~chkVal(arithm1)) {
 //            do Display.printConstln("-- log_expr b");
-            return 0;
+            return arithm1;
         }
         if (arithm1.getType() = Const.T_STRING()) {
             return arithm1;
@@ -687,8 +706,8 @@ class Eva {
         let subItems = subItems.getNext();
         let subItem = subItems.get();
         let arithm2 = evalArithm(subItem);
-        if (arithm2 = 0) {
-            return 0;
+        if (~chkVal(arithm2)) {
+            return arithm2;
         }
         if (~(arithm2.getType() = Const.T_INTEGER())) {
             return 0;
@@ -741,8 +760,8 @@ class Eva {
 //            do Display.printConst("-- expr: log_expr subItem=");
 //            do subItem.println();
             let currVal = evalLogExpr(subItem);
-            if (currVal = 0) {
-                return 0;
+            if (~chkVal(currVal)) {
+                return currVal;
             }
             if (currVal.getType() = Const.T_BOOLEAN()) {
                 let acc = currVal.getBooleanValue();
@@ -765,8 +784,8 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let currVal = evalExpr(subItem);
-            if (currVal = 0) {
-                return 0;
+            if (~chkVal(currVal)) {
+                return currVal;
             }
 
             if (~(currVal.getType() = Const.T_BOOLEAN())) {
@@ -819,7 +838,7 @@ class Eva {
         }
 
         /* right side */
-        if (value = 0) {
+        if (~chkVal(value)) {
             do Display.printConstln("error: no value expression");
             return;
         }
@@ -833,7 +852,7 @@ class Eva {
     /* execute assignment
      * called only after pass1 succeed => variable is defined
      */
-    method void execAssignment(Item item) {
+    method Value execAssignment(Item item) {
         var Item variable;
         var Item expr;
         var Value value;
@@ -844,11 +863,14 @@ class Eva {
         /* right side */
         let expr = AstSel.assignExpr(item);
         let value = evalExpr(expr);
+        if (~chkVal(value)) {
+            return value;
+        }
 
         /* set value */
         do assignValue(variable, value);
 
-        return;
+        return 0;
     }
 
     /* return value if must return from procedure, otherwise 0 */
@@ -915,21 +937,18 @@ class Eva {
         return 0;
     }
 
-    method integer getExprInt(Item expr) {
-        var integer result;
+
+    method Value getExprIntVal(Item expr) {
         var Value val;
 
         let val = evalExpr(expr);
-        if (val = 0) {
-            return 12222;
+        if (~chkVal(val)) {
+            return val;
         }
-        let result = val.getIntegerValue();
         if (val.getType() = Const.T_INTEGER()) {
-            let result = val.getIntegerValue();
-            do val.dispose();
-            return result;
+            return val;
         }
-        return 13333;
+        return 0;
     }
 
     method Element getIdentElement(Item ident) {
@@ -955,6 +974,7 @@ class Eva {
         var Item byExpr;
         var integer byVal;
         var boolean finished;
+        var Value val;
 
         var List units;
         var List currUnits;
@@ -969,18 +989,33 @@ class Eva {
         }
 
         let initExpr = AstSel.doIterInitExpr(item);
-        let initVal = getExprInt(initExpr);
+        let val = getExprIntVal(initExpr);
+        if (~chkVal(val)) {
+            /* TODO: dispose? */
+            return val;
+        }
+        let initVal = val.getIntegerValue();
 
         do assignValue(loopVar, Value.newInteger(initVal));
 
         let toExpr = AstSel.doIterToExpr(item);
-        let toVal = getExprInt(toExpr);
+        let val = getExprIntVal(toExpr);
+        if (~chkVal(val)) {
+            /* TODO: dispose? */
+            return val;
+        }
+        let toVal = val.getIntegerValue();
 
         let byExpr = AstSel.doIterByExpr(item);
         if (byExpr = 0) {
             let byVal = 1;
         } else {
-            let byVal = getExprInt(byExpr);
+            let val = getExprIntVal(byExpr);
+            if (~chkVal(val)) {
+                /* TODO: dispose? */
+                return val;
+            }
+            let byVal = val.getIntegerValue();
         }
         if (byVal > 0) {
             let finished = (initVal > toVal);
@@ -1005,11 +1040,19 @@ class Eva {
             let loopVarElementValue = loopVarElement.getValue();
             let loopVarVal = loopVarElementValue.getIntegerValue();
 
-            let toVal = getExprInt(toExpr);
+            let val = getExprIntVal(toExpr);
+            if (~chkVal(val)) {
+                return val;
+            }
+            let toVal = val.getIntegerValue();
             if (byExpr = 0) {
                 let byVal = 1;
             } else {
-                let byVal = getExprInt(byExpr);
+                let val = getExprIntVal(byExpr);
+                if (~chkVal(val)) {
+                    return val;
+                }
+                let byVal = val.getIntegerValue();
             }
 
             /* set loopVar to loopVar + byVal */
@@ -1039,6 +1082,9 @@ class Eva {
 
         let condExpr = AstSel.doWhileCond(item);
         let condVal = evalCallOrExpr(condExpr);
+        if (~chkVal(condVal)) {
+            return condVal;
+        }
         let condBool = condVal.getBooleanValue();
         do condVal.dispose();
         let units = AstSel.blockUnits(item);
@@ -1053,6 +1099,9 @@ class Eva {
                 let currUnits = currUnits.getNext();
             }
             let condVal = evalCallOrExpr(condExpr);
+            if (~chkVal(condVal)) {
+                return condVal;
+            }
             let condBool = condVal.getBooleanValue();
             do condVal.dispose();
         }
@@ -1075,6 +1124,9 @@ class Eva {
         let stat = subItems.get();
         let condExpr = AstSel.ifCond(stat);
         let exprVal = evalExpr(condExpr);
+        if (~chkVal(exprVal)) {
+            return exprVal;
+        }
         let boolVal = exprVal.getBooleanValue();
 
         /* unit */
@@ -1098,6 +1150,9 @@ class Eva {
             /* else_if_stat */
             let condExpr = AstSel.elseIfCond(stat);
             let exprVal = evalExpr(condExpr);
+            if (~chkVal(exprVal)) {
+                return exprVal;
+            }
             let boolVal = exprVal.getBooleanValue();
 
             /* unit */
@@ -1130,8 +1185,7 @@ class Eva {
     /* only assignments, calls, exprs and blocks go here */
     method Value execute(Item item) {
         if (item.getType() = Const.ASSIGN()) {
-            do execAssignment(item);
-            return 0;
+            return execAssignment(item);
         }
 
         if (item.getType() = Const.CALL()) {
@@ -1143,18 +1197,15 @@ class Eva {
         }
 
         if (item.getType() = Const.DO_BLOCK()) {
-            do execDoBlock(item);
-            return 0;
+            return execDoBlock(item);
         }
 
         if (item.getType() = Const.DO_ITER()) {
-            do execDoIter(item);
-            return 0;
+            return execDoIter(item);
         }
 
         if (item.getType() = Const.DO_WHILE()) {
-            do execDoWhile(item);
-            return 0;
+            return execDoWhile(item);
         }
         return 0;
     }
