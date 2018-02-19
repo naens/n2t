@@ -41,6 +41,7 @@ class Shell {
         var Cond cond;
         var Eva eva;
         var Value value;
+        var integer i;
 
         let tokenizer = Tokenizer.new();
         let ifs = Ifs.new();
@@ -163,12 +164,25 @@ class Shell {
              */
             do line.dispose();
             if (~(value = 1)) {
+/*
                 if (depth = 0) {
                     do Display.printString(prompt);
                 } else {
                     do Display.printConst("DEP");
                     do Display.printInt(depth);
                     do Display.printConst(">");
+                }
+*/
+                if (depth = 0) {
+                    do Display.printString(prompt);
+                } else {
+                    do Display.printConst("     ");
+                }
+                let i = 0;
+                /* TODO: add if levels, ?shift do after if, ends */
+                while (i < depth) {
+                    do Display.printConst("  ");
+                    let i = i + 1;
                 }
                 let line = Display.readln();
             }
