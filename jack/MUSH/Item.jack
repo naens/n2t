@@ -322,23 +322,36 @@ class Item {
     }
 
     method void dispose() {
+        if (~(subItems = 0)) {
+            do subItems.dispose();
+        }
+
+        if (~(value = 0)) {
+            do value.dispose();
+        }
+
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void deepDispose() {
         var Item subItem;
         var List tmpSubItems;
 
+//        do Display.printConst("-- item:dispose: ");
+//        do Display.printInt(this);
+//        do Display.printString(" : ");
+//        do println();
+
         let tmpSubItems = subItems;
+
         while (~(tmpSubItems = 0)) {
             let subItem = tmpSubItems.get();
             do subItem.dispose();
             let tmpSubItems = tmpSubItems.getNext();
         }
 
-        if (~(subItems = 0)) {
-            do subItems.dispose();
-        }
-        if (~(value = 0)) {
-            do value.dispose();
-        }
-        do Memory.deAlloc(this);
+        do dispose();
         return;
     }
 
