@@ -57,4 +57,10 @@ class Tools {
         return;
     }
 
+    function void halt() {
+        var String str;
+        let str = 0;
+        do str.length();
+        return;
+    }
 }
