@@ -834,7 +834,7 @@ class LineParser {
             }
             return result;
         } else {
-            do Display.printConst("PARSE_LINE: tokenizer not empty: ");
+            do Display.printConst("LINE_PARSER: tokenizer not empty: ");
             do item.print();
             do Display.newline();
             do tokenizer.emptyUnread();

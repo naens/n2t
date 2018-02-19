@@ -95,11 +95,6 @@ class Item {
         return;
     }
 
-    method void dispose() {
-        do Memory.deAlloc(this);
-        return;
-    }
-
     method void printSubItems() {
         var List list;
         var Item item;
@@ -136,9 +131,9 @@ class Item {
                 return;
             }
             if (type = Const.IDENT()) {
-//                do Display.printConst("<identifier:");
+                do Display.printConst("<identifier:");
                 do value.print();
-//                do Display.printConst(">");
+                do Display.printConst(">");
                 return;
             }
             if ((type = Const.CH_PAROP()) | (type = Const.CH_PARCL())
@@ -302,9 +297,9 @@ class Item {
                 return;
             }
             if (type = Const.CALL()) {
-                do Display.printConst("[~");
+                do Display.printConst("[CALL:");
                 do printSubItems();
-                do Display.printConst("~]");
+                do Display.printConst(":CALL]");
                 return;
             }
             if (type = Const.FACTOR()) {
@@ -313,7 +308,9 @@ class Item {
 //                do Display.printConst("%]");
                 return;
             }
-            do Display.printConst("#");
+            do Display.printConst("<?type=");
+            do Display.printInt(type);
+            do Display.printConst("?>");
         }
         return;
     }
@@ -321,6 +318,27 @@ class Item {
     method void println() {
         do print();
         do Display.newline();
+        return;
+    }
+
+    method void dispose() {
+        var Item subItem;
+        var List tmpSubItems;
+
+        let tmpSubItems = subItems;
+        while (~(tmpSubItems = 0)) {
+            let subItem = tmpSubItems.get();
+            do subItem.dispose();
+            let tmpSubItems = tmpSubItems.getNext();
+        }
+
+        if (~(subItems = 0)) {
+            do subItems.dispose();
+        }
+        if (~(value = 0)) {
+            do value.dispose();
+        }
+        do Memory.deAlloc(this);
         return;
     }
 

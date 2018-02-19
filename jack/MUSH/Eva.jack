@@ -191,7 +191,7 @@ class Eva {
     }
 
     /* check whether value is a valid value object */
-    method boolean chkVal(Value value) {
+    function boolean chkVal(Value value) {
         if (value = 0) {
             return false;
         }
@@ -224,6 +224,8 @@ class Eva {
         var integer procType;
         var Item parent;
 
+        do Display.printConst("-- execCall[A]: item=");
+        do item.println();
 //        do Display.printConstln("execCall");
 
         if (item.getType() = Const.IDENT()) {
@@ -231,18 +233,24 @@ class Eva {
             let paramValues = 0;
         }
 
+        do Display.printConst("-- execCall[B]: item=");
+        do item.println();
         if (item.getType() = Const.CALL()) {
             let subItems = item.getSubItems();
             let ident = subItems.get();
+            do Display.printConst("-- execCall[B]: ident=");
+            do ident.println();
             let subItems = subItems.getNext();
             let paramValues = 0;
             while (~(subItems = 0)) {
                 let subItem = subItems.get();
                 let paramValue = evalExpr(subItem);
-                if (~chkVal(paramValue)) {
+                do Display.printConst("-- execCall: param=");
+                do paramValue.println();
+//                if (~Eva.chkVal(paramValue)) {
                     /* TODO: dispose? */
-                    return paramValue;
-                }
+//                    return paramValue;
+//                }
                 if (paramValues = 0) {
                     let paramValues = List.new(paramValue);
                 } else {
@@ -252,8 +260,15 @@ class Eva {
             }
         }
 
+        do Display.printConst("-- execCall[C]: item=");
+        do item.println();
+//        do Display.printConst("-- execCall: name=");
         let name = ident.getStringValue();
+//        do Display.printString(name);
         let blockId = ident.getBlockId();
+//        do Display.printConst(" blockId=");
+//        do Display.printInt(blockId);
+//        do Display.newline();
         let element = identMap.get(name, blockId);
 //        do Display.printConstln("execCall 2");
         if (element.isBuiltIn()) {
@@ -464,7 +479,7 @@ class Eva {
             if (subItem.getType() = Const.EXPR()) {
                 let val = evalExpr(subItem);
             }
-            if (~chkVal(val)) {
+            if (~Eva.chkVal(val)) {
                 return val;
             }
             if (val.getType() = Const.T_INTEGER()) {
@@ -493,7 +508,7 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         let factor = evalFactor(subItem);
-        if (~chkVal(factor)) {
+        if (~Eva.chkVal(factor)) {
 //            do Display.printConstln("-- eval_term a");
             return 0;
         }
@@ -524,7 +539,7 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let factor = evalFactor(subItem);
-            if (~chkVal(factor)) {
+            if (~Eva.chkVal(factor)) {
                 return factor;
             }
             if (~(factor.getType() = Const.T_INTEGER())) {
@@ -561,7 +576,7 @@ class Eva {
         let subItems = item.getSubItems();
         let subItem = subItems.get();
         let term = evalTerm(subItem);
-        if (~chkVal(term)) {
+        if (~Eva.chkVal(term)) {
 //            do Display.printConstln("-- eval_arithm a");
             return term;
         }
@@ -591,7 +606,7 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let term = evalTerm(subItem);
-            if (~chkVal(term)) {
+            if (~Eva.chkVal(term)) {
                 return term;
             }
 
@@ -675,7 +690,7 @@ class Eva {
 
         /* get first arithm */
         let arithm1 = evalArithm(subItem);
-        if (~chkVal(arithm1)) {
+        if (~Eva.chkVal(arithm1)) {
 //            do Display.printConstln("-- log_expr b");
             return arithm1;
         }
@@ -706,7 +721,7 @@ class Eva {
         let subItems = subItems.getNext();
         let subItem = subItems.get();
         let arithm2 = evalArithm(subItem);
-        if (~chkVal(arithm2)) {
+        if (~Eva.chkVal(arithm2)) {
             return arithm2;
         }
         if (~(arithm2.getType() = Const.T_INTEGER())) {
@@ -760,7 +775,7 @@ class Eva {
 //            do Display.printConst("-- expr: log_expr subItem=");
 //            do subItem.println();
             let currVal = evalLogExpr(subItem);
-            if (~chkVal(currVal)) {
+            if (~Eva.chkVal(currVal)) {
                 return currVal;
             }
             if (currVal.getType() = Const.T_BOOLEAN()) {
@@ -784,7 +799,7 @@ class Eva {
             let subItems = subItems.getNext();
             let subItem = subItems.get();
             let currVal = evalExpr(subItem);
-            if (~chkVal(currVal)) {
+            if (~Eva.chkVal(currVal)) {
                 return currVal;
             }
 
@@ -838,7 +853,7 @@ class Eva {
         }
 
         /* right side */
-        if (~chkVal(value)) {
+        if (~Eva.chkVal(value)) {
             do Display.printConstln("error: no value expression");
             return;
         }
@@ -863,7 +878,7 @@ class Eva {
         /* right side */
         let expr = AstSel.assignExpr(item);
         let value = evalExpr(expr);
-        if (~chkVal(value)) {
+        if (~Eva.chkVal(value)) {
             return value;
         }
 
@@ -942,7 +957,7 @@ class Eva {
         var Value val;
 
         let val = evalExpr(expr);
-        if (~chkVal(val)) {
+        if (~Eva.chkVal(val)) {
             return val;
         }
         if (val.getType() = Const.T_INTEGER()) {
@@ -990,7 +1005,7 @@ class Eva {
 
         let initExpr = AstSel.doIterInitExpr(item);
         let val = getExprIntVal(initExpr);
-        if (~chkVal(val)) {
+        if (~Eva.chkVal(val)) {
             /* TODO: dispose? */
             return val;
         }
@@ -1000,7 +1015,7 @@ class Eva {
 
         let toExpr = AstSel.doIterToExpr(item);
         let val = getExprIntVal(toExpr);
-        if (~chkVal(val)) {
+        if (~Eva.chkVal(val)) {
             /* TODO: dispose? */
             return val;
         }
@@ -1011,7 +1026,7 @@ class Eva {
             let byVal = 1;
         } else {
             let val = getExprIntVal(byExpr);
-            if (~chkVal(val)) {
+            if (~Eva.chkVal(val)) {
                 /* TODO: dispose? */
                 return val;
             }
@@ -1041,7 +1056,7 @@ class Eva {
             let loopVarVal = loopVarElementValue.getIntegerValue();
 
             let val = getExprIntVal(toExpr);
-            if (~chkVal(val)) {
+            if (~Eva.chkVal(val)) {
                 return val;
             }
             let toVal = val.getIntegerValue();
@@ -1049,7 +1064,7 @@ class Eva {
                 let byVal = 1;
             } else {
                 let val = getExprIntVal(byExpr);
-                if (~chkVal(val)) {
+                if (~Eva.chkVal(val)) {
                     return val;
                 }
                 let byVal = val.getIntegerValue();
@@ -1082,7 +1097,7 @@ class Eva {
 
         let condExpr = AstSel.doWhileCond(item);
         let condVal = evalCallOrExpr(condExpr);
-        if (~chkVal(condVal)) {
+        if (~Eva.chkVal(condVal)) {
             return condVal;
         }
         let condBool = condVal.getBooleanValue();
@@ -1099,7 +1114,7 @@ class Eva {
                 let currUnits = currUnits.getNext();
             }
             let condVal = evalCallOrExpr(condExpr);
-            if (~chkVal(condVal)) {
+            if (~Eva.chkVal(condVal)) {
                 return condVal;
             }
             let condBool = condVal.getBooleanValue();
@@ -1124,7 +1139,7 @@ class Eva {
         let stat = subItems.get();
         let condExpr = AstSel.ifCond(stat);
         let exprVal = evalExpr(condExpr);
-        if (~chkVal(exprVal)) {
+        if (~Eva.chkVal(exprVal)) {
             return exprVal;
         }
         let boolVal = exprVal.getBooleanValue();
@@ -1150,7 +1165,7 @@ class Eva {
             /* else_if_stat */
             let condExpr = AstSel.elseIfCond(stat);
             let exprVal = evalExpr(condExpr);
-            if (~chkVal(exprVal)) {
+            if (~Eva.chkVal(exprVal)) {
                 return exprVal;
             }
             let boolVal = exprVal.getBooleanValue();

@@ -56,6 +56,9 @@ class Shell {
 //            do Display.println(line);
 //            do Display.newline();
             do tokenizer.setLine(line);
+            do Display.printConst("-- line=");
+            do Display.printString(line);
+            do Display.newline();
             let item = LineParser.parseLine(tokenizer); //tokenizer is clean
             if (~(item = 0)) {
 //                do Display.printConstln("parsing expression ok");
@@ -95,6 +98,9 @@ class Shell {
                                     /* evaluate expression and print value */
 //                                        do Display.printConstln("evaluate item");
                                         let value = eva.evaluate(item);
+                                        if (Eva.chkVal(value)) {
+                                            do item.dispose();
+                                        }
 //                                        do Display.printString("value=");
 //                                        do Display.printInt(value);
 //                                        do Display.newline();
@@ -128,6 +134,9 @@ class Shell {
                         /* evaluate expression and print value */
 //                            do Display.printConstln("evaluate block");
                             let value = eva.evaluate(block);
+//                            if (Eva.chkVal(value)) {
+//                                do block.dispose();
+//                            }
 //                            do Display.printString("value=");
 //                            do Display.printInt(value);
 //                            do Display.newline();
