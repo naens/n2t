@@ -3,6 +3,7 @@ import java.io.*;
 public class CodeWriter {
 
     private File file;
+    private String name;
     private PrintStream printStream;
     private String moduleName;
     private String functionName;
@@ -13,9 +14,11 @@ public class CodeWriter {
         try {
             printStream = new PrintStream(file);
         } catch (IOException e) {
-	    e.printStackTrace();
+        e.printStackTrace();
         }
         n = 0;
+        functionName = "Sys.init";
+        name = VMTranslator.getNoExtName(file);
     }
 
     public void incN() {
@@ -241,14 +244,15 @@ public class CodeWriter {
     }
 
     public void writeReturn() {
-        printStream.println("@" + file.getName() +  "$restore");
+      printStream.println("// return to " + name + "$restore");
+        printStream.println("@" + name +  "$restore");
         printStream.println("0;JMP");
         printStream.println();
     }
 
     public void writeCall(String func, int nVars) {
-        printStream.println("// call " + functionName + " " + nVars);
-        String returnLabel = functionName + "$ret." + n;
+        printStream.println("// call " + func + " " + nVars);
+        String returnLabel = func + "$ret." + n;
 
         /* push return address */
         printStream.println("@" + returnLabel); 
@@ -283,14 +287,14 @@ public class CodeWriter {
 
         /* ARG=SP-5-NumArgs */
         printStream.println("@5");
-        printStream.println("D=D-A");		/* D=[LCL]-5 */
+        printStream.println("D=D-A");        /* D=[LCL]-5 */
         printStream.println("@" + nVars);
         printStream.println("D=D-A");
         printStream.println("@ARG");
         printStream.println("M=D");
 
         /* goto function */
-        printStream.println("@" + functionName);
+        printStream.println("@" + func);
         printStream.println("0;JMP");
 
         printStream.println("(" + returnLabel + ")");
@@ -298,10 +302,17 @@ public class CodeWriter {
         printStream.println();
     }
 
-    public void writeRestore() {
-        printStream.println("(" + file.getName() +  "$restore)");
+    public void writeEndLoop() {
+        printStream.println("(" + name +  "$end)");
+        printStream.println("@" + name +  "$end");
+        printStream.println("0;JMP");
+        printStream.println();
+    }
 
-        printStream.println("@ARG");		/* save ARG */
+    public void writeRestore() {
+        printStream.println("(" + name +  "$restore)");
+
+        printStream.println("@ARG");    /* save ARG */
         printStream.println("D=M");
         printStream.println("@R14");
         printStream.println("M=D");
@@ -309,46 +320,46 @@ public class CodeWriter {
         printStream.println("@LCL");
         printStream.println("D=M-1");  /* D=[LCL]-1 */
         printStream.println("@R13");
-        printStream.println("AM=D");	  /* [R13]=[LCL]-1 */
+        printStream.println("AM=D");   /* [R13]=[LCL]-1 */
         printStream.println("D=M");    /* D=[[LCL]-1] */
         printStream.println("@THAT");
         printStream.println("M=D");
 
         printStream.println("@R13");
         printStream.println("D=M-1");  /* D=[LCL]-2 */
-        printStream.println("AM=D");		/* [R13]=[LCL]-2 */
+        printStream.println("AM=D");        /* [R13]=[LCL]-2 */
         printStream.println("D=M");    /* D=[[LCL]-2] */
         printStream.println("@THIS");
         printStream.println("M=D");
 
         printStream.println("@R13");
         printStream.println("D=M-1");  /* D=[LCL]-3 */
-        printStream.println("AM=D");		/* [R13]=[LCL]-3 */
+        printStream.println("AM=D");   /* [R13]=[LCL]-3 */
         printStream.println("D=M");    /* D=[[LCL]-3] */
         printStream.println("@ARG");
         printStream.println("M=D");
 
         printStream.println("@R13");
         printStream.println("D=M-1");  /* D=[LCL]-4 */
-        printStream.println("AM=D");		/* [R13]=[LCL]-4 */
+        printStream.println("AM=D");   /* [R13]=[LCL]-4 */
         printStream.println("D=M");    /* D=[[LCL]-4] */
         printStream.println("@LCL");
         printStream.println("M=D");
 
-        printStream.println("@R13");		/* save return address */
+        printStream.println("@R13");    /* save return address */
         printStream.println("A=M-1");
-        printStream.println("D=M");		/* D=[[LCL]-5] */
+        printStream.println("D=M");     /* D=[[LCL]-5] */
         printStream.println("@R13");
-        printStream.println("M=D");		/* [R13]=[[LCL]-15] */
+        printStream.println("M=D");     /* [R13]=[[LCL]-15] */
 
-        printStream.println("@SP");		/* set return value */
+        printStream.println("@SP");     /* set return value */
         printStream.println("A=M-1");
         printStream.println("D=M");
         printStream.println("@R14");
         printStream.println("A=M");
-        printStream.println("M=D");		/* [[old-ARG]]=[[SP]-1] */
+        printStream.println("M=D");     /* [[old-ARG]]=[[SP]-1] */
 
-        printStream.println("@R14");   /* set [SP] after return value */
+        printStream.println("@R14");    /* set [SP] after return value */
         printStream.println("D=M+1");
         printStream.println("@SP");
         printStream.println("M=D");    /* [SP]=[old-ARG]+1 */

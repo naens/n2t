@@ -19,7 +19,7 @@ public class VMTranslator {
         if (!file.exists()) {
             System.out.println(args[0] + " does not exist");
         }
-        File dir = file.getAbsoluteFile().getParentFile();
+        File dir;
 
         /* get file list and program name*/
         File[] inFiles;
@@ -30,15 +30,16 @@ public class VMTranslator {
         };
         String programName;
         if (file.isDirectory()) {
-            writeEnv = true;
             programName = file.getName();
             inFiles = file.listFiles(vmFilter);
+            dir = file.getAbsoluteFile();
         } else {
-            writeEnv = false;
             inFiles = new File[1];
             inFiles[0] = file;
             programName = getNoExtName(file);
+            dir = file.getAbsoluteFile().getParentFile();
         }
+        writeEnv = new File(dir, "Sys.vm").exists();
 
         File outFile = new File(dir, programName + ".asm");
 //        System.out.println("output file = " + outFile.getCanonicalPath());
@@ -52,14 +53,13 @@ public class VMTranslator {
             Parser parser = new Parser(f);
             String[] strs;
             while ((strs = parser.advance()) != null) {
-//                System.out.println(String.join(" ", strs));
+//                System.out.println(String.join("|||", strs));
                 doCmd(codeWriter, strs);
             }
             parser.close();
         }
-        if (writeEnv) {
-            codeWriter.writeRestore();
-        }
+	codeWriter.writeEndLoop();
+        codeWriter.writeRestore();
         codeWriter.close();
     }
 

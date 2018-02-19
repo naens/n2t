@@ -26,7 +26,7 @@ public class Parser {
                 if (matcher.find()) {
                     String s = matcher.group();
                     if (s.matches("[a-z].*")) {
-                        return s.split(" +");
+                        return s.split("\\s+");
                     }
                 }
             }
