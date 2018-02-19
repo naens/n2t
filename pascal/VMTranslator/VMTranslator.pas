@@ -60,10 +60,10 @@ begin
                            LastDelimiter('.', InputFileName) - 1);
 
         n := 1;
+	FunctionName := 'Sys.init';
         InitParser(InputFileName, InputFile);
         while Advance(InputFIle, Command, arg1, arg2) do
         begin
-//          writeln(Command, ' ', arg1);
           case Command of
             cArithm: WriteArithm(OutputFile, n, ModuleName, arg1);
             cPush: WritePush(OutputFile, ModuleName, arg1, arg2);
@@ -84,6 +84,7 @@ begin
         CloseParser(InputFile);
       until FindNext(Info) <> 0;
       FindClose(Info);
+      WriteEnd(OutputFile, Name);
       WriteRestore(OutputFile, Name);
       CloseWriter(OutputFile)
     end

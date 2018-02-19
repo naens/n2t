@@ -67,7 +67,10 @@ end;
 
 function IsCommand(s: string): boolean;
 begin
-  IsCommand := IsLegalChar(s[1])
+  if (length(s) > 0) and IsLegalChar(s[1]) then
+    IsCommand := true
+  else
+    IsCommand := false
 end;
 
 function ReadWord(Source: string; FromPos: integer; var Dest: String): integer;

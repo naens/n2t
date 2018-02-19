@@ -29,6 +29,8 @@ procedure WriteReturn(var f: Text; Name: string);
 procedure WriteCall(var f: Text; n:integer;
                                 FunctionName: string; NumArgs: integer);
 
+procedure WriteEnd(var f: Text; Name: string);
+
 procedure WriteRestore(var f: Text; Name: string);
 
 procedure WriteFunction(var f: Text; FunctionName: string; NumVars: integer);
@@ -326,6 +328,14 @@ begin
 
   writeln(f, '(', ReturnLabel, ')');
 
+  writeln(f);
+end;
+
+procedure WriteEnd(var f: Text; Name: string);
+begin
+  writeln(f, '(', Name, '$end)');
+  writeln(f, '@', Name, '$end');
+  writeln(f, '0;JMP');
   writeln(f);
 end;
 
