@@ -78,6 +78,16 @@ class Help {
                 let valid = true;
             }
 
+            if (Tools.stringEqConst(line, "clear")) {
+                do Help.printClear();
+                let valid = true;
+            }
+
+            if (Tools.stringEqConst(line, "quit")) {
+                do Help.printQuit();
+                let valid = true;
+            }
+
             /* invalid input */
             if (~valid) {
                 do Help.printInvalid(line);
@@ -93,10 +103,10 @@ class Help {
     function void printTopics() {
         do Display.printConstln("Topics available:");
         do Display.newline();
-        do Display.printConstln("help       var       dowhile");
-        do Display.printConstln("list       stmt      doiter");
-        do Display.printConstln("type       cond      proc");
-        do Display.printConstln("about      doblock");
+        do Display.printConstln("help        clear       doblock     clear");
+        do Display.printConstln("list        var         dowhile     quit");
+        do Display.printConstln("type        stmt        doiter");
+        do Display.printConstln("about       cond        proc");
         do Display.newline();
         return;
     }
@@ -121,10 +131,6 @@ class Help {
 
     function void printAbout() {
         do Display.newline();
-        do Display.newline();
-        do Display.printConstln("  About:");
-        do Display.newline();
-        do Display.newline();
         do Display.printConstln("  MUSH (Mediocre Unexciting Shell) is a");
         do Display.printConstln("  small shell program written in Jack");
         do Display.printConstln("  programming language for the Coursera");
@@ -136,7 +142,6 @@ class Help {
         do Display.newline();
         do Display.printConstln("  This current version is for the March 04 ");
         do Display.printConstln("  2018 deadline.");
-        do Display.newline();
         do Display.newline();
         return;
     }
@@ -179,6 +184,22 @@ class Help {
 
     function void printProc() {
         do Display.printConstln("  Proc");
+        do Display.newline();
+        return;
+    }
+
+    function void printClear() {
+        do Display.newline();
+        do Display.printConstln("  The \"clear\" command erases the screen");
+        do Display.printConstln("  and positions the cursor at posotion 0,0.");
+        do Display.newline();
+        return;
+    }
+
+    function void printQuit() {
+        do Display.newline();
+        do Display.printConstln("  The \"quit\" commant terminates the");
+        do Display.printConstln("  execution of MUSH.");
         do Display.newline();
         return;
     }
