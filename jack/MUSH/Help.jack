@@ -5,7 +5,6 @@ class Help {
         var String line;
         var boolean valid;
 
-        do Display.printConstln("Help Utility");
         do Display.newline();
         do Help.printTopics();
         do Display.printConst("HELP>");
@@ -112,19 +111,31 @@ class Help {
     }
 
     function void printHelp() {
-        do Display.printConstln("  Help");
+        do Display.newline();
+        do Display.printConstln("  Displays a list of topics and information");
+        do Display.printConstln("  for MUSH commands and environment.");
         do Display.newline();
         return;
     }
 
     function void printList() {
-        do Display.printConstln("  List");
+        do Display.newline();
+        do Display.printConstln("  Displays the list of available variables");
+        do Display.printConstln("  and procedures.");
         do Display.newline();
         return;
     }
 
     function void printType() {
-        do Display.printConstln("  Type");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      type <expression>");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  Evaluates the expression and displays");
+        do Display.printConstln("  its value.");
         do Display.newline();
         return;
     }
