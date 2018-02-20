@@ -99,8 +99,11 @@ class Shell {
                                     /* evaluate expression and print value */
 //                                        do Display.printConstln("evaluate item");
                                         let value = eva.evaluate(item);
-                                        if (Eva.chkVal(value)) {
-                                            do item.deepDispose();
+                                        if (~(item = 0)) {
+                                            if (~(item.getType()
+                                                 = Const.VAR_DECL())) {
+                                                do item.deepDispose();
+                                            }
                                         }
 //                                        do Display.printString("value=");
 //                                        do Display.printInt(value);
@@ -135,8 +138,10 @@ class Shell {
                         /* evaluate expression and print value */
 //                            do Display.printConstln("evaluate block");
                             let value = eva.evaluate(block);
-                            if (Eva.chkVal(value)) {
-                                do block.deepDispose();
+                            if (~(block = 0)) {
+                                if(~(block.getType() = Const.PROC_DECL())) {
+                                    do block.deepDispose();
+                                }
                             }
 //                            do Display.printString("value=");
 //                            do Display.printInt(value);
