@@ -14,7 +14,11 @@ class BuiltIn {
         if (Tools.stringEqConst(name, "quit")) {
             return Const.QUIT();
         }
-        /* TODO: assign, help, ?exec/run/eval, ?erase/del/unset */
+        if (Tools.stringEqConst(name, "help")) {
+            do Help.loop();
+            return 0;
+        }
+        /* TODO: assign, ?exec/run/eval, ?erase/del/unset */
         return 0;
     }
 

@@ -1,0 +1,185 @@
+/* Help loop and help contents */
+class Help {
+
+    function void loop() {
+        var String line;
+        var boolean valid;
+
+        do Help.printIntro();
+        do Help.printTopics();
+        do Display.printConst("HELP>");
+        let line = Display.readln();
+        while (line.length() > 0) {
+            let valid = false;
+            /* help */
+            if (Tools.stringEqConst(line, "help")) {
+                do Help.printHelp();
+                let valid = true;
+            }
+
+            /* list */
+            if (Tools.stringEqConst(line, "list")) {
+                do Help.printList();
+                let valid = true;
+            }
+
+            /* type */
+            if (Tools.stringEqConst(line, "type")) {
+                do Help.printType();
+                let valid = true;
+            }
+
+            /* about */
+            if (Tools.stringEqConst(line, "about")) {
+                do Help.printAbout();
+                let valid = true;
+            }
+
+            /* variables */
+            if (Tools.stringEqConst(line, "var")) {
+                do Help.printVar();
+                let valid = true;
+            }
+
+            /* statements */
+            if (Tools.stringEqConst(line, "stmt")) {
+                do Help.printStmt();
+                let valid = true;
+            }
+
+            /* conditions */
+            if (Tools.stringEqConst(line, "cond")) {
+                do Help.printCond();
+                let valid = true;
+            }
+
+            /* do blocks */
+            if (Tools.stringEqConst(line, "doblock")) {
+                do Help.printDoBlock();
+                let valid = true;
+            }
+
+            /* do while blocks */
+            if (Tools.stringEqConst(line, "dowhile")) {
+                do Help.printDoWhile();
+                let valid = true;
+            }
+
+            /* do iter blocks */
+            if (Tools.stringEqConst(line, "doiter")) {
+                do Help.printDoIter();
+                let valid = true;
+            }
+
+            /* procedures */
+            if (Tools.stringEqConst(line, "proc")) {
+                do Help.printProc();
+                let valid = true;
+            }
+
+            /* invalid input */
+            if (~valid) {
+                do Help.printInvalid(line);
+            }
+
+            do Display.printConst("HELP>");
+            do line.dispose();
+            let line = Display.readln();
+        }
+        return;
+    }
+
+    function void printIntro() {
+        do Display.printConstln("Help Utility");
+        do Display.newline();
+        do Display.printConstln("At \"HELP>\" enter topic");
+        do Display.newline();
+        do Display.printConstln("EXAMPLE:  HELP>type");
+        do Display.newline();
+        return;
+    }
+
+    function void printTopics() {
+        do Display.printConstln("Topics available:");
+        do Display.newline();
+        do Display.printConstln("help");
+        do Display.printConstln("list");
+        do Display.printConstln("type");
+        do Display.printConstln("about");
+        do Display.printConstln("var");
+        do Display.printConstln("stmt");
+        do Display.printConstln("cond");
+        do Display.printConstln("doblock");
+        do Display.printConstln("dowhile");
+        do Display.printConstln("doiter");
+        do Display.printConstln("proc");
+        return;
+    }
+
+    function void printHelp() {
+        do Display.printConstln("Help");
+        return;
+    }
+
+    function void printList() {
+        do Display.printConstln("List");
+        return;
+    }
+
+    function void printType() {
+        do Display.printConstln("Type");
+        return;
+    }
+
+    function void printAbout() {
+        do Display.printConstln("About");
+        return;
+    }
+
+    function void printVar() {
+        do Display.printConstln("Var");
+        return;
+    }
+
+    function void printStmt() {
+        do Display.printConstln("Stmt");
+        return;
+    }
+
+    function void printCond() {
+        do Display.printConstln("Cond");
+        return;
+    }
+
+    function void printDoBlock() {
+        do Display.printConstln("DoBlock");
+        return;
+    }
+
+    function void printDoWhile() {
+        do Display.printConstln("DoWhile");
+        return;
+    }
+
+    function void printDoIter() {
+        do Display.printConstln("DoIter");
+        return;
+    }
+
+    function void printProc() {
+        do Display.printConstln("Proc");
+        return;
+    }
+
+    function void printInvalid(String invalidTopic) {
+        do Display.printConstln("Topic:");
+        do Display.newline();
+        do Display.printConst("  ");
+        do Display.printString(invalidTopic);
+        do Display.newline();
+        do Display.newline();
+        do Display.printConstln("Not found");
+        do Display.newline();
+        return;
+    }
+}
