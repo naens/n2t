@@ -29,6 +29,10 @@ class BuiltIn {
     /* type function: types the (first) argument on the display */
     function void type(List values) {
         var Value val;
+        if (values = 0) {
+            do Display.printConstln("type: no expression given");
+            return;
+        }
         let val = values.get();
 //        do Display.printConst("TYPE: ");
         do val.println();
