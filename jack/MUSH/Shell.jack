@@ -3,9 +3,26 @@ class Shell {
     field String prompt;
 
     constructor Shell new() {
-        let prompt = "MUSH>";
-        do Display.printConstln("Welcome to MUSH!");
+        do Display.printConst("\\\\    \\\\ \\\\  \\\\  ");
+        do Display.printConstln("\\\\\\\\  \\\\  \\\\");
+        do Display.printConstln("\\██  \\\\██\\██ \\██\\\\████ \\██ \\██"); 
+        do Display.printConstln("\\███ \\███\\██ \\██\\██\\\\  \\██\\\\██");
+        do Display.printConstln("\\██\\██\\██\\██ \\██ \\████ \\██████");
+        do Display.printConstln("\\██   \\██\\██\\\\██ \\\\\\\\██\\██ \\██");
+        do Display.printConstln("\\██   \\██  ████  \\████ \\██ \\██");
         do Display.newline();
+        do Display.printConst("MUSH v0.0, peer-graded assignment ");
+        do Display.printConstln("for project 9");
+        do Display.printConstln("of the \"Nand to Tetris Part II\" course.");
+        do Display.newline();
+        do Display.printConstln("Copyleft (c) 2018");
+        do Display.newline();
+        do Display.printConstln("The GPLv3 source code is available at:");
+        do Display.printConstln("https://github.com/naens/n2t/tree/master/jack/MUSH");
+        do Display.newline();
+        do Display.printConstln("Type help for usage and the list of commands.");
+        do Display.newline();
+        let prompt = "MUSH>";
         return this;
     }
 
