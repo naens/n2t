@@ -18,6 +18,10 @@ class BuiltIn {
             do Help.loop();
             return 0;
         }
+        if (Tools.stringEqConst(name, "clear")) {
+            do Display.clear();
+            return 0;
+        }
         /* TODO: assign, ?exec/run/eval, ?erase/del/unset */
         return 0;
     }

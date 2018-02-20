@@ -202,4 +202,24 @@ class Display {
         return;
     }
 
+    function void clear() {
+        var integer w;
+        var integer h;
+        var integer i;
+        var integer tmp;
+        var Array RAM;
+
+        let w = (Const.CHAR_WIDTH() * Const.SCREEN_WIDTH()) / 16;
+        let h = Const.CHAR_HEIGHT() * Const.SCREEN_HEIGHT();
+        let i = Const.SCREEN();
+        let tmp = i + (w * h);
+        while (i < tmp) {
+            let RAM[i] = 0;
+            let i = i + 1;
+        }
+        let row = 0;
+        let column = 0;
+        do Output.moveCursor(row, column);
+        return;
+    }
 }
