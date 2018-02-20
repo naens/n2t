@@ -5,7 +5,8 @@ class Help {
         var String line;
         var boolean valid;
 
-        do Help.printIntro();
+        do Display.printConstln("Help Utility");
+        do Display.newline();
         do Help.printTopics();
         do Display.printConst("HELP>");
         let line = Display.readln();
@@ -89,85 +90,96 @@ class Help {
         return;
     }
 
-    function void printIntro() {
-        do Display.printConstln("Help Utility");
-        do Display.newline();
-        do Display.printConstln("At \"HELP>\" enter topic");
-        do Display.newline();
-        do Display.printConstln("EXAMPLE:  HELP>type");
-        do Display.newline();
-        return;
-    }
-
     function void printTopics() {
         do Display.printConstln("Topics available:");
         do Display.newline();
-        do Display.printConstln("help");
-        do Display.printConstln("list");
-        do Display.printConstln("type");
-        do Display.printConstln("about");
-        do Display.printConstln("var");
-        do Display.printConstln("stmt");
-        do Display.printConstln("cond");
-        do Display.printConstln("doblock");
-        do Display.printConstln("dowhile");
-        do Display.printConstln("doiter");
-        do Display.printConstln("proc");
+        do Display.printConstln("help       var       dowhile");
+        do Display.printConstln("list       stmt      doiter");
+        do Display.printConstln("type       cond      proc");
+        do Display.printConstln("about      doblock");
+        do Display.newline();
         return;
     }
 
     function void printHelp() {
-        do Display.printConstln("Help");
+        do Display.printConstln("  Help");
+        do Display.newline();
         return;
     }
 
     function void printList() {
-        do Display.printConstln("List");
+        do Display.printConstln("  List");
+        do Display.newline();
         return;
     }
 
     function void printType() {
-        do Display.printConstln("Type");
+        do Display.printConstln("  Type");
+        do Display.newline();
         return;
     }
 
     function void printAbout() {
-        do Display.printConstln("About");
+        do Display.newline();
+        do Display.newline();
+        do Display.printConstln("  About:");
+        do Display.newline();
+        do Display.newline();
+        do Display.printConstln("  MUSH (Mediocre Unexciting Shell) is a");
+        do Display.printConstln("  small shell program written in Jack");
+        do Display.printConstln("  programming language for the Coursera");
+        do Display.printConstln("  course \"Nand To Tetris II\".");
+        do Display.newline();
+        do Display.printConstln("  It was started in December 2017.  It");
+        do Display.printConstln("  can evaluate and print simple");
+        do Display.printConstln("  expressions.");
+        do Display.newline();
+        do Display.printConstln("  This current version is for the March 04 ");
+        do Display.printConstln("  2018 deadline.");
+        do Display.newline();
+        do Display.newline();
         return;
     }
 
     function void printVar() {
-        do Display.printConstln("Var");
+        do Display.printConstln("  Var");
+        do Display.newline();
         return;
     }
 
     function void printStmt() {
-        do Display.printConstln("Stmt");
+        do Display.printConstln("  Stmt");
+        do Display.newline();
         return;
     }
 
     function void printCond() {
-        do Display.printConstln("Cond");
+        do Display.printConstln("  Cond");
+        do Display.newline();
         return;
     }
 
     function void printDoBlock() {
-        do Display.printConstln("DoBlock");
+        do Display.printConstln("  DoBlock");
+        do Display.newline();
         return;
     }
 
     function void printDoWhile() {
-        do Display.printConstln("DoWhile");
+        do Display.printConstln("  DoWhile");
+        do Display.newline();
         return;
     }
 
     function void printDoIter() {
-        do Display.printConstln("DoIter");
+        do Display.printConstln("  DoIter");
+        do Display.newline();
         return;
     }
 
     function void printProc() {
-        do Display.printConstln("Proc");
+        do Display.printConstln("  Proc");
+        do Display.newline();
         return;
     }
 
