@@ -148,7 +148,7 @@ class Eva {
             if ((item.getType() = Const.DO_BLOCK())
               | ((item.getType() = Const.DO_ITER())
                  | (item.getType() = Const.DO_WHILE()))) {
-                do pass1rec(varTable, AstSel.blockStat(item));
+                do pass1rec(varTable, AstSel.blockStmt(item));
                 do nextBlockId();
                 do item.setBlockId(currBlockId);
                 let subItems = AstSel.blockRest(item);
@@ -166,7 +166,7 @@ class Eva {
             }
             let subItems = subItems.getNext();
         }
-        if (item.getType() = Const.END_STAT()) {
+        if (item.getType() = Const.END_STMT()) {
 //                let endBlockId = topBlockId();
 //                do Display.printConstln("set end blockId:");
 //                do Display.printInt(endBlockId);
@@ -1117,20 +1117,20 @@ class Eva {
         return 0;
     }
 
-    /* cond = if_stat unit {else_if_stat unit} [else unit] */
+    /* cond = if_stmt unit {else_if_stmt unit} [else unit] */
     method Value execCond(Item item) {
         var List subItems;
-        var Item stat;
+        var Item stmt;
         var Item condExpr;
         var Item unit;
         var Value exprVal;
         var boolean boolVal;
         var boolean hasNext;
 
-        /* if_stat */
+        /* if_stmt */
         let subItems = item.getSubItems();
-        let stat = subItems.get();
-        let condExpr = AstSel.ifCond(stat);
+        let stmt = subItems.get();
+        let condExpr = AstSel.ifCond(stmt);
         let exprVal = evalExpr(condExpr);
         if (~Eva.chkVal(exprVal)) {
             return exprVal;
@@ -1145,18 +1145,18 @@ class Eva {
         }
         do exprVal.dispose();
 
-        /* {else_if_stat unit} */
+        /* {else_if_stmt unit} */
         let subItems = subItems.getNext();
         if (subItems = 0) {
             let hasNext = false;
         } else {
-            let stat = subItems.get();
-            let hasNext = (stat.getType() = Const.ELSE_IF_STAT());
+            let stmt = subItems.get();
+            let hasNext = (stmt.getType() = Const.ELSE_IF_STMT());
         }
 
         while (hasNext) {
-            /* else_if_stat */
-            let condExpr = AstSel.elseIfCond(stat);
+            /* else_if_stmt */
+            let condExpr = AstSel.elseIfCond(stmt);
             let exprVal = evalExpr(condExpr);
             if (~Eva.chkVal(exprVal)) {
                 return exprVal;
@@ -1175,8 +1175,8 @@ class Eva {
             if (subItems = 0) {
                 let hasNext = false;
             } else {
-                let stat = subItems.get();
-                let hasNext = (stat.getType() = Const.ELSE_IF_STAT());
+                let stmt = subItems.get();
+                let hasNext = (stmt.getType() = Const.ELSE_IF_STMT());
             }
         }
 

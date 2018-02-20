@@ -65,8 +65,8 @@ class LineParser {
         return 0;
     }
 
-    /* proc_stat = declare ( ident {ident} ) [type] */
-    function Item parseProcStat(Tokenizer tokenizer) {
+    /* proc_stmt = declare ( ident {ident} ) [type] */
+    function Item parseProcStmt(Tokenizer tokenizer) {
         var Item kw_declare;
         var Item par_op;
         var Item ident;
@@ -76,7 +76,7 @@ class LineParser {
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.PROC_STAT());
+        do result.setType(Const.PROC_STMT());
 
         let kw_declare = LineParser.addTerminal(tokenizer, result, Const.KW_DECLARE());
         if (kw_declare = 0) {
@@ -128,14 +128,14 @@ class LineParser {
         if (~(result = 0)) {
             return result;
         }
-        let result = LineParser.parseProcStat(tokenizer);
+        let result = LineParser.parseProcStmt(tokenizer);
         if (~(result = 0)) {
             return result;
         }
         return 0;
     }
 
-    function Item parseIfStat(Tokenizer tokenizer) {
+    function Item parseIfStmt(Tokenizer tokenizer) {
         var Item kw_if;
         var Item callOrExpr;
         var Item kw_then;
@@ -143,7 +143,7 @@ class LineParser {
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.IF_STAT());
+        do result.setType(Const.IF_STMT());
 
         let kw_if = LineParser.addTerminal(tokenizer, result, Const.KW_IF());
         if (kw_if = 0) {
@@ -167,15 +167,15 @@ class LineParser {
         return result;
     }
 
-    /* 'else' or 'else' if-stat */
-    function Item parseElseIfStat(Tokenizer tokenizer) {
+    /* 'else' or 'else' if-stmt */
+    function Item parseElseIfStmt(Tokenizer tokenizer) {
         var Item kw_else;
-        var Item ifStat;
+        var Item ifStmt;
         var Item result;
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.ELSE_IF_STAT());
+        do result.setType(Const.ELSE_IF_STMT());
 
         let kw_else = LineParser.addTerminal(tokenizer, result, Const.KW_ELSE());
         if (kw_else = 0) {
@@ -183,24 +183,24 @@ class LineParser {
             return 0;
         }
 
-        let ifStat = LineParser.parseIfStat(tokenizer);
-        if (ifStat = 0) {
+        let ifStmt = LineParser.parseIfStmt(tokenizer);
+        if (ifStmt = 0) {
             do result.dispose();
             return 0;
         }
-        do result.addSubItem(ifStat);
+        do result.addSubItem(ifStmt);
 
         return result;
     }
 
-    function Item parseDoBlockStat(Tokenizer tokenizer) {
+    function Item parseDoBlockStmt(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
         var Item result;
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.DO_BLOCK_STAT());
+        do result.setType(Const.DO_BLOCK_STMT());
 
         let kw_do = LineParser.addTerminal(tokenizer, result, Const.KW_DO());
         if (kw_do = 0) {
@@ -218,14 +218,14 @@ class LineParser {
     }
 
     /* do_iter = do ident = expr to expr [by expr] */
-    function Item parseDoIterStat(Tokenizer tokenizer) {
+    function Item parseDoIterStmt(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
         var Item result;
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.DO_ITER_STAT());
+        do result.setType(Const.DO_ITER_STMT());
 
         let kw_do = LineParser.addTerminal(tokenizer, result, Const.KW_DO());
         if (kw_do = 0) {
@@ -281,8 +281,8 @@ class LineParser {
         return result;
     }
 
-    /* do_while_stat = "do" "while" (call | expr) */
-    function Item parseDoWhileStat(Tokenizer tokenizer) {
+    /* do_while_stmt = "do" "while" (call | expr) */
+    function Item parseDoWhileStmt(Tokenizer tokenizer) {
         var Item kw_do;
         var Item kw_while;
         var Item callOrExpr;
@@ -290,7 +290,7 @@ class LineParser {
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.DO_WHILE_STAT());
+        do result.setType(Const.DO_WHILE_STMT());
 
         let kw_do = LineParser.addTerminal(tokenizer, result, Const.KW_DO());
         if (kw_do = 0) {
@@ -319,15 +319,15 @@ class LineParser {
 
     function Item parseDo(Tokenizer tokenizer) {
         var Item result;
-        let result = LineParser.parseDoBlockStat(tokenizer);
+        let result = LineParser.parseDoBlockStmt(tokenizer);
         if (~(result = 0)) {
             return result;
         }
-        let result = LineParser.parseDoIterStat(tokenizer);
+        let result = LineParser.parseDoIterStmt(tokenizer);
         if (~(result = 0)) {
             return result;
         }
-        let result = LineParser.parseDoWhileStat(tokenizer);
+        let result = LineParser.parseDoWhileStmt(tokenizer);
         if (~(result = 0)) {
             return result;
         }
@@ -341,7 +341,7 @@ class LineParser {
 
         let result = Item.new();
         do result.setTerminal(false);
-        do result.setType(Const.END_STAT());
+        do result.setType(Const.END_STMT());
 
         let kw_end = LineParser.addTerminal(tokenizer, result, Const.KW_END());
         if (kw_end = 0) {
@@ -803,10 +803,10 @@ class LineParser {
             let result = LineParser.parseDeclare(tokenizer);
         }
         if (type = Const.KW_IF()) {
-            let result = LineParser.parseIfStat(tokenizer);
+            let result = LineParser.parseIfStmt(tokenizer);
         }
         if (type = Const.KW_ELSE()) {
-            let result = LineParser.parseElseIfStat(tokenizer);
+            let result = LineParser.parseElseIfStmt(tokenizer);
             if (result = 0) {
                 return item;
             } else {

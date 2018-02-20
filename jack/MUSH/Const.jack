@@ -191,7 +191,7 @@ class Const {
         return 7000;
     }
 
-    function integer PROC_STAT() {
+    function integer PROC_STMT() {
         return 7010;
     }
 
@@ -199,11 +199,11 @@ class Const {
         return 7020;
     }
 
-    function integer IF_STAT() {
+    function integer IF_STMT() {
         return 7030;
     }
 
-    function integer ELSE_IF_STAT() {
+    function integer ELSE_IF_STMT() {
         return 7040;
     }
 
@@ -211,7 +211,7 @@ class Const {
         return 7050;
     }
 
-    function integer DO_BLOCK_STAT() {
+    function integer DO_BLOCK_STMT() {
         return 7060;
     }
 
@@ -219,7 +219,7 @@ class Const {
         return 7070;
     }
 
-    function integer DO_WHILE_STAT() {
+    function integer DO_WHILE_STMT() {
         return 7080;
     }
 
@@ -227,7 +227,7 @@ class Const {
         return 7090;
     }
 
-    function integer DO_ITER_STAT() {
+    function integer DO_ITER_STMT() {
         return 7100;
     }
 
@@ -239,7 +239,7 @@ class Const {
         return 7120;
     }
 
-    function integer END_STAT() {
+    function integer END_STMT() {
         return 7130;
     }
 

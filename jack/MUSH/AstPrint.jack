@@ -64,14 +64,14 @@ class AstPrint {
     }
 
     /* end {<blockId>} <name> */
-    function void endStat(Item endStat) {
+    function void endStmt(Item endStmt) {
         var String name;
         var integer blockId;
         do Display.printConst("end {");
-        let blockId = endStat.getBlockId();
+        let blockId = endStmt.getBlockId();
         do Display.printInt(blockId);
         do Display.printConst("}");
-        let name = AstSel.endName(endStat);
+        let name = AstSel.endName(endStmt);
         if (~(name = 0)) {
             do Display.printConst(" ");
             do Display.printString(name);
@@ -168,16 +168,16 @@ class AstPrint {
             return;
         }
 
-        if (item.getType() = Const.END_STAT()) {
-            do AstPrint.endStat(item);
+        if (item.getType() = Const.END_STMT()) {
+            do AstPrint.endStmt(item);
             return;
         }
 
         let subItems = item.getSubItems();
-        if (item.getType() = Const.IF_STAT()) {
+        if (item.getType() = Const.IF_STMT()) {
            do Display.printConstln("if");
         } else {
-            if (item.getType() = Const.ELSE_IF_STAT()) {
+            if (item.getType() = Const.ELSE_IF_STMT()) {
                 do Display.printConstln("else-if");
             } else {
                 if ((item.getType() = Const.DO_BLOCK())

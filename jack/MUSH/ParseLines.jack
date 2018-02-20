@@ -86,10 +86,10 @@ class ParseLines {
         return item;
     }
 
-    /* proc/block = (proc_stat|block_stat) {declaration} {unit} end_stat */
+    /* proc/block = (proc_stmt|block_stmt) {declaration} {unit} end_stmt */
     function Item parseBlock2(Tokenizer tokenizer, integer type,
-              integer statType) {
-        var Item stat;
+              integer stmtType) {
+        var Item stmt;
         var Item decl;
         var Item unit;
         var Item result;
@@ -101,19 +101,19 @@ class ParseLines {
         do result.setType(type);
 
 //        do Display.printConstln("block2 1");
-        let stat = tokenizer.nextNode();
-        if (stat = 0) {
+        let stmt = tokenizer.nextNode();
+        if (stmt = 0) {
             do Display.printConstln("block2 e1");
             do result.dispose();
             return 0;
         }
 
-        if (~(stat.getType() = statType)) {
-            do tokenizer.unread(stat);
+        if (~(stmt.getType() = stmtType)) {
+            do tokenizer.unread(stmt);
             do result.dispose();
             return 0;
         }
-        do result.addSubItem(stat);
+        do result.addSubItem(stmt);
 //        do Display.printConstln("block2 3");
 
 
@@ -129,19 +129,19 @@ class ParseLines {
             let unit = ParseLines.parseUnit(tokenizer);
         }
 
-        let stat = tokenizer.nextNode();
-        if (stat = 0) {
+        let stmt = tokenizer.nextNode();
+        if (stmt = 0) {
             do result.dispose();
             do Display.printConstln("block2 e3");
             return 0;
         }
 //        do Display.printConstln("block2 4");
-        if (~(stat.getType() = Const.END_STAT())) {
+        if (~(stmt.getType() = Const.END_STMT())) {
             do result.dispose();
             do Display.printConstln("block2 e4");
             return 0;
         }
-        do result.addSubItem(stat);
+        do result.addSubItem(stmt);
 
         return result;
     }
@@ -149,25 +149,25 @@ class ParseLines {
     function Iterm parseProcDecl(Tokenizer tokenizer) {
 //        do Display.printConstln("block proc_decl");
         return ParseLines.parseBlock2(tokenizer,
-                 Const.PROC_DECL(), Const.PROC_STAT());
+                 Const.PROC_DECL(), Const.PROC_STMT());
     }
 
     function Iterm parseDoBlock(Tokenizer tokenizer) {
 //        do Display.printConstln("block do_block");
         return ParseLines.parseBlock2(tokenizer,
-                 Const.DO_BLOCK(), Const.DO_BLOCK_STAT());
+                 Const.DO_BLOCK(), Const.DO_BLOCK_STMT());
     }
 
     function Iterm parseDoIter(Tokenizer tokenizer) {
 //        do Display.printConstln("block do_iter");
         return ParseLines.parseBlock2(tokenizer,
-                 Const.DO_ITER(), Const.DO_ITER_STAT());
+                 Const.DO_ITER(), Const.DO_ITER_STMT());
     }
 
     function Iterm parseDoWhile(Tokenizer tokenizer) {
 //        do Display.printConstln("block do_while");
         return ParseLines.parseBlock2(tokenizer,
-                 Const.DO_WHILE(), Const.DO_WHILE_STAT());
+                 Const.DO_WHILE(), Const.DO_WHILE_STMT());
     }
 
     function Item parseBlock(Tokenizer tokenizer) {
@@ -201,11 +201,11 @@ class ParseLines {
         }
     }
 
-    /* cond = if_stat unit {else_if_stat unit} [else unit] */
+    /* cond = if_stmt unit {else_if_stmt unit} [else unit] */
     function Item parseCond(Tokenizer tokenizer) {
-        var Item ifStat;
+        var Item ifStmt;
         var Item unit;
-        var Item elseIfStat;
+        var Item elseIfStmt;
         var Item kw_else;
         var Item result;
 
@@ -213,11 +213,11 @@ class ParseLines {
         do result.setTerminal(false);
         do result.setType(Const.COND());
 
-        let ifStat = ParseLines.addNode(tokenizer, Const.IF_STAT());
-        if (ifStat = 0) {
+        let ifStmt = ParseLines.addNode(tokenizer, Const.IF_STMT());
+        if (ifStmt = 0) {
             return 0;
         }
-        do result.addSubItem(ifStat);
+        do result.addSubItem(ifStmt);
 
         let unit = ParseLines.parseUnit(tokenizer);
         if (unit = 0) {
@@ -226,9 +226,9 @@ class ParseLines {
 
         do result.addSubItem(unit);
 
-        let elseIfStat = ParseLines.addNode(tokenizer, Const.ELSE_IF_STAT());
-        while (~(elseIfStat = 0)) {
-            do result.addSubItem(elseIfStat);
+        let elseIfStmt = ParseLines.addNode(tokenizer, Const.ELSE_IF_STMT());
+        while (~(elseIfStmt = 0)) {
+            do result.addSubItem(elseIfStmt);
 
             let unit = ParseLines.parseUnit(tokenizer);
             if (unit = 0) {
@@ -236,7 +236,7 @@ class ParseLines {
             }
             do result.addSubItem(unit);
 
-            let elseIfStat = ParseLines.addNode(tokenizer, Const.ELSE_IF_STAT());
+            let elseIfStmt = ParseLines.addNode(tokenizer, Const.ELSE_IF_STMT());
         }
 
         let kw_else = ParseLines.addNode(tokenizer, Const.KW_ELSE());

@@ -26,20 +26,20 @@ class Shell {
         return this;
     }
 
-    method boolean isBlockStat(Item item) {
+    method boolean isBlockStmt(Item item) {
         if (item = 0) {
             return false;
         }
-        if (item.getType() = Const.PROC_STAT()) {
+        if (item.getType() = Const.PROC_STMT()) {
             return true;
         }
-        if (item.getType() = Const.DO_BLOCK_STAT()) {
+        if (item.getType() = Const.DO_BLOCK_STMT()) {
             return true;
         }
-        if (item.getType() = Const.DO_WHILE_STAT()) {
+        if (item.getType() = Const.DO_WHILE_STMT()) {
             return true;
         }
-        if (item.getType() = Const.DO_ITER_STAT()) {
+        if (item.getType() = Const.DO_ITER_STMT()) {
             return true;
         }
         return false;
@@ -83,11 +83,11 @@ class Shell {
 //                do item.print();
 //                do Display.newline();
                 if (depth = 0) {
-                    if (isBlockStat(item)) {
+                    if (isBlockStmt(item)) {
 //                        do Display.printConstln("set depth 1, append");
                         do tokenizer.appendNode(item);
                     } else {
-                        if (item.getType() = Const.IF_STAT()) {
+                        if (item.getType() = Const.IF_STMT()) {
 //                            do Display.printConstln("IF");
                             let ifCondItem = AstSel.ifCond(item);
                             let ifVal = eva.evaluate(ifCondItem);
@@ -102,7 +102,7 @@ class Shell {
 //                                do Display.printConstln("else");
                                 do ifs.ifReverse();
                             } else {
-                                if (item.getType() = Const.ELSE_IF_STAT()) {
+                                if (item.getType() = Const.ELSE_IF_STMT()) {
 //                                    do Display.printConstln("else");
                                     do ifs.ifReverse();
                                     let ifCondItem = AstSel.elseIfCond(item);
@@ -138,7 +138,7 @@ class Shell {
                 } else {
 //                    do Display.printConstln("depth > 0, append");
                     do tokenizer.appendNode(item);
-                    if ((depth = 1) & (item.getType() = Const.END_STAT())) {
+                    if ((depth = 1) & (item.getType() = Const.END_STMT())) {
 //                        do Display.printConstln("set depth 0, parse");
                         let block = ParseLines.parseBlock(tokenizer);
                         if (block = 0) {
@@ -167,10 +167,10 @@ class Shell {
                         }
                     }
                 }
-                if (isBlockStat(item)) {
+                if (isBlockStmt(item)) {
                     let depth = depth + 1;
                  }
-                if (item.getType() = Const.END_STAT()) {
+                if (item.getType() = Const.END_STMT()) {
                     let depth = depth - 1;
                 }
             }

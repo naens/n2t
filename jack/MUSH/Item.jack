@@ -176,10 +176,10 @@ class Item {
                 return;
             }
 
-            if (type = Const.PROC_STAT()) {
-                do Display.printConst("(proc-stat:");
+            if (type = Const.PROC_STMT()) {
+                do Display.printConst("(proc-stmt:");
                 do printSubItems();
-                do Display.printConst(":proc-stat)");
+                do Display.printConst(":proc-stmt)");
                 return;
             }
 
@@ -190,10 +190,10 @@ class Item {
                 return;
             }
 
-            if (type = Const.IF_STAT()) {
-                do Display.printConst("(if-stat:");
+            if (type = Const.IF_STMT()) {
+                do Display.printConst("(if-stmt:");
                 do printSubItems();
-                do Display.printConst(":if-stat)");
+                do Display.printConst(":if-stmt)");
                 return;
             }
 
@@ -204,10 +204,10 @@ class Item {
                 return;
             }
 
-            if (type = Const.DO_BLOCK_STAT()) {
-                do Display.printConst("(do-block-stat:");
+            if (type = Const.DO_BLOCK_STMT()) {
+                do Display.printConst("(do-block-stmt:");
                 do printSubItems();
-                do Display.printConst(":do-block-stat)");
+                do Display.printConst(":do-block-stmt)");
                 return;
             }
 
@@ -218,10 +218,10 @@ class Item {
                 return;
             }
 
-            if (type = Const.DO_WHILE_STAT()) {
-                do Display.printConst("(do-while-stat:");
+            if (type = Const.DO_WHILE_STMT()) {
+                do Display.printConst("(do-while-stmt:");
                 do printSubItems();
-                do Display.printConst(":do-while-stat)");
+                do Display.printConst(":do-while-stmt)");
                 return;
             }
 
@@ -232,10 +232,10 @@ class Item {
                 return;
             }
 
-            if (type = Const.DO_ITER_STAT()) {
-                do Display.printConst("(do-iter-stat:");
+            if (type = Const.DO_ITER_STMT()) {
+                do Display.printConst("(do-iter-stmt:");
                 do printSubItems();
-                do Display.printConst(":do-iter-stat)");
+                do Display.printConst(":do-iter-stmt)");
                 return;
             }
 
@@ -253,7 +253,7 @@ class Item {
                 return;
             }
 
-            if (type = Const.END_STAT()) {
+            if (type = Const.END_STMT()) {
                 do Display.printConst("(end:");
                 do printSubItems();
                 do Display.printConst(":end)");
