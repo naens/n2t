@@ -90,8 +90,10 @@ class Eva {
         var List subItems;
         var List procArgs;
         var Item procIdent;
+        var Item stmt;
         var Item arg;
         var Item subItem;
+
         if (item.isTerminal()) {
             if (item.getType() = Const.IDENT()) {
                 let identName = AstSel.identName(item);
@@ -137,6 +139,8 @@ class Eva {
             do procIdent.setBlockId(currBlockId);
             do item.setBlockId(currBlockId);
             do nextBlockId();
+            let stmt = AstSel.blockStmt(item);
+            do stmt.setBlockId(currBlockId);
             let procArgs = AstSel.procArgs(item);
 //            let procStack = procStack.prepend(currBlockId);
             while (~(procArgs = 0)) {
@@ -255,17 +259,9 @@ class Eva {
             }
         }
 
-//        do Display.printConst("-- execCall[C]: item=");
-//        do item.println();
-//        do Display.printConst("-- execCall: name=");
         let name = ident.getStringValue();
-//        do Display.printString(name);
         let blockId = ident.getBlockId();
-//        do Display.printConst(" blockId=");
-//        do Display.printInt(blockId);
-//        do Display.newline();
         let element = identMap.get(name, blockId);
-//        do Display.printConstln("execCall 2");
         if (element.isBuiltIn()) {
             return BuiltIn.execByName(name, identMap, paramValues, item);
         } else {
@@ -349,7 +345,8 @@ class Eva {
             }
 
             /* execute procedure units */
-            let blockId = procItem.getBlockId();
+            let blockId = AstSel.procInBlockId(procItem);
+            //procItem.getBlockId();
             let procType = AstSel.procType(procItem);
             while (~(procRest = 0)) {
                 let subItem = procRest.get();

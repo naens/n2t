@@ -49,11 +49,13 @@ class BuiltIn {
         let blockId = item.getBlockId();
         let tmpItem = item;
         let tmpBlockId = tmpItem.getBlockId();
-        while (~(blockId = 0)) {
+        while ( (~(blockId = 0)) & (~(tmpItem = 0)) ) {
             do BuiltIn.listByBlockId(identMap, blockId);
-            while (tmpBlockId = blockId) {
+            while ((tmpBlockId = blockId) & (~(tmpItem = 0))) {
                 let tmpItem = tmpItem.getParent();
-                let tmpBlockId = tmpItem.getBlockId();
+                if (~(tmpItem = 0)) {
+                    let tmpBlockId = tmpItem.getBlockId();
+                }
             }
             let blockId = tmpBlockId;
         }
