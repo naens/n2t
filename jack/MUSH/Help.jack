@@ -269,25 +269,99 @@ class Help {
     }
 
     function void printDoBlock() {
-        do Display.printConstln("  DoBlock");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      do");
+        do Display.printConstln("      { <var or proc declaration> }");
+        do Display.printConstln("      { <statement> }");
+        do Display.printConstln("      end");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  The do block creates and executes an");
+        do Display.printConstln("  evaluation block.  It can contain");
+        do Display.printConstln("  variable and procedure declarations,");
+        do Display.printConstln("  which are local to the do block.");
+        do Display.newline();
+        do Display.printConstln("  Example:");
+        do Display.newline();
+        do Display.printConstln("      do");
+        do Display.printConstln("        declare a integer");
+        do Display.printConstln("        a=1");
+        do Display.printConstln("        type a");
+        do Display.printConstln("      end");
         do Display.newline();
         return;
     }
 
     function void printDoWhile() {
-        do Display.printConstln("  DoWhile");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      do while <condition expression>");
+        do Display.printConstln("      { <var or proc declaration> }");
+        do Display.printConstln("      { <statement> }");
+        do Display.printConstln("      end");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  Loop block that loops while the loop");
+        do Display.printConstln("  condition expression evaluates to true.");
+        do Display.newline();
+        do Display.printConstln("  Example:");
+        do Display.newline();
+        do Display.printConstln("      do while a < 10");
+        do Display.printConstln("        type a");
+        do Display.printConstln("        a = a + 1");
+        do Display.printConstln("      end");
         do Display.newline();
         return;
     }
 
     function void printDoIter() {
-        do Display.printConstln("  DoIter");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      do <ident>=<e> to <e> [by <e>]");
+        do Display.printConstln("      { <var or proc declaration> }");
+        do Display.printConstln("      { <statement> }");
+        do Display.printConstln("      end");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  The iterative do, it assigns the value to");
+        do Display.printConstln("  a variable and adds a value to it until");
+        do Display.printConstln("  it reaches its final value.  The");
+        do Display.printConstln("  step is not required and is 1 by default.");
         do Display.newline();
         return;
     }
 
     function void printProc() {
-        do Display.printConstln("  Proc");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      declare (<ident> {<param>}) [<type>]");
+        do Display.printConstln("      { <var or proc declaration> }");
+        do Display.printConstln("      { <statement> }");
+        do Display.printConstln("      end");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  The declaration of a procedure.  Its");
+        do Display.printConstln("  parameters must be declared the same way");
+        do Display.printConstln("  as normal variables.");
+        do Display.newline();
+        do Display.printConstln("  Example:");
+        do Display.newline();
+        do Display.printConstln("      declare (fib n) integer");
+        do Display.printConstln("        declare n integer");
+        do Display.printConstln("        if n < 2 then");
+        do Display.printConstln("          return n");
+        do Display.printConstln("        else");
+        do Display.printConstln("          return (fib n-1) + (fib n-2)");
+        do Display.printConstln("      end");
         do Display.newline();
         return;
     }
