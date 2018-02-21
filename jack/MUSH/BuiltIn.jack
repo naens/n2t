@@ -43,16 +43,19 @@ class BuiltIn {
     /* list variables of every block from current to 0 */
     function void list(IdentMap identMap, Item item) {
         var integer blockId;
-        var integer tmp;
+        var integer tmpBlockId;
+        var Item tmpItem;
 
         let blockId = item.getBlockId();
+        let tmpItem = item;
+        let tmpBlockId = tmpItem.getBlockId();
         while (~(blockId = 0)) {
             do BuiltIn.listByBlockId(identMap, blockId);
-            let tmp = item.getParent();
-            while (tmp = blockId) {
-                let tmp = item.getParent();
+            while (tmpBlockId = blockId) {
+                let tmpItem = tmpItem.getParent();
+                let tmpBlockId = tmpItem.getBlockId();
             }
-            let blockId = tmp;
+            let blockId = tmpBlockId;
         }
         do BuiltIn.listByBlockId(identMap, 0);
         return;

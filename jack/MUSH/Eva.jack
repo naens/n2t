@@ -135,6 +135,7 @@ class Eva {
             do identMap.putProc(procName, currBlockId, item);
             let procIdent = AstSel.procIdent(item);
             do procIdent.setBlockId(currBlockId);
+            do item.setBlockId(currBlockId);
             do nextBlockId();
             let procArgs = AstSel.procArgs(item);
 //            let procStack = procStack.prepend(currBlockId);
@@ -144,14 +145,13 @@ class Eva {
                 let procArgs = procArgs.getNext();
             }
             let subItems = AstSel.procRest(item);
-            do item.setBlockId(currBlockId);
         } else {
             if ((item.getType() = Const.DO_BLOCK())
               | ((item.getType() = Const.DO_ITER())
                  | (item.getType() = Const.DO_WHILE()))) {
                 do pass1rec(varTable, AstSel.blockStmt(item));
-                do nextBlockId();
                 do item.setBlockId(currBlockId);
+                do nextBlockId();
                 let subItems = AstSel.blockRest(item);
             } else {
 //                if (item.getType() = Const.RETURN()) {
