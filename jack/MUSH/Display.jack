@@ -222,4 +222,57 @@ class Display {
         do Output.moveCursor(row, column);
         return;
     }
+
+    /* shift screen an amount of 16-bit words, osh=supplementary 1 char shift */
+    function void shiftLineLeftWords(integer line, integer n, boolean osh) {
+        var integer to;
+        var integer swds;	/* size of screen in words of 16 bits */
+        var integer y;
+        var integer x;
+        var Array RAM;
+        var integer linestart;
+        var integer tmp;
+        var integer prev;
+        var integer tmpl;
+
+        let swds = (Const.SCREEN_WIDTH() * Const.CHAR_WIDTH()) / 16;
+        let to = Const.SCREEN() + ((line * Const.CHAR_HEIGHT()) * swds);
+        let y = 0;
+        while (y < Const.CHAR_HEIGHT()) {
+            let x = n;
+            while (x < swds) {
+                let linestart = to + (y*swds);
+                let tmp = RAM[linestart + x];
+                if (osh) {
+                    let tmpl = tmp & 255;
+                    if (x > 1) {
+                        let prev = RAM[((linestart + x) - n) - 1];
+                        let prev = (tmpl * 256) | (prev & 255);
+                        let RAM[((linestart + x) - n) - 1] = prev;
+                    }
+                    let tmp = tmp / 256;
+                }
+                let RAM[(linestart + x) - n] = tmp;
+                let x = x + 1;
+            }
+//            do Display.printConst("linestart=");
+//            do Display.printInt(linestart);
+//            do Display.newline();
+            let y = y + 1;
+        }
+        return;
+    }
+
+    function void shiftPrevLineCharsLeft(integer n) {
+        var boolean oddShift;
+        var integer wdShift;
+    
+        if (row = 0) {
+            return;
+        }
+        let wdShift = n / 2;
+        let oddShift = ((n&1) = 1);
+        do Display.shiftLineLeftWords(row-1, wdShift, oddShift);
+        return;
+    }
 }

@@ -1,0 +1,223 @@
+class Indent {
+
+    field integer B;	/* block or procedure */
+    field integer Ii;	/* after if */
+    field integer I;	/* used if, can get an 'else' */
+    field integer Ie;	/* after else */
+    field integer E;
+    field integer shift;
+
+    field List list;
+
+    method void push(integer n) {
+        if (list = 0) {
+            let list = List.new(n);
+        } else {
+            let list = list.prepend(n);
+        }
+        return;
+    }
+
+    method void delFirst() {
+        if (~(list = 0)) {
+            let list = list.deleteFirst();
+        }
+        return;
+    }
+
+    method integer top() {
+        if (list = 0) {
+            return E;
+        } else {
+            return list.get();
+        }
+    }
+
+    constructor Indent new() {
+        let B = 11;
+        let Ii = 111;
+        let I = 1111;
+        let Ie = 11111;
+        let E = 1234;	/* empty */
+        let list = 0;
+        let shift = 0;
+        return this;
+    }
+
+    method integer count() {
+        var List tmp;
+        var integer last;
+        var integer current;
+        var integer result;
+
+        let result = 0;
+        let tmp = list;
+        let last = 0;
+        while (~(tmp = 0)) {
+            let current = tmp.get();
+//            do Display.printConst("current=");
+//            do print(current);
+//            do Display.newline();
+            if (~(current = I)) {
+                let result = result + 1;
+            }
+            if (((current = Ii) | (current = Ie)) & (last = B)) {
+                let result = result - 1;
+            }
+
+            let tmp = tmp.getNext();
+            let last = current;
+        }
+
+        return result;
+    }
+
+    method void print(integer current) {
+        if (current = B) {
+            do Display.printConst("{B}");
+        }
+        if (current = Ii) {
+            do Display.printConst("{Ii}");
+        }
+        if (current = I) {
+            do Display.printConst("{I}");
+        }
+        if (current = Ie) {
+            do Display.printConst("{Ie}");
+        }
+        if (current = E) {
+            do Display.printConst("{E}");
+        }
+        if (current = 0) {
+            do Display.printConst("{0}");
+        }
+        return;
+    }
+
+    method integer getShift() {
+        return shift;
+    }
+
+    method void block() {
+        var integer n;
+        let n = top();
+        let shift = 0;
+        if (n = I) {
+            do list.set(B);
+            return;
+        } else {
+            if ((n = Ii) | (n = Ie)) {
+                let shift = 1;
+            }
+            do push(B);
+            return;
+        }
+    }
+
+    method void end() {
+        var integer n;
+        var integer c;
+        let c = 1;
+        let n = top();
+        while (~(n = B)) {
+            do delFirst();
+            let n = top();
+            let c = c + 1;
+        }
+        do delFirst();
+        do cmd();	/* run cmd subroutine */
+        let shift = c;
+        return;
+    }
+
+    method void cond() {
+        let shift = 0;
+        if (list = 0) {
+            do push(Ii);
+            return;
+        }
+        if (list.get() = I) {
+            do list.set(Ii);
+            return;
+        } else {
+            do push(Ii);
+            return;
+        }
+    }
+
+    method void elseif() {
+        let shift = 0;
+        do list.set(Ii);
+        return;
+    }
+
+    method void kwelse() {
+        let shift = 0;
+        do list.set(Ie);
+        return;
+    }
+
+    method void cmd() {
+        var integer n;
+        let shift = 0;
+        if (list = 0) {
+            return;
+        }
+        let n = list.get();
+        if (n = I) {
+            do delFirst();
+            let n = top();
+            while ((n = Ii) | (n = Ie)) {
+                do delFirst();
+                let n = top();
+            }
+            return;
+        }
+        while (n = Ie) {
+            do delFirst();
+            let n = top();
+        }
+        if (n = Ii) {
+            do list.set(I);
+        }
+        return;
+    }
+
+    method void line(Item item) {
+        if (item.getType() = Const.PROC_STMT()) {
+            do block();
+            return;
+        }
+        if (item.getType() = Const.DO_BLOCK_STMT()) {
+            do block();
+            return;
+        }
+        if (item.getType() = Const.DO_ITER_STMT()) {
+            do block();
+            return;
+        }
+        if (item.getType() = Const.DO_WHILE_STMT()) {
+            do block();
+            return;
+        }
+        if (item.getType() = Const.END_STMT()) {
+            do end();
+            return;
+        }
+        if (item.getType() = Const.IF_STMT()) {
+            do cond();
+            return;
+        }
+        if (item.getType() = Const.ELSE_IF_STMT()) {
+            do elseif();
+            return;
+        }
+        if (item.getType() = Const.KW_ELSE()) {
+            do kwelse();
+            return;
+        }
+        do cmd();
+        return;
+    }
+
+}

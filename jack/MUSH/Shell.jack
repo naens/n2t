@@ -59,10 +59,14 @@ class Shell {
         var Eva eva;
         var Value value;
         var integer i;
+        var Indent indent;
+        var integer indentAmount;
+        var integer indentShift;
 
         let tokenizer = Tokenizer.new();
         let ifs = Ifs.new();
         let eva = Eva.new();
+        let indent = Indent.new();
         let depth = 0;
         let value = 0;
 
@@ -74,36 +78,29 @@ class Shell {
 //            do Display.println(line);
 //            do Display.newline();
             do tokenizer.setLine(line);
-//            do Display.printConst("-- line=");
-//            do Display.printString(line);
-//            do Display.newline();
             let item = LineParser.parseLine(tokenizer); //tokenizer is clean
             if (~(item = 0)) {
-//                do Display.printConstln("parsing expression ok");
-//                do item.print();
-//                do Display.newline();
+                do indent.line(item);
+                let indentShift = indent.getShift();
+                if (indentShift > 0) {
+                    do Display.shiftPrevLineCharsLeft(indentShift * 2);
+                }
                 if (depth = 0) {
                     if (isBlockStmt(item)) {
-//                        do Display.printConstln("set depth 1, append");
                         do tokenizer.appendNode(item);
                     } else {
                         if (item.getType() = Const.IF_STMT()) {
-//                            do Display.printConstln("IF");
                             let ifCondItem = AstSel.ifCond(item);
                             let ifVal = eva.evaluate(ifCondItem);
-//                            do Display.printConst("-- if: ");
-//                            do ifVal.println();
                             let ifValBool = ifVal.getBooleanValue();
                             let cond = Cond.new(ifValBool);
                             do ifVal.dispose();
                             do ifs.ifCond(cond);
                         } else {
                             if (item.getType() = Const.KW_ELSE()) {
-//                                do Display.printConstln("else");
                                 do ifs.ifReverse();
                             } else {
                                 if (item.getType() = Const.ELSE_IF_STMT()) {
-//                                    do Display.printConstln("else");
                                     do ifs.ifReverse();
                                     let ifCondItem = AstSel.elseIfCond(item);
                                     let ifVal = eva.evaluate(ifCondItem);
@@ -113,8 +110,6 @@ class Shell {
                                     do ifs.ifCond(cond);
                                 } else {
                                     if (ifs.checkIfs()) {
-                                    /* evaluate expression and print value */
-//                                        do Display.printConstln("evaluate item");
                                         let value = eva.evaluate(item);
                                         if (~(item = 0)) {
                                             if (~(item.getType()
@@ -122,48 +117,26 @@ class Shell {
                                                 do item.deepDispose();
                                             }
                                         }
-//                                        do Display.printString("value=");
-//                                        do Display.printInt(value);
-//                                        do Display.newline();
-//                                        if (value = 0) {
-//                                            do Display.printConstln("-");
-//                                        } else {
-//                                            do value.println();
-//                                        }
                                     }
                                 }
                             }
                         }
                     }
                 } else {
-//                    do Display.printConstln("depth > 0, append");
                     do tokenizer.appendNode(item);
                     if ((depth = 1) & (item.getType() = Const.END_STMT())) {
-//                        do Display.printConstln("set depth 0, parse");
                         let block = ParseLines.parseBlock(tokenizer);
                         if (block = 0) {
                             do Display.printConstln("bad block");
                         }
-/*
-                         else {
-                            do Display.printConst("parsed: ");
-                            do block.print();
-                            do Display.newline();
-                        }
-*/
                         if (ifs.checkIfs()) {
-                        /* evaluate expression and print value */
-//                            do Display.printConstln("evaluate block");
+                            /* evaluate expression and print value */
                             let value = eva.evaluate(block);
                             if (~(block = 0)) {
                                 if(~(block.getType() = Const.PROC_DECL())) {
                                     do block.deepDispose();
                                 }
                             }
-//                            do Display.printString("value=");
-//                            do Display.printInt(value);
-//                            do Display.newline();
-//                            do value.println();
                         }
                     }
                 }
@@ -173,6 +146,8 @@ class Shell {
                 if (item.getType() = Const.END_STMT()) {
                     let depth = depth - 1;
                 }
+            } else  {
+                let indentShift = 0;
             }
 
             /* TODO: QUIT/EXIT = command to be interpreted */
@@ -195,14 +170,19 @@ class Shell {
                     do Display.printConst(">");
                 }
 */
-                if (depth = 0) {
-                    do Display.printString(prompt);
+                let indentShift = indent.getShift();
+                do Display.printInt(indentShift);
+                do Display.printConst("|");
+                let indentAmount = indent.count();
+                if (indentAmount = 0) {
+                    do Display.printConst("  >");
+//                    do Display.printString(prompt);
                 } else {
-                    do Display.printConst("     ");
+                    do Display.printConst("   ");
                 }
                 let i = 0;
                 /* TODO: add if levels, ?shift do after if, ends */
-                while (i < depth) {
+                while (i < indentAmount) {
                     do Display.printConst("  ");
                     let i = i + 1;
                 }
