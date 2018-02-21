@@ -41,9 +41,15 @@ class Help {
                 let valid = true;
             }
 
-            /* statements */
-            if (Tools.stringEqConst(line, "stmt")) {
-                do Help.printStmt();
+            /* assignments */
+            if (Tools.stringEqConst(line, "assign")) {
+                do Help.printAssign();
+                let valid = true;
+            }
+
+            /* calls */
+            if (Tools.stringEqConst(line, "call")) {
+                do Help.printCall();
                 let valid = true;
             }
 
@@ -102,10 +108,10 @@ class Help {
     function void printTopics() {
         do Display.printConstln("Topics available:");
         do Display.newline();
-        do Display.printConstln("help        clear       doblock     clear");
-        do Display.printConstln("list        var         dowhile     quit");
-        do Display.printConstln("type        stmt        doiter");
-        do Display.printConstln("about       cond        proc");
+        do Display.printConstln("help        clear       cond        proc");
+        do Display.printConstln("list        var         doblock     clear");
+        do Display.printConstln("type        assign      dowhile     quit");
+        do Display.printConstln("about       call        doiter");
         do Display.newline();
         return;
     }
@@ -157,20 +163,107 @@ class Help {
         return;
     }
 
+    /* How to declare variables */
     function void printVar() {
-        do Display.printConstln("  Var");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      declare <identifier name> <type>");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  Identifiers can contain lowercase letters,");
+        do Display.printConstln("  numbers, and the dollar sign.  They must");
+        do Display.printConstln("  start with a lowercase letter.  The ");
+        do Display.printConstln("  dollar sign is not significant.");
+        do Display.newline();
+        do Display.printConstln("  The type can be integer, boolean, and");
+        do Display.printConstln("  string.  Integers are signed 16-bit");
+        do Display.printConstln("  integers.  Strings are sequences of");
+        do Display.printConstln("  single-byte characters.  Booleans are");
+        do Display.printConstln("  variables which can only contain");
+        do Display.printConstln("  predefined constants true and false.");
+        do Display.newline();
+        do Display.printConstln("  Example:");
+        do Display.newline();
+        do Display.printConstln("      declare s string");
         do Display.newline();
         return;
     }
 
-    function void printStmt() {
-        do Display.printConstln("  Stmt");
+    /* Assignments and procedure calls */ 
+    function void printAssign() {
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      <idntifier> = <expression>");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  The expression must return the result of");
+        do Display.printConstln("  the same type as the variable.  It can");
+        do Display.printConstln("  be a literal, a variable or a procedure");
+        do Display.printConstln("  call.");
+        do Display.newline();
+        do Display.printConstln("  Examples:");
+        do Display.newline();
+        do Display.printConstln("      MUSH>i = 4 + a");
+        do Display.printConstln("      MUSH>name = 'Talon'");
+        do Display.printConstln("      MUSH>must$continue = false");
+        do Display.printConstln("      MUSH>j = 4 + (max a b*b)");
         do Display.newline();
         return;
     }
 
+    /* Procedure calls */
+    function void printCall() {
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      <idntifier> [<argument expressions>]");
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  There are two kinds of procedures: which");
+        do Display.printConstln("  return a value and those who don't.");
+        do Display.newline();
+        do Display.printConstln("  If a procedure doesn't return a value, it");
+        do Display.printConstln("  cannot be used inside an expression.");
+        do Display.printConstln("  If a procedure returns a value and");
+        do Display.printConstln("  requires arguments, then it must be used");
+        do Display.printConstln("  inside parentheses.");
+        do Display.newline();
+        do Display.printConstln("  Examples:");
+        do Display.newline();
+        do Display.printConstln("      MUSH>type (sum 4 5)");
+        do Display.printConstln("      MUSH>a=40*(f 4)");
+        do Display.printConstln("      MUSH>ff 800");
+        do Display.newline();
+        return;
+    }
+
+    /* if, else and else-if */
     function void printCond() {
-        do Display.printConstln("  Cond");
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      if <conditional expression> then");
+        do Display.printConstln("        <block or statement>");
+        do Display.printConstln("    { else if <conditional expression> then");
+        do Display.printConstln("        <block or statement> }");
+        do Display.printConstln("    [ else");
+        do Display.printConstln("        <block or statement> ]");  
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  These statements evaluate conditional");
+        do Display.printConstln("  expression and execute appropriate block");
+        do Display.printConstln("  or statement.  In case of several if");
+        do Display.printConstln("  statements and a single else, the block");
+        do Display.printConstln("  or statement following the else is");
+        do Display.printConstln("  execute if the value of the expression");
+        do Display.printConstln("  of the last if before it evaluates to");
+        do Display.printConstln("  false.");
         do Display.newline();
         return;
     }
