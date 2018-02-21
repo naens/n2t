@@ -171,17 +171,16 @@ class Shell {
                 }
 */
                 let indentShift = indent.getShift();
-                do Display.printInt(indentShift);
-                do Display.printConst("|");
+//                do Display.printInt(indentShift);
+//                do Display.printConst("|");
                 let indentAmount = indent.count();
                 if (indentAmount = 0) {
-                    do Display.printConst("  >");
-//                    do Display.printString(prompt);
+//                    do Display.printConst("  >");
+                    do Display.printString(prompt);
                 } else {
-                    do Display.printConst("   ");
+                    do Display.printConst("     ");
                 }
                 let i = 0;
-                /* TODO: add if levels, ?shift do after if, ends */
                 while (i < indentAmount) {
                     do Display.printConst("  ");
                     let i = i + 1;
