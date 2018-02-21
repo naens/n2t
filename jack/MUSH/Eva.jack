@@ -65,6 +65,10 @@ class Eva {
         }
     }
 
+    method boolean checkProcName(String procName) {
+        return ~(Eva.checkDeclared(identMap, procName, 0));
+    }
+
     /* pass1: variable declaration: save in block id in vartable
      *        procedure declaration: save in block id in vartable
      *                               save in identmap
@@ -112,10 +116,8 @@ class Eva {
         if (item.getType() = Const.VAR_DECL()) {
             let varName = AstSel.varName(item);
             let type = AstSel.varType(item);
-            if (currBlockId > 0) {
-                if (Eva.checkDeclared(identMap, varName, currBlockId)) {
-                    return false;
-                }
+            if (Eva.checkDeclared(identMap, varName, currBlockId)) {
+                return false;
             }
             do pass1rec(varTable, AstSel.varRest(item));
             do identMap.putVar(varName, currBlockId, type);
@@ -126,10 +128,8 @@ class Eva {
 
         if (item.getType() = Const.PROC_DECL()) {
             let procName = AstSel.procName(item);
-            if (currBlockId > 0) {
-                if (Eva.checkDeclared(identMap, procName, currBlockId)) {
-                    return false;
-                }
+            if (Eva.checkDeclared(identMap, procName, currBlockId)) {
+                return false;
             }
             do varTable.put(procName, currBlockId);
             do identMap.putProc(procName, currBlockId, item);

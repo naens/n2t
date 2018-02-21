@@ -62,6 +62,7 @@ class Shell {
         var Indent indent;
         var integer indentAmount;
         var integer indentShift;
+        var boolean procDeclOK;
 
         let tokenizer = Tokenizer.new();
         let ifs = Ifs.new();
@@ -72,13 +73,25 @@ class Shell {
 
         do Display.printString(prompt);
         let line = Display.readln();
-//        while (~Tools.stringEqConst(line, "quit")) {
         while (~(value = Const.QUIT())) {
-//            do Display.printConst("You entered: ");
-//            do Display.println(line);
-//            do Display.newline();
             do tokenizer.setLine(line);
             let item = LineParser.parseLine(tokenizer); //tokenizer is clean
+
+            if (depth = 0) {
+                /* prevent toplevel procedure declaration if name taken */
+                if (item.getType() = Const.PROC_STMT()) {
+                    if (~(eva.checkProcName(AstSel.procStmtName(item)))) {
+                        do tokenizer.appendNode(item);
+                        let item = 0;
+                    }
+                }
+                /* no end on top level */
+                if (item.getType() = Const.END_STMT()) {
+                    do Display.printConstln("error: end without block");
+                    let item = 0;
+                }
+            }
+
             if (~(item = 0)) {
                 do indent.line(item);
                 let indentShift = indent.getShift();
@@ -88,7 +101,9 @@ class Shell {
                 if (depth = 0) {
                     if (isBlockStmt(item)) {
                         do tokenizer.appendNode(item);
+                        let depth = 1;
                     } else {
+//                        do indent.line(item);
                         if (item.getType() = Const.IF_STMT()) {
                             let ifCondItem = AstSel.ifCond(item);
                             let ifVal = eva.evaluate(ifCondItem);
@@ -123,6 +138,7 @@ class Shell {
                         }
                     }
                 } else {
+//                    do indent.line(item);
                     do tokenizer.appendNode(item);
                     if ((depth = 1) & (item.getType() = Const.END_STMT())) {
                         let block = ParseLines.parseBlock(tokenizer);
@@ -139,12 +155,12 @@ class Shell {
                             }
                         }
                     }
-                }
-                if (isBlockStmt(item)) {
-                    let depth = depth + 1;
-                 }
-                if (item.getType() = Const.END_STMT()) {
-                    let depth = depth - 1;
+                    if (isBlockStmt(item)) {
+                        let depth = depth + 1;
+                    }
+                    if (item.getType() = Const.END_STMT()) {
+                        let depth = depth - 1;
+                    }
                 }
             } else  {
                 let indentShift = 0;
