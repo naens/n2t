@@ -151,6 +151,36 @@ class IdentMap {
         return;
     }
 
+    method boolean delete(String name, integer blockId) {
+        var List list;
+        var List prev;
+        var integer h;
+        var IdentMapNode node;
+        let h = IdentMap.hash(name, blockId);
+        let list = table[h];
+        let prev = 0;
+
+        while (~(list = 0)) {
+            let node = list.get();
+            if (Tools.stringEquals(node.getName(), name)
+                 & (node.getBlockId() = blockId)) {
+                 if (prev = 0) {
+                     let table[h] = list.getNext();
+                 } else {
+                     do prev.setNext(list.getNext());
+                 }
+                 do list.setNext(0);
+                 do list.dispose();
+                 do node.dispose();
+                 return true;
+            }
+            let prev = list;
+            let list = list.getNext();
+            do Display.printConstln("next");
+        }
+        return false;
+    }
+
     method void dispose() {
         var List list;
         var integer i;

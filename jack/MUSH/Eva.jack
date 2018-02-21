@@ -44,6 +44,7 @@ class Eva {
         do identMap.putBuiltIn("quit", 0, Const.T_PROCEDURE());
         do identMap.putBuiltIn("help", 0, Const.T_PROCEDURE());
         do identMap.putBuiltIn("clear", 0, Const.T_PROCEDURE());
+        do identMap.putBuiltIn("delete", 0, Const.T_PROCEDURE());
 
         return this;
     }

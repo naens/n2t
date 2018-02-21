@@ -29,6 +29,7 @@ class IdentMapNode {
     }
 
     method void dispose() {
+        do element.dispose();
         do Memory.deAlloc(this);
         return;
     }

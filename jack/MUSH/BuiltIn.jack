@@ -22,7 +22,10 @@ class BuiltIn {
             do Display.clear();
             return 0;
         }
-        /* TODO: assign, ?exec/run/eval, ?erase/del/unset */
+        if (Tools.stringEqConst(name, "delete")) {
+            do BuiltIn.delete(identMap, values, item);
+            return 0;
+        }
         return 0;
     }
 
@@ -93,6 +96,25 @@ class BuiltIn {
                 let list = list.getNext();
             }
             let i = i + 1;
+        }
+        return;
+    }
+
+    function void delete(IdentMap identMap, List values, Item item) {
+        var Value value;
+        var String name;
+        var integer blockId;
+
+        let value = values.get();
+        if (~(value.getType() = Const.T_STRING())) {
+            return;
+        }
+        let name = value.getStringValue();
+        let blockId = item.getBlockId();
+        if (~(identMap.delete(name, blockId))) {
+            do Display.printConst("delete: ");
+            do Display.printString(name);
+            do Display.printConstln(" not found.");
         }
         return;
     }

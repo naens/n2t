@@ -82,9 +82,18 @@ class Element {
     }
 
     method void dispose() {
-        if (~(valueStack = 0)) {
-            do valueStack.dispose();
+        var Value value;
+
+        if ((~builtIn) & isProc()) {
+            do procedureItem.deepDispose();
+        } else {
+            while (~(valueStack = 0)) {
+                let value = valueStack.get();
+                do value.dispose();
+                let valueStack = valueStack.deleteFirst();
+            }
         }
+        
         do Memory.deAlloc(this);
         return;
     }

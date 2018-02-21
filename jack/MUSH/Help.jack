@@ -88,6 +88,11 @@ class Help {
                 let valid = true;
             }
 
+            if (Tools.stringEqConst(line, "delete")) {
+                do Help.printDelete();
+                let valid = true;
+            }
+
             if (Tools.stringEqConst(line, "quit")) {
                 do Help.printQuit();
                 let valid = true;
@@ -110,8 +115,8 @@ class Help {
         do Display.newline();
         do Display.printConstln("help        clear       cond        proc");
         do Display.printConstln("list        var         doblock     clear");
-        do Display.printConstln("type        assign      dowhile     quit");
-        do Display.printConstln("about       call        doiter");
+        do Display.printConstln("type        assign      dowhile     delete");
+        do Display.printConstln("about       call        doiter      quit");
         do Display.newline();
         return;
     }
@@ -370,6 +375,19 @@ class Help {
         do Display.newline();
         do Display.printConstln("  The \"clear\" command erases the screen");
         do Display.printConstln("  and positions the cursor at posotion 0,0.");
+        do Display.newline();
+        return;
+    }
+
+    function void printDelete() {
+        do Display.newline();
+        do Display.printConstln("  Syntax:");
+        do Display.newline();
+        do Display.printConstln("      delete '<identifier name>'");
+        do Display.newline();
+        do Display.printConstln("  Deletes a variable in current block.");
+        do Display.printConstln("  Needed when the name for a variable is");
+        do Display.printConstln("  already in use in current block.");
         do Display.newline();
         return;
     }
