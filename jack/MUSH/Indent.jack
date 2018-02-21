@@ -157,7 +157,9 @@ class Indent {
 
     method void kwelse() {
         let shift = 0;
-        do list.set(Ie);
+        if (~(list = 0)) {
+            do list.set(Ie);
+        }
         return;
     }
 

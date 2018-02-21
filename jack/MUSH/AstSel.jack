@@ -51,12 +51,16 @@ class AstSel {
         var List subItems;
         var Item item;
         let subItems = procDecl.getSubItems();
-        let item = subItems.get(); /* proc_stmt */
-        let subItems = item.getSubItems();
-        while ((~(item.getType() = Const.IDENT()))) {
-            let subItems = subItems.getNext();
-            let item = subItems.get();
-        }
+        return AstSel.procStmtName(subItems.get());
+    }
+
+    function String procStmtName(Item procStmt) {
+        var List subItems;
+        var Item item;
+        let subItems = procStmt.getSubItems(); /* declare */
+        let subItems = subItems.getNext();	   /* par_op */
+        let subItems = subItems.getNext();	   /* ident */
+        let item = subItems.get();
         return item.getStringValue();
     }
 
