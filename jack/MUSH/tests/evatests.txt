@@ -141,46 +141,46 @@ MUSH>end
 *** a. no return value tests
 **** proc test a1
 MUSH>declare (p)
-DEP1>type 'abcd'
-DEP1>end p
+       type 'abcd'
+     end p
 MUSH>p
 'abcd'
 
 **** proc test a2
 MUSH>declare (pp n)
-DEP1>declare n integer
-DEP1>type n*7
-DEP1>end pp
+       declare n integer
+       type n*7
+     end pp
 MUSH>pp 213
 1491
 
 **** proc test a3
 MUSH>declare s string
 MUSH>declare (proc)
-DEP1>type s
+       type s
 end proc
 MUSH>declare (scope)
-DEP1>declare s string
-DEP1>s='dynamic'
-DEP1>proc
-DEP1>end scope
+       declare s string
+       s='dynamic'
+       proc
+     end scope
 MUSH>s='lexical'
 MUSH>scope
 'lexical'
 
 **** proc test a4
 MUSH>declare (test)
-DEP1>declare x integer
-DEP1>declare (test2 n)
-DEP2>declare n integer
-DEP2>x=x+n
-DEP2>type x
-DEP2>end test2
-DEP1>x=100
-DEP1>test2 1
-DEP1>test2 2
-DEP1>test2 3
-DEP1>end test
+       declare x integer
+       declare (test2 n)
+         declare n integer
+         x=x+n
+         type x
+       end test2
+       x=100
+       test2 1
+       test2 2
+       test2 3
+     end test2
 MUSH>test
 101
 103
@@ -189,15 +189,15 @@ MUSH>test
 *** b. procedures with return value
 **** proc test b1
 MUSH>declare (sum n) integer
-DEP1>declare n integer
-DEP1>declare r integer
-DEP1>r=0
-DEP1>do while n > 0
-DEP1>r=r+n
-DEP1>n=n-1
-DEP1>end
-DEP1>return r
-DEP1>end sum
+       declare n integer
+       declare r integer
+       r=0
+       do while n > 0
+         r=r+n
+         n=n-1
+       end
+       return r
+     end sum
 MUSH>type (sum 4)
 10
 MUSH>type (sum 7)
@@ -205,12 +205,12 @@ MUSH>type (sum 7)
 
 **** proc test b2
 MUSH>declare (fib n) integer
-DEP1>declare n integer
-DEP1>if n < 2 then
-DEP1>return n
-DEP1>else
-DEP1>return (fib n-1) + (fib n-2)
-DEP1>end fib
+       declare n integer
+       if n < 2 then
+         return n
+       else
+         return (fib n-1) + (fib n-2)
+     end fib
 MUSH>type (fib 4)
 3
 MUSH>type (fib 7)
@@ -218,21 +218,21 @@ MUSH>type (fib 7)
 
 **** proc test b3
 MUSH>declare (mult a b) integer
-DEP1>declare a integer
-DEP1>declare b integer
-DEP1>declare (rec a b acc) integer
-DEP2>declare a integer
-DEP2>declare b integer
-DEP2>declare acc integer
-DEP2>if b = 0 then
-DEP2>return acc
-DEP2>else if b-b/2*2 = 0 then
-DEP2>return (rec 2*a b/2 acc)
-DEP2>else
-DEP2>return (rec a b-1 acc+a)
-DEP2>end rec
-DEP1>return (rec a b 0)
-DEP1>end mult
+       declare a integer
+       declare b integer
+       declare (rec a b acc) integer
+         declare a integer
+         declare b integer
+         declare acc integer
+         if b = 0 then
+           return acc
+         else if b-b/2*2 = 0 then
+           return (rec 2*a b/2 acc)
+         else
+           return (rec a b-1 acc+a)
+       end rec
+       return (rec a b 0)
+     end mult
 MUSH>type (mult 3 6)
 18
 MUSH>type (mult 17 77)
