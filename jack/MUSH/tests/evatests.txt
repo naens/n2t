@@ -24,7 +24,7 @@ MUSH>type 5*4
 20
 
 **** term test2
-MUSH>type -18/(-4)
+MUSH>type (-18/(-4))
 4
 
 **** term test3
@@ -90,9 +90,9 @@ MUSH>type a
 1
 MUSH>do
 MUSH>declare a integer
-MUSH>a=10
-MUSH>type a
-MUSH>end
+       a=10
+       type a
+     end
 10
 MUSH>type a
 1
@@ -106,9 +106,9 @@ MUSH>a=7
 MUSH>b=8
 MUSH>c=0
 MUSH>do while a > 0
-MUSH>c=c+b
-MUSH>a=a-1
-MUSH>end
+       c=c+b
+       a=a-1
+     end
 MUSH>type c
 56
 
@@ -116,8 +116,8 @@ MUSH>type c
 **** do_iter1
 MUSH>declare a integer
 MUSH>do a=5 to 9 by 2
-MUSH>type a
-MUSH>end
+       type a
+     end
 5
 7
 9
@@ -125,11 +125,11 @@ MUSH>end
 **** do_iter2
 MUSH>declare a integer
 MUSH>do a=4 to 6
-MUSH>declare x integer
-MUSH>x=a*2
-MUSH>type a
-MUSH>type x
-MUSH>end
+       declare x integer
+       x=a*2
+       type a
+       type x
+    end
 4
 8
 5
@@ -144,7 +144,7 @@ MUSH>declare (p)
        type 'abcd'
      end p
 MUSH>p
-'abcd'
+abcd
 
 **** proc test a2
 MUSH>declare (pp n)
@@ -158,7 +158,7 @@ MUSH>pp 213
 MUSH>declare s string
 MUSH>declare (proc)
        type s
-end proc
+     end proc
 MUSH>declare (scope)
        declare s string
        s='dynamic'
@@ -166,7 +166,7 @@ MUSH>declare (scope)
      end scope
 MUSH>s='lexical'
 MUSH>scope
-'lexical'
+lexical
 
 **** proc test a4
 MUSH>declare (test)
