@@ -48,12 +48,14 @@ class BuiltIn {
         var integer blockId;
         var integer tmpBlockId;
         var Item tmpItem;
+        var VarTable varTable;
 
+        let varTable = VarTable.new();
         let blockId = item.getBlockId();
         let tmpItem = item;
         let tmpBlockId = tmpItem.getBlockId();
         while ( (~(blockId = 0)) & (~(tmpItem = 0)) ) {
-            do BuiltIn.listByBlockId(identMap, blockId);
+            do BuiltIn.listByBlockId(identMap, blockId, varTable);
             while ((tmpBlockId = blockId) & (~(tmpItem = 0))) {
                 let tmpItem = tmpItem.getParent();
                 if (~(tmpItem = 0)) {
@@ -62,12 +64,16 @@ class BuiltIn {
             }
             let blockId = tmpBlockId;
         }
-        do BuiltIn.listByBlockId(identMap, 0);
+        do BuiltIn.listByBlockId(identMap, 0, varTable);
+        do varTable.dispose();
         return;
     }
 
-    /* list function: list variable names in IdentMap with blockId */
-    function void listByBlockId(IdentMap identMap, integer blockId) {
+    /* list function: list variable names in IdentMap with blockId
+     * varable names are added to the varTable and are not printed if
+     * they are already there */
+    function void listByBlockId(IdentMap identMap, integer blockId,
+            VarTable varTable) {
         var Array table;
         var List list;
         var integer i;
@@ -86,12 +92,15 @@ class BuiltIn {
                 let node = list.get();
                 if (node.getBlockId() = blockId) {
                     let name = node.getName();
-                    do Display.printString(name);
-                    do Display.printConst(": ");
-                    let element = node.getElement();
-                    let type = element.getType();
-                    do AstPrint.type(type);
-                    do Display.newline();
+                    if (varTable.get(name) = (-1)) {
+                        do Display.printString(name);
+                        do Display.printConst(": ");
+                        let element = node.getElement();
+                        let type = element.getType();
+                        do AstPrint.type(type);
+                        do Display.newline();
+                        do varTable.put(name, blockId);
+                    }
                 }
                 let list = list.getNext();
             }
