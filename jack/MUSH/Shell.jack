@@ -85,11 +85,12 @@ class Shell {
                             do tokenizer.appendNode(item);
                             let item = 0;
                         }
-                    }
-                    /* no end on top level */
-                    if (item.getType() = Const.END_STMT()) {
-                        do Display.printConstln("error: end without block");
-                        let item = 0;
+                    } else {
+                        /* no end on top level */
+                        if (item.getType() = Const.END_STMT()) {
+                            do Display.printConstln("error: end without block");
+                            let item = 0;
+                        }
                     }
                 }
             }
