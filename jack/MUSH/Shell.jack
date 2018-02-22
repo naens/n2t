@@ -77,18 +77,20 @@ class Shell {
             do tokenizer.setLine(line);
             let item = LineParser.parseLine(tokenizer); //tokenizer is clean
 
-            if (depth = 0) {
-                /* prevent toplevel procedure declaration if name taken */
-                if (item.getType() = Const.PROC_STMT()) {
-                    if (~(eva.checkProcName(AstSel.procStmtName(item)))) {
-                        do tokenizer.appendNode(item);
+            if (~(item = 0)) {
+                if (depth = 0) {
+                    /* prevent toplevel procedure declaration if name taken */
+                    if (item.getType() = Const.PROC_STMT()) {
+                        if (~(eva.checkProcName(AstSel.procStmtName(item)))) {
+                            do tokenizer.appendNode(item);
+                            let item = 0;
+                        }
+                    }
+                    /* no end on top level */
+                    if (item.getType() = Const.END_STMT()) {
+                        do Display.printConstln("error: end without block");
                         let item = 0;
                     }
-                }
-                /* no end on top level */
-                if (item.getType() = Const.END_STMT()) {
-                    do Display.printConstln("error: end without block");
-                    let item = 0;
                 }
             }
 

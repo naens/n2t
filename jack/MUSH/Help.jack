@@ -47,6 +47,24 @@ class Help {
                 let valid = true;
             }
 
+            /* integer expressions */
+            if (Tools.stringEqConst(line, "integer")) {
+                do Help.printInteger();
+                let valid = true;
+            }
+
+            /* boolean expressions */
+            if (Tools.stringEqConst(line, "boolean")) {
+                do Help.printBoolean();
+                let valid = true;
+            }
+
+            /* string expressions */
+            if (Tools.stringEqConst(line, "string")) {
+                do Help.printString();
+                let valid = true;
+            }
+
             /* calls */
             if (Tools.stringEqConst(line, "call")) {
                 do Help.printCall();
@@ -113,10 +131,12 @@ class Help {
     function void printTopics() {
         do Display.printConstln("Topics available:");
         do Display.newline();
-        do Display.printConstln("help        clear       cond        proc");
-        do Display.printConstln("list        var         doblock     clear");
-        do Display.printConstln("type        assign      dowhile     delete");
-        do Display.printConstln("about       call        doiter      quit");
+        do Display.printConstln("type        var         cond");
+        do Display.printConstln("list        integer     doblock");
+        do Display.printConstln("clear       boolean     dowhile");
+        do Display.printConstln("delete      string      doiter");
+        do Display.printConstln("help        assign      proc");
+        do Display.printConstln("quit        call        about");
         do Display.newline();
         return;
     }
@@ -216,6 +236,63 @@ class Help {
         do Display.printConstln("      MUSH>name = 'Talon'");
         do Display.printConstln("      MUSH>must$continue = false");
         do Display.printConstln("      MUSH>j = 4 + (max a b*b)");
+        do Display.newline();
+        return;
+    }
+
+    function void printInteger() {
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  Integer expressions are made from integer");
+        do Display.printConstln("  operators (+, -, *, /, mod), integer");
+        do Display.printConstln("  literals, variables containing integer ");
+        do Display.printConstln("  values and procedure that return integers.");
+        do Display.newline();
+        do Display.printConstln("  Examples:");
+        do Display.newline();
+        do Display.printConstln("      5 - 6");
+        do Display.printConstln("      -5*a - (max d (-f))");
+        do Display.newline();
+        return;
+    }
+
+    function void printBoolean() {
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  Boolean expressions can be boolean");
+        do Display.printConstln("  literals (true and false), variables");
+        do Display.printConstln("  containing boolean values, procedure");
+        do Display.printConstln("  calls, that return boolean values.  Also");
+        do Display.printConstln("  expressions containing special operators");
+        do Display.printConstln("  return boolean values:");
+        do Display.newline();
+        do Display.printConstln("  a. Relational expressions:");
+        do Display.printConstln("      <int expr> <rel operator> <int expr>");
+        do Display.printConstln("  Relational operators can be");
+        do Display.printConstln("      <, >, =, <=, >= or <>");
+        do Display.newline();
+        do Display.printConstln("  b. Logical expressions:");
+        do Display.printConstln("      [not] <bool> {<bool op> <bool>}");
+        do Display.printConstln("  Boolean operators can be and and or.");
+        do Display.newline();
+        do Display.printConstln("  Relational expressions are evaluated");
+        do Display.printConstln("  before logical expressions.");
+        do Display.newline();
+        return;
+    }
+
+    function void printString() {
+        do Display.newline();
+        do Display.printConstln("  Explanation:");
+        do Display.newline();
+        do Display.printConstln("  String exressions can be string literals,");
+        do Display.printConstln("  like 'str', 'r', '', 'a''a', where the");
+        do Display.printConstln("  sequence of two qoutes is evaluated as a");
+        do Display.printConstln("  single quote, variables, containing a");
+        do Display.printConstln("  value, or procedure calls that return");
+        do Display.printConstln("  strings.");
         do Display.newline();
         return;
     }
