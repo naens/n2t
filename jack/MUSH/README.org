@@ -120,6 +120,69 @@ return type cannot terminate without a return value.  A procedure without a
 return type cannot be used inside an expression, only independent calls are
 OK.
 
+** Examples
+
+*** Fibonacci function
+#+BEGIN_SRC
+MUSH>declare (fib n) integer
+       declare n integer
+       if n < 2 then
+         return n
+       else
+         return (fib n-1) + (fib n-2)
+     end fib
+MUSH>type (fib 4)
+3
+MUSH>type (fib 7)
+13
+#+END_SRC
+
+*** Scope
+Prints whether the scope is lexical or dynamic
+#+BEGIN_SRC
+MUSH>declare s string
+MUSH>declare (proc)
+       type s
+     end proc
+MUSH>declare (scope)
+       declare s string
+       s='dynamic'
+       proc
+     end scope
+MUSH>s='lexical'
+MUSH>scope
+lexical
+#+END_SRC
+
+*** Multiplication
+Multiplies two numbers and returns the result
+#+BEGIN_SRC
+MUSH>declare (mult a b) integer
+       declare a integer
+       declare b integer
+       declare (rec a b acc) integer
+         declare a integer
+         declare b integer
+         declare acc integer
+         if b = 0 then
+           return acc
+         else if b-b/2*2 = 0 then
+           return (rec 2*a b/2 acc)
+         else
+           return (rec a b-1 acc+a)
+       end rec
+       return (rec a b 0)
+     end mult
+MUSH>type (mult 3 6)
+18
+MUSH>type (mult 17 77)
+1309
+MUSH>type (mult 20 0)
+0
+MUSH>type (mult 0 100)
+0
+#+END_SRC
+
 * Other
 The source code is available at:
 https://github.com/naens/n2t/tree/master/jack/MUSH.
