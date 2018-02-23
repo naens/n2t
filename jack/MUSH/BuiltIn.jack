@@ -37,7 +37,6 @@ class BuiltIn {
             return;
         }
         let val = values.get();
-//        do Display.printConst("TYPE: ");
         do val.println();
         do val.dispose();
         return;

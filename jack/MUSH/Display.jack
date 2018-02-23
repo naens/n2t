@@ -255,9 +255,6 @@ class Display {
                 let RAM[(linestart + x) - n] = tmp;
                 let x = x + 1;
             }
-//            do Display.printConst("linestart=");
-//            do Display.printInt(linestart);
-//            do Display.newline();
             let y = y + 1;
         }
         return;

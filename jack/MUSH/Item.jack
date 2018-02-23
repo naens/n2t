@@ -141,9 +141,7 @@ class Item {
                 | (type = Const.CH_PLUS()) | (type = Const.CH_MINUS())
                 | (type = Const.CH_SLASH()) | (type = Const.CH_STAR())
                 | (type = Const.CH_GREATER()) | (type = Const.CH_LOWER())) {
-//                do Display.printConst("<char:");
                 do Display.printChar(type);
-//                do Display.printConst(">");
                 return;
             }
             if ((type = Const.KW_DECLARE()) | (type = Const.KW_DO())
@@ -279,21 +277,15 @@ class Item {
                 return;
             }
             if (type = Const.LOG_EXPR()) {
-//                do Display.printConst("[*");
                 do printSubItems();
-//                do Display.printConst("*]");
                 return;
             }
             if (type = Const.ARITHM()) {
-//                do Display.printConst("[@");
                 do printSubItems();
-//                do Display.printConst("@]");
                 return;
             }
             if (type = Const.TERM()) {
-//                do Display.printConst("[&");
                 do printSubItems();
-//                do Display.printConst("&]");
                 return;
             }
             if (type = Const.CALL()) {
@@ -303,9 +295,7 @@ class Item {
                 return;
             }
             if (type = Const.FACTOR()) {
-//                do Display.printConst("[%");
                 do printSubItems();
-//                do Display.printConst("%]");
                 return;
             }
             do Display.printConst("<?type=");
@@ -338,16 +328,10 @@ class Item {
         var Item subItem;
         var List tmpSubItems;
 
-//        do Display.printConst("-- item:dispose: ");
-//        do Display.printInt(this);
-//        do Display.printString(" : ");
-//        do println();
-
         let tmpSubItems = subItems;
 
         while (~(tmpSubItems = 0)) {
             let subItem = tmpSubItems.get();
-//            do subItem.dispose();
             let tmpSubItems = tmpSubItems.getNext();
         }
 

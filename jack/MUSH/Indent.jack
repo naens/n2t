@@ -55,9 +55,6 @@ class Indent {
         let last = 0;
         while (~(tmp = 0)) {
             let current = tmp.get();
-//            do Display.printConst("current=");
-//            do print(current);
-//            do Display.newline();
             if (~(current = I)) {
                 let result = result + 1;
             }

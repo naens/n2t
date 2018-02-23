@@ -74,18 +74,6 @@ class AstSel {
 
     function integer procDeclBlockId(Item procDecl) {
         return procDecl.getBlockId();
-/*
-        var List subItems;
-        var Item item;
-        let subItems = procDecl.getSubItems();
-        let item = subItems.get(); /* proc_stmt */
-//        let subItems = item.getSubItems();
-//        while ((~(item.getType() = Const.IDENT()))) {
-//            let subItems = subItems.getNext();
-//            let item = subItems.get();
-//        }
-//        return item.getBlockId();
-//*/
     }
 
     /* returns function ident

@@ -75,7 +75,7 @@ class Shell {
         let line = Display.readln();
         while (~(value = Const.QUIT())) {
             do tokenizer.setLine(line);
-            let item = LineParser.parseLine(tokenizer); //tokenizer is clean
+            let item = LineParser.parseLine(tokenizer);
 
             if (~(item = 0)) {
                 if (depth = 0) {
@@ -106,7 +106,6 @@ class Shell {
                         do tokenizer.appendNode(item);
                         let depth = 1;
                     } else {
-//                        do indent.line(item);
                         if (item.getType() = Const.IF_STMT()) {
                             let ifCondItem = AstSel.ifCond(item);
                             let ifVal = eva.evaluate(ifCondItem);
@@ -141,7 +140,6 @@ class Shell {
                         }
                     }
                 } else {
-//                    do indent.line(item);
                     do tokenizer.appendNode(item);
                     if ((depth = 1) & (item.getType() = Const.END_STMT())) {
                         let block = ParseLines.parseBlock(tokenizer);
@@ -180,21 +178,9 @@ class Shell {
              */
             do line.dispose();
             if (~(value = 1)) {
-/*
-                if (depth = 0) {
-                    do Display.printString(prompt);
-                } else {
-                    do Display.printConst("DEP");
-                    do Display.printInt(depth);
-                    do Display.printConst(">");
-                }
-*/
                 let indentShift = indent.getShift();
-//                do Display.printInt(indentShift);
-//                do Display.printConst("|");
                 let indentAmount = indent.count();
                 if (indentAmount = 0) {
-//                    do Display.printConst("  >");
                     do Display.printString(prompt);
                 } else {
                     do Display.printConst("     ");

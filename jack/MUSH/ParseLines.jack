@@ -100,7 +100,6 @@ class ParseLines {
         do result.setTerminal(false);
         do result.setType(type);
 
-//        do Display.printConstln("block2 1");
         let stmt = tokenizer.nextNode();
         if (stmt = 0) {
             do Display.printConstln("block2 e1");
@@ -114,7 +113,6 @@ class ParseLines {
             return 0;
         }
         do result.addSubItem(stmt);
-//        do Display.printConstln("block2 3");
 
 
         let decl = ParseLines.parseDeclaration(tokenizer);
@@ -135,7 +133,6 @@ class ParseLines {
             do Display.printConstln("block2 e3");
             return 0;
         }
-//        do Display.printConstln("block2 4");
         if (~(stmt.getType() = Const.END_STMT())) {
             do result.dispose();
             do Display.printConstln("block2 e4");
@@ -147,25 +144,21 @@ class ParseLines {
     }
 
     function Iterm parseProcDecl(Tokenizer tokenizer) {
-//        do Display.printConstln("block proc_decl");
         return ParseLines.parseBlock2(tokenizer,
                  Const.PROC_DECL(), Const.PROC_STMT());
     }
 
     function Iterm parseDoBlock(Tokenizer tokenizer) {
-//        do Display.printConstln("block do_block");
         return ParseLines.parseBlock2(tokenizer,
                  Const.DO_BLOCK(), Const.DO_BLOCK_STMT());
     }
 
     function Iterm parseDoIter(Tokenizer tokenizer) {
-//        do Display.printConstln("block do_iter");
         return ParseLines.parseBlock2(tokenizer,
                  Const.DO_ITER(), Const.DO_ITER_STMT());
     }
 
     function Iterm parseDoWhile(Tokenizer tokenizer) {
-//        do Display.printConstln("block do_while");
         return ParseLines.parseBlock2(tokenizer,
                  Const.DO_WHILE(), Const.DO_WHILE_STMT());
     }

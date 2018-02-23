@@ -66,15 +66,18 @@ class Tokenizer {
     }
 
     method boolean isIdentChar(char c) {
-        // lowercase letters
+
+        /* lowercase letters */
         if ((c > 96) & (c < 173)) {
             return true;
         }
-        // dollar
+
+        /* dollar */
         if (c = 36) {
             return true;
         }
-        // digits
+
+        /* digits */
         if ((c > 47) & (c < 58)) {
             return true;
         }

@@ -9,7 +9,6 @@ class Ifs {
 
     method void reset() {
         var Cond cond;
-//        do Display.printConstln("reset ifs");
         while (~(ifs = 0)) {
             let cond = ifs.get();
             do cond.dispose();
@@ -18,31 +17,24 @@ class Ifs {
         return;
     }
 
-    // return boolean based on the condition and values of ifs
+    /* return boolean based on the condition and values of ifs */
     method boolean getTotalCond() {
         var List currentIf;
         var Cond cond;
         let currentIf = ifs;
-//        do Display.printConst("getTotalCond");
         while (~(currentIf = 0)) {
             let cond = currentIf.get();
-//            if (cond.isReversed()) {
-//                do Display.printConst(" condR");
-//            } else {
-//                do Display.printConst(" cond");
-//            }
             if (((~cond.getValue()) & (~cond.isReversed()))
                 | (cond.getValue() & cond.isReversed())) {
                 return false;
             }
             let currentIf = currentIf.getNext();
         }
-//        do Display.newline();
         return true;
     }
 
-    // modify state of ifs and return boolean if the following command
-    // should be executed
+    /* modify state of ifs and return boolean if the following command
+     * should be executed */
     method boolean checkIfs() {
         var List list;
         var Cond cond;
@@ -50,12 +42,12 @@ class Ifs {
         var List currIfs;
         var Cond currIf;
 
-        if (ifs = 0) { // no ifs, nothing to do, command without ifs...
+        if (ifs = 0) { /* no ifs, nothing to do, command without ifs... */
             return true;
         }
 
         let cond = ifs.get();
-        if (cond.isEntered()) {   // command after another command => outside
+        if (cond.isEntered()) { /* command after another command => outside */
             do reset();
             return true;
         }
@@ -74,7 +66,7 @@ class Ifs {
         return result;
     }
 
-    // if with condition encountered
+    /* if with condition encountered */
     method void ifCond(Cond newCond) {
         var Cond prevCond;
         if (ifs = 0) {
@@ -92,7 +84,7 @@ class Ifs {
         return;
     }
 
-    // else encountered: reverse condition
+    /* else encountered: reverse condition */
     method void ifReverse() {
         var Cond cond;
 

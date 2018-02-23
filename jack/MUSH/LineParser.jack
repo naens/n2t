@@ -8,12 +8,6 @@ class LineParser {
             return 0;
         }
 
-//        do Display.printConst("(((addTerminal:");
-//        do terminal.print();
-//        do Display.printConst(":");
-//        do Display.printInt(terminal);
-//        do Display.printConstln(")))");
-
         if (~(terminal.getType() = type)) {
             do tokenizer.unread(terminal);
             return 0;
@@ -135,6 +129,7 @@ class LineParser {
         return 0;
     }
 
+    /* if_stmt = if <expr> then */
     function Item parseIfStmt(Tokenizer tokenizer) {
         var Item kw_if;
         var Item callOrExpr;
@@ -167,7 +162,7 @@ class LineParser {
         return result;
     }
 
-    /* 'else' or 'else' if-stmt */
+    /* else_if_stmt = "else" if_stmt */
     function Item parseElseIfStmt(Tokenizer tokenizer) {
         var Item kw_else;
         var Item ifStmt;
@@ -193,6 +188,7 @@ class LineParser {
         return result;
     }
 
+    /* doblock_stmt = "do" */
     function Item parseDoBlockStmt(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
@@ -217,7 +213,7 @@ class LineParser {
         return 0;
     }
 
-    /* do_iter = do ident = expr to expr [by expr] */
+    /* doiter_stmt = "do" ident "=" expr "to" expr ["by" expr] */
     function Item parseDoIterStmt(Tokenizer tokenizer) {
         var Item kw_do;
         var Item token;
@@ -281,7 +277,7 @@ class LineParser {
         return result;
     }
 
-    /* do_while_stmt = "do" "while" (call | expr) */
+    /* dowhile_stmt = "do" "while" (call | expr) */
     function Item parseDoWhileStmt(Tokenizer tokenizer) {
         var Item kw_do;
         var Item kw_while;
@@ -425,14 +421,10 @@ class LineParser {
         do result.setTerminal(false);
         do result.setType(Const.EXPR());
 
-//        do Display.printConstln("expr:001");
-
         let kw_not = LineParser.addTerminal(tokenizer, result, Const.KW_NOT());
 
-//        do Display.printConstln("expr:002");
         let log_expr = LineParser.parseLogExpr(first, tokenizer);
         if (log_expr = 0) {
-//            do Display.printConstln("expr:0a");
             if (~(kw_not = 0)) {
                 do tokenizer.unread(kw_not);
             }
@@ -440,34 +432,30 @@ class LineParser {
         }
         do result.addSubItem(log_expr);
 
-//        do Display.printConstln("expr:1");
         while (~(log_expr = 0)) {
             let op = tokenizer.nextToken();
             if (op = 0) {
-//                do Display.printConstln("expr:1b");
                 return result;
             }
             if ((~(op.getType() = Const.KW_AND()))
                  & (~(op.getType() = Const.KW_OR()))) {
                 do tokenizer.unread(op);
-//                do Display.printConstln("expr:1c");
                 return result;
             }
-            // no problem having unary minus after and / or
+            /* no problem having unary minus after and / or */
             let expr = LineParser.parseExpression(true, tokenizer);
             if (~(expr = 0)) {
                 do result.addSubItem(op);
                 do result.addSubItem(expr);
             } else {
                 do tokenizer.unread(op);
-//                do Display.printConstln("expr:1d");
                 return result;
             }
         }
         return result;
     }
 
-    /* rel_op = "<" | ">" | "<=" | >=" | "<>" | "=" */
+    /* rel_op = "<" | ">" | "<=" | ">=" | "<>" | "=" */
     function Item parseRelOp(Tokenizer tokenizer) {
         var Item i1;
         var Item i2;
@@ -535,7 +523,6 @@ class LineParser {
 
         let arithm = LineParser.parseArithm(first, tokenizer);
         if (arithm = 0) {
-//            do Display.printConstln("log_expr:1");
             do result.dispose();
             return 0;
         }
@@ -543,18 +530,16 @@ class LineParser {
 
         let rel_op = LineParser.parseRelOp(tokenizer);
         if (rel_op = 0) {
-//            do Display.printConstln("log_expr:2");
             return result;
         }
-        // no problem having unary minus after rel_op
+        /* no problem having unary minus after rel_op */
         let arithm = LineParser.parseArithm(true, tokenizer);
         if (~(arithm = 0)) {
             do result.addSubItem(rel_op);
             do result.addSubItem(arithm);
         } else {
-//            do Display.printConstln("log_expr:3");
             do result.dispose();
-            return 0; // error: rel_op without arithm
+            return 0; /* error: rel_op without arithm */
         }
         return result;
     }
@@ -565,10 +550,8 @@ class LineParser {
         var Item op;
         var Item result;
 
-//        do Display.printConstln("arithm:0");
         let term = LineParser.parseTerm(first, tokenizer);
         if (term = 0) {
-//            do Display.printConstln("arithm:1");
             return 0;
         }
 
@@ -578,10 +561,8 @@ class LineParser {
         do result.addSubItem(term);
 
         while (~(term = 0)) {
-//            do Display.printConstln("arithm:2");
             let op = tokenizer.nextToken();
             if (op = 0) {
-//                do Display.printConstln("arithm:2b");
                 return result;
             }
             if ((~(op.getType() = Const.CH_PLUS()))
@@ -607,10 +588,8 @@ class LineParser {
         var Item op;
         var Item result;
 
-//        do Display.printConstln("term:0");
         let factor = LineParser.parseFactor(first, tokenizer);
         if (factor = 0) {
-//            do Display.printConstln("term:1");
             return 0;
         }
 
@@ -620,7 +599,6 @@ class LineParser {
         do result.addSubItem(factor);
 
         while (~(factor = 0)) {
-//            do Display.printConstln("term:2");
             let op = tokenizer.nextToken();
             if (op = 0) {
                 return result;
@@ -628,18 +606,14 @@ class LineParser {
             if ((~(op.getType() = Const.CH_STAR()))
                 & (~(op.getType() = Const.CH_SLASH()))
                 & (~(op.getType() = Const.KW_MOD()))) {
-//                do Display.printConstln("term:3");
                 do tokenizer.unread(op);
                 return result;
             }
-//            do Display.printConstln("term:4");
             let factor = LineParser.parseFactor(false, tokenizer);
             if (~(factor = 0)) {
-//                do Display.printConstln("term:4a");
                 do result.addSubItem(op);
                 do result.addSubItem(factor);
             } else {
-//                do Display.printConstln("term:4b");
                 do tokenizer.unread(op);
                 return result;
             }
@@ -702,7 +676,6 @@ class LineParser {
         var Item result;
         var integer tokenType;
 
-//        do Display.printConstln("factor:1");
         let sign = 0;
 
         let result = Item.new();
@@ -711,16 +684,11 @@ class LineParser {
 
         let token = tokenizer.nextToken();
         if (token = 0) {
-//            do Display.printConstln("factor:1a");
             return 0;
         }
-//        do Display.printConst("<");
-//        do token.print();
-//        do Display.printConstln(">");
         let tokenType = token.getType();
-        if (first) { // allow a minus prefix only for first factor of an arithm
-//            do Display.printConstln("factor:FIRST");
-
+        if (first) {
+            /* allow a minus prefix only for first factor of an arithm */
             if (tokenType = Const.CH_MINUS()) {
                 let sign = token;
                 let token = tokenizer.nextToken();
@@ -733,19 +701,11 @@ class LineParser {
             }
         }
 
-//        do Display.printConstln("factor:2");
-
         if (((tokenType = Const.T_INTEGER()) | (tokenType = Const.IDENT()))
             | (tokenType = Const.T_STRING())) {
             do result.addSubItem(token);
-//            do Display.printConstln("factor:2a");
             return result;
         }
-//        do Display.printConst("<");
-//        do token.print();
-//        do Display.printConstln(">");
-
-//        do Display.printConstln("factor:3");
 
         if (~(tokenType = Const.CH_PAROP())) {
             do tokenizer.unread(token);
@@ -766,18 +726,14 @@ class LineParser {
             return 0;
         }
 
-//        do Display.printConstln("factor:8");
-
         /* read closing parenthese */
         let token = tokenizer.nextToken();
         if (token = 0) {
             do result.dispose();
-//            do Display.printConstln("factor:8a");
             return 0;
         }
         if (~(token.getType() = Const.CH_PARCL())) {
             do result.dispose();
-//            do Display.printConstln("factor:8b");
             return 0;
         }
 
@@ -829,7 +785,7 @@ class LineParser {
             }
         }
         let item = tokenizer.nextToken();
-        if (item = 0) {     // no unreads, no items left on the line
+        if (item = 0) {     /* no unreads, no items left on the line */
             if (result = 0) {
                 do Display.printConstln("bad expression");
             }
