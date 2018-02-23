@@ -9,22 +9,119 @@ The built in commands serve as a way for the user to interact with the
 system: print results, list available variables, and similar.
 
  - ~type <expression>~: display the value of an expression
- - ~assign <string expression> <expression>~: assign the value of expression
-to the variable, the name of which is the value of the string expression
  - ~list~: display the names of available variables
  - ~help~: run help program, which explains how to use the system
- - ~erase <str-expr?var>~: undefine a variable
- - ~execute <string expression>~: execute the contents of the value returned
-by the string expression
+ - ~delete <string expression>~: undefine a variable
+ - ~clear~: completely erases everything on the screen and positions the
+ cursor in the left top corner
+ - ~quit~: exit from MUSH
 
 
 * Language Description
+In MUSH a new line separates items and statements (similar to ~sh~ in Linux).
+In the descrition of the language new lines are represented by a comma
+(~,~).  Lines cannot be separated and cannot be combined.
+
 ** Varable Declarations
+~var_decl = declare ident type~
+~ident: [a-z][a-z$0-9]*~
+~type: integer | boolean | string~
+
+** Expressions
+Every expression return any of the 3 types: integer, string and boolean.
+There is an operator hierarchy:
+ - mult-type: ~*~, ~/~, ~mod~
+ - add-type: ~+~, ~-~
+ - integer comparison (/rel_op/)
+ - boolean: ~and~, ~or~
+
+Unary ~-~ must be between parentheses if it is an argument of a procedure
+call, is not before any arithmetic operator.  However it can follow
+relational and boolean operators and assignment.  For example ~a=-1~ and
+~type a = -1~ are legal, but ~type -1~ isn't (because in this case the unary
+~-~ can be interpreted as a binary ~-~).
+
+~expr = [not] log_expr { (and | or ) expr }~
+~rel_op = "<" | ">" | "<=" | ">=" | "<>" | "="~
+~log_expr = true | false | (arithm [ rel_op arithm ])~
+~arithm = term {( "+" | "-" ) term }~
+~term = factor { ( "*" | "/" | mod ) factor }~
+~call = ident expr {expr}~
+~factor= [ "-" ]  number | string | ident | ( "(" call | expr ")")~
+
+*** Intgeger Expressions
+Integer operators are +, -, /, *, and mod.
+
+*** Boolean Expressions
+Returned as a result of an evaluation of a logical expression, relational
+expression, boolean variable or a procedure call that returns a boolean.
+
+*** String Expressions
+Only procedures, variables and string literals can return a string value.
+String literals are written 'example1' or 'example''2' or '', where the
+two quote chacters are interpreted as one, if inside a string literal.
+
 ** Statements
+
+*** Assignments
+~assign = ident "=" expression~
+
+The variable and the expression must be of the same type, otherwise the
+value doesn't get assigned.
+
+*** Procedure Calls
+~call = ident {expr}~
+
+Expression are just normal expressions, but they cannot start with a "-".
+
+
 ** Conditions
-** Do Blocks
-** Do While
-** Iterative Do
-** Procedures
+~cond = if_stmt unit {else_if_stmt unit} [else unit]~
+~if_stmt = "if" expr "then"~
+~else_if_stmt = "else" if_stmt~
+
+** Blocks and Procedures
+~declaration =  var_decl | proc_decl~
+~unit = assignment | call | expression | block | cond | return_stmt~
+~block = block_stmt, {declaration, } {unit,} end_stmt,~
+~block_stmt = doblock_stmt | dowhile_stmt | doiter_stmt~
+~return_stmt = "return" expr"~
+~end_stmt = "end" [ident]"~
+
+The identifier of the end statement is optional and does not have any
+purpose. 
+
+*** Do Blocks
+~doblock_stmt = "do"~
+
+Just usual blocks.  A way to declare variables and procedures in the middle
+of a block.
+
+*** Do While
+~dowhile_stmt = "do" "while" expr~
+
+Repeats the block while the expression evaluates to true.  When it stop
+evaluating to true and evaluates to false, the internal block is no longer
+executed and the execution continues with next items if any.
+
+*** Iterative Do
+~doiter_stmt = "do" ident "=" expr "to" expr ["by" expr]~
+
+Iterates over a predefined variable by assigning a value and modifing it by
+a value, which is 1 by default.  It can be used if an action must be
+repeated several times.
+
+*** Procedures
+~proc_decl = proc_stmt, {declaration,} {unit,} end_stmt,~
+~proc_stmt = declare ( ident {ident} ) [type]~
+
+Just normal procedures.  The return type if optional.  A procedure with a
+return type cannot terminate without a return value.  A procedure without a
+return type cannot be used inside an expression, only independent calls are
+OK.
 
 * Other
+The source code is available at:
+https://github.com/naens/n2t/tree/master/jack/MUSH.
+
+The license for this project is GPLv3.
