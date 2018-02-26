@@ -82,7 +82,7 @@ Expression are just normal expressions, but they cannot start with a "-".
 
 ** Blocks and Procedures
 ~declaration =  var_decl | proc_decl~
-~unit = assignment | call | expression | block | cond | return_stmt~
+~unit = assignment | call | block | cond | return_stmt~
 ~block = block_stmt, {declaration, } {unit,} end_stmt,~
 ~block_stmt = doblock_stmt | dowhile_stmt | doiter_stmt~
 ~return_stmt = "return" expr"~

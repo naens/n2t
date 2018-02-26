@@ -31,7 +31,7 @@ class ParseLines {
         return item;
     }
 
-    /* unit = assignment | call | expression | block | cond */
+    /* unit = assignment | call | block | cond */
     function Item parseUnit(Tokenizer tokenizer) {
         var Item item;
 
@@ -49,12 +49,6 @@ class ParseLines {
 
         /* call */
         let item = ParseLines.addNode(tokenizer, Const.RETURN());
-        if (~(item = 0)) {
-            return item;
-        }
-
-        /* expression */
-        let item = ParseLines.addNode(tokenizer, Const.EXPR());
         if (~(item = 0)) {
             return item;
         }
