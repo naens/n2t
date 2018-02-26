@@ -1,0 +1,30 @@
+declaration =  var_decl | proc_decl
+var_decl = declare ident type
+
+proc_decl = proc_stmt, {declaration,} {unit,} end_stmt,
+proc_stmt = declare ( ident {ident} ) [type]
+end_stmt = "end" [ident]"
+
+unit = assignment | call | block | cond | return_stmt
+call = ident {expr}
+assign = ident "=" expression
+return_stmt = "return" expr"
+
+cond = if_stmt unit {else_if_stmt unit} [else unit]
+if_stmt = "if" expr "then"
+else_if_stmt = "else" if_stmt
+
+block = do_block | do_while | do_iter
+do_block = doblock_stmt, {declaration,} {unit,} end_stmt,
+do_while = dowhile_stmt, {declaration,} {unit,} end_stmt,
+do_iter = doiter_stmt, {declaration,} {unit,} end_stmt,
+doblock_stmt = "do"
+dowhile_stmt = "do" "while" expr
+doiter_stmt = "do" ident "=" expr "to" expr ["by" expr]
+
+rel_op = "<" | ">" | "<=" | ">=" | "<>" | "="
+log_expr = true | false | (arithm [ rel_op arithm ])
+expr = [not] log_expr { (and | or ) expr }
+arithm = term {( "+" | "-" ) term }
+term = factor { ( "*" | "/" | mod ) factor }
+factor= [ "-" ]  number | string | ident | ( "(" call | expr ")")
