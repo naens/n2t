@@ -44,13 +44,15 @@ relational and boolean operators and assignment.  For example ~a=-1~ and
 ~type a = -1~ are legal, but ~type -1~ isn't (because in this case the unary
 ~-~ can be interpreted as a binary ~-~).
 
-~expr = [not] log_expr { (and | or ) expr }~
-~rel_op = "<" | ">" | "<=" | ">=" | "<>" | "="~
-~log_expr = true | false | (arithm [ rel_op arithm ])~
-~arithm = term {( "+" | "-" ) term }~
-~term = factor { ( "*" | "/" | mod ) factor }~
-~call = ident expr {expr}~
-~factor= [ "-" ]  number | string | ident | ( "(" call | expr ")")~
+#+BEGIN_SRC
+expr = [not] log_expr { (and | or ) expr }
+rel_op = "<" | ">" | "<=" | ">=" | "<>" | "="
+log_expr = true | false | (arithm [ rel_op arithm ])
+arithm = term {( "+" | "-" ) term }
+term = factor { ( "*" | "/" | mod ) factor }
+call = ident expr {expr}
+factor= [ "-" ]  number | string | ident | ( "(" call | expr ")")
+#+END_SRC
 
 *** Intgeger Expressions
 Integer operators are +, -, /, *, and mod.
@@ -79,17 +81,21 @@ Here expressions cannot start with a "-" (unary minus).
 
 
 ** Conditions
-~cond = if_stmt unit {else_if_stmt unit} [else unit]~
-~if_stmt = "if" expr "then"~
-~else_if_stmt = "else" if_stmt~
+#+BEGIN_SRC
+cond = if_stmt unit {else_if_stmt unit} [else unit]
+if_stmt = "if" expr "then"
+else_if_stmt = "else" if_stmt
+#+END_SRC
 
 ** Blocks and Procedures
-~declaration =  var_decl | proc_decl~
-~unit = assignment | call | block | cond | return_stmt~
-~block = block_stmt, {declaration, } {unit,} end_stmt,~
-~block_stmt = doblock_stmt | dowhile_stmt | doiter_stmt~
-~return_stmt = "return" expr"~
-~end_stmt = "end" [ident]"~
+#+BEGIN_SRC
+declaration =  var_decl | proc_decl
+unit = assignment | call | block | cond | return_stmt
+block = block_stmt, {declaration, } {unit,} end_stmt,
+block_stmt = doblock_stmt | dowhile_stmt | doiter_stmt
+return_stmt = "return" expr"
+end_stmt = "end" [ident]"
+#+END_ERC
 
 The identifier of the end statement is optional and does not have any
 purpose. 
@@ -115,8 +121,10 @@ a value, which is 1 by default.  It can be used if an action must be
 repeated several times.
 
 *** Procedures
-~proc_decl = proc_stmt, {declaration,} {unit,} end_stmt,~
-~proc_stmt = declare ( ident {ident} ) [type]~
+#+BEGIN_SRC
+proc_decl = proc_stmt, {declaration,} {unit,} end_stmt,
+proc_stmt = declare ( ident {ident} ) [type]
+#+END_SRC
 
 Just normal procedures.  The return type if optional.  A procedure with a
 return type cannot terminate without a return value.  A procedure without a
