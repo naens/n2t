@@ -1,8 +1,11 @@
 #+TITLE: MUSH
 
+[[mush.png]]
+
 * Overview
-MUSH (Moronic Unexciting Shell) is a small shell built on top of the Jack Operating System.  It can
-be used to define and execute commands and procedures.
+MUSH (Moronic Unexciting Shell) is a small shell built on top of the Jack
+Operating System.  It can be used to define and execute commands and
+procedures.
 
 * Built-in Commands
 The built in commands serve as a way for the user to interact with the
@@ -29,7 +32,7 @@ In the descrition of the language new lines are represented by a comma
 
 ** Expressions
 Every expression return any of the 3 types: integer, string and boolean.
-There is an operator hierarchy:
+There is the hierarchy of operators:
  - mult-type: ~*~, ~/~, ~mod~
  - add-type: ~+~, ~-~
  - integer comparison (/rel_op/)
@@ -72,7 +75,7 @@ value doesn't get assigned.
 *** Procedure Calls
 ~call = ident {expr}~
 
-Expression are just normal expressions, but they cannot start with a "-".
+Here expressions cannot start with a "-" (unary minus).
 
 
 ** Conditions
@@ -137,8 +140,8 @@ MUSH>type (fib 7)
 13
 #+END_SRC
 
-*** Scope
-Prints whether the scope is lexical or dynamic
+*** Scope test
+Prints whether the scope is lexical or dynamic.
 #+BEGIN_SRC
 MUSH>declare s string
 MUSH>declare (proc)
@@ -154,8 +157,8 @@ MUSH>scope
 lexical
 #+END_SRC
 
-*** Multiplication
-Multiplies two numbers and returns the result
+*** Multiplication function
+Multiplies two numbers and returns the result.  Uses a SICP-like algorithm.
 #+BEGIN_SRC
 MUSH>declare (mult a b) integer
        declare a integer
