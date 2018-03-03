@@ -2,10 +2,13 @@
 
 [[mush.png]]
 
+[[https://youtu.be/ghEs8mPOAZk][Demonstration video link]]
+
 * Overview
 MUSH (Moronic Unexciting Shell) is a small shell built on top of the Jack
 Operating System.  It can be used to define and execute commands and
 procedures.
+
 
 * Built-in Commands
 The built in commands serve as a way for the user to interact with the
