@@ -214,10 +214,10 @@ enough, and it also worked when I did the tests.
 There are two steps.
 
 1. The first step is to give every block an identifier.  A block is a block
-with a ~do~ or the body of a procedure.  Then, for every variable, we assign
-the block where it was declared.  In order to do this a hashtable called
-~VarTable~ is used.  It maps variable names to a stack of block ids.  So
-this is the outline of how it works:
+   with a ~do~ or the body of a procedure.  Then, for every variable, we assign
+   the block where it was declared.  In order to do this a hashtable called
+   ~VarTable~ is used.  It maps variable names to a stack of block ids.  So
+   this is the outline of how it works:
  - on block enter: generation of a new block id, and save it in the AST
  - on variable declaration: push the new block id in the stack of the
    variable
@@ -227,8 +227,8 @@ this is the outline of how it works:
    current block id.
 
 2. During the execution: the values of variables are stored in a hashtable
-called ~IdentMap~.  It maps a pair of variable (name, block i)d to a stack of
-values.
+   called ~IdentMap~.  It maps a pair of variable (name, block i)d to a stack of
+   values.
  - on block enter: create new values and push them to the ~IdentMap~.  If
    it's a procedure call, initialize the variables with the values of given
    parameters.
