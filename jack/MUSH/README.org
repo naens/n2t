@@ -220,22 +220,22 @@ the block where it was declared.  In order to do this a hashtable called
 this is the outline of how it works:
  - on block enter: generation of a new block id, and save it in the AST
  - on variable declaration: push the new block id in the stack of the
-variable
+   variable
  - on variable in the execution part of the block; the block id of the
-variable is the block id on top in ~VarTable~
+   variable is the block id on top in ~VarTable~
  - on block exit: pop all variables from ~VarTable~, where block id is the
-current block id.
+   current block id.
 
 2. During the execution: the values of variables are stored in a hashtable
 called ~IdentMap~.  It maps a pair of variable (name, block i)d to a stack of
 values.
  - on block enter: create new values and push them to the ~IdentMap~.  If
-it's a procedure call, initialize the variables with the values of given
-parameters.
+   it's a procedure call, initialize the variables with the values of given
+   parameters.
  - on execution statements: just get the variables from the ~IdentMap~.  The
-correct variables should be on the top.
+   correct variables should be on the top.
  - on block exit: pop all variables with the current block id that are on
-top.
+   top.
 
 I haven't said anything about how procedures are handled in these tables yet. 
 Everything is more or less easy without procedures.  Procedures make things
