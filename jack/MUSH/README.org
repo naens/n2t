@@ -197,6 +197,57 @@ MUSH>type (mult 0 100)
 0
 #+END_SRC
 
+* How the Scope Rules work
+
+Here is a brief description of how variables get resolved.  MUSH is my first
+attempt at implementing lexical scoping.  Before implementing MUSH I had an
+idea of how lexical scoping could be implemented in an interpreted language. 
+It's different from method of chapter 3 of SICP, where a variable is looked up
+in every frame.  It just didn't seem right.  For example, in a recursive
+procedure, if the variable is not in the current frame, it won't be there
+until we look outside of the procedure.
+
+So I had an idea how to do it.  Unfortunately, I don't have a formal proof
+that the way I implemented it really works.  But for me it seemed good
+enough, and it also worked when I did the tests.
+
+There are two steps.
+
+1. The first step is to give every block an identifier.  A block is a block
+with a ~do~ or the body of a procedure.  Then, for every variable, we assign
+the block where it was declared.  In order to do this a hashtable called
+~VarTable~ is used.  It maps variable names to a stack of block ids.  So
+this is the outline of how it works:
+ - on block enter: generation of a new block id, and save it in the AST
+ - on variable declaration: push the new block id in the stack of the
+variable
+ - on variable in the execution part of the block; the block id of the
+variable is the block id on top in ~VarTable~
+ - on block exit: pop all variables from ~VarTable~, where block id is the
+current block id.
+
+2. During the execution: the values of variables are stored in a hashtable
+called ~IdentMap~.  It maps a pair of variable (name, block i)d to a stack of
+values.
+ - on block enter: create new values and push them to the ~IdentMap~.  If
+it's a procedure call, initialize the variables with the values of given
+parameters.
+ - on execution statements: just get the variables from the ~IdentMap~.  The
+correct variables should be on the top.
+ - on block exit: pop all variables with the current block id that are on
+top.
+
+I haven't said anything about how procedures are handled in these tables yet. 
+Everything is more or less easy without procedures.  Procedures make things
+more complicated because they don't behave like normal variables: they have
+to be there in the tables because they can hide a variable or a variable can
+be hidden by them, on the other hand they can't be change during execution.
+
+So this is what I do.  During the first step, I put them both in the
+~VarTable~ and in the ~IdentMap~.  And the ~IdentMap~ does not contain a
+normal stack of variables, but a link to the AST node.  So that the
+procedure can be executed when it's encountered during the execution.
+
 * Other
 The source code is available at:
 https://github.com/naens/n2t/tree/master/jack/MUSH.
