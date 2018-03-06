@@ -14,7 +14,7 @@ public class CodeWriter {
         try {
             printStream = new PrintStream(file);
         } catch (IOException e) {
-        e.printStackTrace();
+            e.printStackTrace();
         }
         n = 0;
         functionName = "Sys.init";
@@ -73,26 +73,26 @@ public class CodeWriter {
         printStream.println("A=M");
         printStream.println("D=M");
         printStream.println("A=A-1");
-        switch(operation) {
-        case "eq":
-        case "gt":
-        case "lt":
-            writeRelational(operation);
-            break;
-        case "add":
-            printStream.println("M=M+D");
-            break;
-        case "sub":
-            printStream.println("M=M-D");
-            break;
-        case "and":
-            printStream.println("M=M&D");
-            break;
-        case "or":
-            printStream.println("M=M|D");
-            break;
-        default:
-            break;
+        switch (operation) {
+            case "eq":
+            case "gt":
+            case "lt":
+                writeRelational(operation);
+                break;
+            case "add":
+                printStream.println("M=M+D");
+                break;
+            case "sub":
+                printStream.println("M=M-D");
+                break;
+            case "and":
+                printStream.println("M=M&D");
+                break;
+            case "or":
+                printStream.println("M=M|D");
+                break;
+            default:
+                break;
         }
         printStream.println();
     }
@@ -108,51 +108,51 @@ public class CodeWriter {
 
     private String segmentConstant(String segment) {
         switch (segment) {
-        case "local":
-            return "LCL";
-        case "argument":
-            return "ARG";
-        case "this":
-            return "THIS";
-        case "that":
-            return "THAT";
-        default:
-            return null;
+            case "local":
+                return "LCL";
+            case "argument":
+                return "ARG";
+            case "this":
+                return "THIS";
+            case "that":
+                return "THAT";
+            default:
+                return null;
         }
     }
 
     private void writeVD(String segment, int index) {
         switch (segment) {
-        case "temp":
-            printStream.println("@5");
-            printStream.println("D=A");
-            printStream.println("@" + index);
-            printStream.println("A=A+D");
-            printStream.println("D=M");
-            break;
-        case "constant":
-            printStream.println("@" + index);
-            printStream.println("D=A");
-            break;
-        case "static":
-            printStream.println("@" + moduleName + "." + index);
-            printStream.println("D=M");
-            break;
-        case "pointer":
-            if (index == 0) {
-                printStream.println("@THIS");
-            } else {
-                printStream.println("@THAT");
-            }
-            printStream.println("D=M");
-            break;
-        default:
-            printStream.println("@" + segmentConstant(segment));
-            printStream.println("D=M");
-            printStream.println("@" + index);
-            printStream.println("A=A+D");
-            printStream.println("D=M");
-            break;
+            case "temp":
+                printStream.println("@5");
+                printStream.println("D=A");
+                printStream.println("@" + index);
+                printStream.println("A=A+D");
+                printStream.println("D=M");
+                break;
+            case "constant":
+                printStream.println("@" + index);
+                printStream.println("D=A");
+                break;
+            case "static":
+                printStream.println("@" + moduleName + "." + index);
+                printStream.println("D=M");
+                break;
+            case "pointer":
+                if (index == 0) {
+                    printStream.println("@THIS");
+                } else {
+                    printStream.println("@THAT");
+                }
+                printStream.println("D=M");
+                break;
+            default:
+                printStream.println("@" + segmentConstant(segment));
+                printStream.println("D=M");
+                printStream.println("@" + index);
+                printStream.println("A=A+D");
+                printStream.println("D=M");
+                break;
         }
     }
 
@@ -173,39 +173,39 @@ public class CodeWriter {
 
     private void writeDV(String segment, int index) {
         switch (segment) {
-        case "static":
-            printStream.println("@" + moduleName + "." + index);
-            printStream.println("M=D");
-            break;
-        case "pointer":
-            if (index == 0) {
-                printStream.println("@THIS");
-            } else {
-                printStream.println("@THAT");
-            }
-            printStream.println("M=D");
-            break;
-        default:
-            printStream.println("@R13");
-            printStream.println("M=D");
-            if (segment.equals("temp")) {
-              printStream.println("@5");
-              printStream.println("D=A");
-            } else {
-              printStream.println("@" + segmentConstant(segment));
-              printStream.println("D=M");
-            }
-            printStream.println("@" + index);
-            printStream.println("D=A+D");
-            printStream.println("@R14");
-            printStream.println("M=D");
-            printStream.println("@R13");
-            printStream.println("D=M");
-            printStream.println("@R14");
-            printStream.println("A=M");
-            printStream.println("M=D");
-            printStream.println();
-            break;
+            case "static":
+                printStream.println("@" + moduleName + "." + index);
+                printStream.println("M=D");
+                break;
+            case "pointer":
+                if (index == 0) {
+                    printStream.println("@THIS");
+                } else {
+                    printStream.println("@THAT");
+                }
+                printStream.println("M=D");
+                break;
+            default:
+                printStream.println("@R13");
+                printStream.println("M=D");
+                if (segment.equals("temp")) {
+                    printStream.println("@5");
+                    printStream.println("D=A");
+                } else {
+                    printStream.println("@" + segmentConstant(segment));
+                    printStream.println("D=M");
+                }
+                printStream.println("@" + index);
+                printStream.println("D=A+D");
+                printStream.println("@R14");
+                printStream.println("M=D");
+                printStream.println("@R13");
+                printStream.println("D=M");
+                printStream.println("@R14");
+                printStream.println("A=M");
+                printStream.println("M=D");
+                printStream.println();
+                break;
         }
     }
 
@@ -244,8 +244,8 @@ public class CodeWriter {
     }
 
     public void writeReturn() {
-      printStream.println("// return to " + name + "$restore");
-        printStream.println("@" + name +  "$restore");
+        printStream.println("// return to " + name + "$restore");
+        printStream.println("@" + name + "$restore");
         printStream.println("0;JMP");
         printStream.println();
     }
@@ -255,7 +255,7 @@ public class CodeWriter {
         String returnLabel = func + "$ret." + n;
 
         /* push return address */
-        printStream.println("@" + returnLabel); 
+        printStream.println("@" + returnLabel);
         printStream.println("D=A");
         writePushExpr("D");
 
@@ -303,14 +303,14 @@ public class CodeWriter {
     }
 
     public void writeEndLoop() {
-        printStream.println("(" + name +  "$end)");
-        printStream.println("@" + name +  "$end");
+        printStream.println("(" + name + "$end)");
+        printStream.println("@" + name + "$end");
         printStream.println("0;JMP");
         printStream.println();
     }
 
     public void writeRestore() {
-        printStream.println("(" + name +  "$restore)");
+        printStream.println("(" + name + "$restore)");
 
         printStream.println("@ARG");    /* save ARG */
         printStream.println("D=M");
@@ -367,7 +367,7 @@ public class CodeWriter {
         printStream.println("@R13");
         printStream.println("A=M");
         printStream.println("0;JMP");
-        printStream.println();    
+        printStream.println();
     }
 
     public void writeFunction(String func, int nArgs) {

@@ -25,7 +25,7 @@ public class VMTranslator {
         File[] inFiles;
         FilenameFilter vmFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-               return name.endsWith(".vm");
+                return name.endsWith(".vm");
             }
         };
         String programName;
@@ -58,7 +58,7 @@ public class VMTranslator {
             }
             parser.close();
         }
-	codeWriter.writeEndLoop();
+        codeWriter.writeEndLoop();
         codeWriter.writeRestore();
         codeWriter.close();
     }

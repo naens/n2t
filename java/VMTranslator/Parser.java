@@ -9,18 +9,18 @@ public class Parser {
 
     public Parser(File file) {
         try {
-	    this.file = file;
-	    fileReader = new FileReader(file);
-	    bufferedReader = new BufferedReader(fileReader);
+            this.file = file;
+            fileReader = new FileReader(file);
+            bufferedReader = new BufferedReader(fileReader);
         } catch (IOException e) {
-	    e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
     public String[] advance() {
         try {
-	    String line;
-	    while ((line = bufferedReader.readLine()) != null) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
                 Pattern pattern = Pattern.compile("[^ ].*");
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.find()) {
@@ -31,7 +31,7 @@ public class Parser {
                 }
             }
         } catch (IOException e) {
-	    e.printStackTrace();
+            e.printStackTrace();
         }
         return null;
     }
@@ -40,7 +40,7 @@ public class Parser {
         try {
             fileReader.close();
         } catch (IOException e) {
-	    e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }
