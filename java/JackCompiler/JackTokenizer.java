@@ -35,7 +35,11 @@ class JackTokenizer {
 
     /* Do we have more tokens in the input? */
     public boolean hasMoreTokens() {
-        return !finished;
+        /* in order to answer, read one token in advance! */
+        if (finished) {
+            return false;
+        }
+        return readNext();
     }
 
     private Keyword stringToKeyword(String s) {
@@ -48,6 +52,7 @@ class JackTokenizer {
             return Keyword.FUNCTION;
         case "constructor":
             return Keyword.CONSTRUCTOR;
+        case "int":
         case "integer":
             return Keyword.INT;
         case "boolean":
@@ -56,7 +61,7 @@ class JackTokenizer {
             return Keyword.CHAR;
         case "void":
             return Keyword.VOID;
-        case "VAR":
+        case "var":
             return Keyword.VAR;
         case "static":
             return Keyword.STATIC;
@@ -82,6 +87,55 @@ class JackTokenizer {
             return Keyword.NULL;
         case "this":
             return Keyword.THIS;
+        default:
+            return null;
+        }
+    }
+
+    private String keywordToString(Keyword keyword) {
+        switch (keyword) {
+        case CLASS:
+            return "class";
+        case METHOD:
+            return "method";
+        case FUNCTION:
+            return "function";
+        case CONSTRUCTOR:
+            return "constructor";
+        case INT:
+            return "int";
+        case BOOLEAN:
+            return "boolean";
+        case CHAR:
+            return "char";
+        case VOID:
+            return "void";
+        case VAR:
+            return "var";
+        case STATIC:
+            return "static";
+        case FIELD:
+            return "field";
+        case LET:
+            return "let";
+        case DO:
+            return "do";
+        case IF:
+            return "if";
+        case ELSE:
+            return "else";
+        case WHILE:
+            return "while";
+        case RETURN:
+            return "return";
+        case TRUE:
+            return "true";
+        case FALSE:
+            return "false";
+        case NULL:
+            return "null";
+        case THIS:
+            return "this";
         default:
             return null;
         }
@@ -184,9 +238,12 @@ class JackTokenizer {
         return result;
     }
 
-    /* Get the next token from the input
-     * Should be called only if hasMoreTokens() returns true */
     public void advance() {
+        /* nothing to do */
+    }
+
+    /* read one token and return true if valid token */
+    private boolean readNext() {
         try {
             int ch = reader.read();
             while (!finished) {
@@ -195,7 +252,7 @@ class JackTokenizer {
                     switch (ch) {
                     case -1:
                         finished = true;
-                        return;
+                        return false;
                     case '/':
                         readCommentLine();
                         break;
@@ -205,36 +262,38 @@ class JackTokenizer {
                     default:
                         reader.unread(ch);
                         tokenType = TokenType.SYMBOL;
-                        symbol = (char)ch;
-                        return;
+                        symbol = '/';
+                        return true;
                     }
                 } else if (ch == '"') {
                     stringVal = readStringConst();
                     tokenType = TokenType.STRING_CONST;
-                    return;
+                    return true;
                 } else if (Character.isWhitespace(ch)) {
                     /* skip and do nothig */
                 } else if (Character.isLetter(ch)) {
                     String str = readString(ch);
                     keyword = stringToKeyword(str);
                     if (keyword != null) {
+//                        System.out.println("STK: '" + str + "' is a " + keyword);
                         tokenType = TokenType.KEYWORD;
                     } else {
+//                        System.out.println("STK: '" + str  +"' is an identifier");
                         tokenType = TokenType.IDENTIFIER;
                         stringVal = str;
                     }
-                    return;
+                    return true;
                 } else if (Character.isDigit(ch)) {
                     tokenType = TokenType.INT_CONST;
                     intVal = readInteger(ch);
-                    return;
+                    return true;
                 } else if (ch == -1) {
                     finished = true;
-                    return;
+                    return false;
                 } else {
                     tokenType = TokenType.SYMBOL;
                     symbol = (char)ch;
-                    return;
+                    return true;
                 }
                 if (!finished) {
                     ch = reader.read();
@@ -243,6 +302,7 @@ class JackTokenizer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     /* Return the type of the current token */
@@ -286,6 +346,103 @@ class JackTokenizer {
             fileReader.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void printXstr(PrintStream ps, String tag, String str) {
+        ps.println(String.format("<%s>%s</%s>", tag, str, tag));
+    }
+
+    private void printXint(PrintStream ps, String tag, int n) {
+        ps.println(String.format("<%s>%d</%s>", tag, n, tag));
+    }
+
+    private String symbolToString(char symbol) {
+        switch (symbol) {
+            case '<':
+                return "&lt;";
+            case '>':
+                return "&gt;";
+            case '"':
+                return "&quot;";
+            case '&':
+                return "&amp;";
+            default:
+                return Character.toString(symbol);
+        }
+    }
+
+    public void printCurrent(PrintStream ps) {
+        switch (tokenType) {
+        case KEYWORD:
+            printXstr(ps, "keyword", keywordToString(getKeyword()));
+            break;
+        case SYMBOL:
+            printXstr(ps, "symbol",  symbolToString(getSymbol()));
+            break;
+        case IDENTIFIER:
+            printXstr(ps, "identifier", getIdentifier());
+            break;
+        case INT_CONST:
+            printXint(ps, "integerConstant", getIntVal());
+            break;
+        case STRING_CONST:
+            printXstr(ps, "stringConstant", getStringVal());
+            break;
+        default:
+            printXstr(ps, "unknown", tokenType.toString());
+        }
+    }
+
+    public static String getNoExtName(File file) {
+        String name = file.getName();
+        return name.substring(0, name.lastIndexOf('.'));
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
+        if (args.length != 1) {
+            System.out.println("one argument required");
+            return;
+        }
+
+        /* get file and dir */
+        File file = new File(args[0]);
+        if (!file.exists()) {
+            System.out.println(args[0] + " does not exist");
+        }
+        File dir;
+
+        /* create list of files */
+        File[] inFiles;
+        FilenameFilter filter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jack");
+            }
+        };
+        /* inFiles: files to read, dir: where to write the output files */
+        if (file.isDirectory()) {
+            inFiles = file.listFiles(filter);
+            dir = file.getAbsoluteFile();
+        } else {
+            inFiles = new File[1];
+            inFiles[0] = file;
+            dir = file.getAbsoluteFile().getParentFile();
+        }
+
+        /* loop through files */
+        for (File f : inFiles) {
+            String name = getNoExtName(f);
+            String outName = name + "T.xml";
+            File outFile = new File(dir, outName);
+            PrintStream printStream = new PrintStream(outFile);
+            JackTokenizer tokenizer = new JackTokenizer(f);
+            printStream.println("<tokens>");
+            while (tokenizer.hasMoreTokens()) {
+                tokenizer.advance();
+                tokenizer.printCurrent(printStream);
+            }
+            printStream.println("</tokens>");
+            printStream.close();
         }
     }
 }
