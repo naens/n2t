@@ -1,12 +1,14 @@
+package jack;
+
 import java.io.*;
 
 class JackTokenizer {
 
-    public enum TokenType {
+    public static enum TokenType {
         KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST
     }
 
-    public enum Keyword {
+    public static enum Keyword {
         CLASS, METHOD, FUNCTION, CONSTRUCTOR,
         INT, BOOLEAN, CHAR, VOID, VAR, STATIC, FIELD, LET, DO,
         IF, ELSE, WHILE, RETURN, TRUE, FALSE, NULL, THIS
@@ -42,7 +44,7 @@ class JackTokenizer {
         return readNext();
     }
 
-    private Keyword stringToKeyword(String s) {
+    private static Keyword stringToKeyword(String s) {
         switch (s) {
         case "class":
             return Keyword.CLASS;
@@ -92,7 +94,7 @@ class JackTokenizer {
         }
     }
 
-    private String keywordToString(Keyword keyword) {
+    private static String keywordToString(Keyword keyword) {
         switch (keyword) {
         case CLASS:
             return "class";
@@ -349,11 +351,11 @@ class JackTokenizer {
         }
     }
 
-    private void printXstr(PrintStream ps, String tag, String str) {
+    private static void printXstr(PrintStream ps, String tag, String str) {
         ps.println(String.format("<%s>%s</%s>", tag, str, tag));
     }
 
-    private void printXint(PrintStream ps, String tag, int n) {
+    private static void printXint(PrintStream ps, String tag, int n) {
         ps.println(String.format("<%s>%d</%s>", tag, n, tag));
     }
 
@@ -372,25 +374,25 @@ class JackTokenizer {
         }
     }
 
-    public void printCurrent(PrintStream ps) {
-        switch (tokenType) {
+    public static void printCurrent(PrintStream ps, JackTokenizer tokenizer) {
+        switch (tokenizer.getTokenType()) {
         case KEYWORD:
-            printXstr(ps, "keyword", keywordToString(getKeyword()));
+            printXstr(ps, "keyword", tokenizer.keywordToString(tokenizer.getKeyword()));
             break;
         case SYMBOL:
-            printXstr(ps, "symbol",  symbolToString(getSymbol()));
+            printXstr(ps, "symbol",  tokenizer.symbolToString(tokenizer.getSymbol()));
             break;
         case IDENTIFIER:
-            printXstr(ps, "identifier", getIdentifier());
+            printXstr(ps, "identifier", tokenizer.getIdentifier());
             break;
         case INT_CONST:
-            printXint(ps, "integerConstant", getIntVal());
+            printXint(ps, "integerConstant", tokenizer.getIntVal());
             break;
         case STRING_CONST:
-            printXstr(ps, "stringConstant", getStringVal());
+            printXstr(ps, "stringConstant", tokenizer.getStringVal());
             break;
         default:
-            printXstr(ps, "unknown", tokenType.toString());
+            printXstr(ps, "unknown", tokenizer.getTokenType().toString());
         }
     }
 
@@ -439,7 +441,7 @@ class JackTokenizer {
             printStream.println("<tokens>");
             while (tokenizer.hasMoreTokens()) {
                 tokenizer.advance();
-                tokenizer.printCurrent(printStream);
+                printCurrent(printStream, tokenizer);
             }
             printStream.println("</tokens>");
             printStream.close();
