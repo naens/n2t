@@ -19,35 +19,6 @@ class CompilationEngine {
         }
     }
 
-    private boolean ok() {
-        return tokenizer.hasMoreTokens();
-    }
-
-    private JackTokenizer.TokenType type() {
-        return tokenizer.getTokenType();
-    }
-
-    private JackTokenizer.Keyword kw() {
-        if (tokenizer.getTokenType() != KEYWORD) {
-            return null;
-        }
-        return tokenizer.getKeyword();
-    }
-
-    private char symbol() {
-        if (tokenizer.getTokenType() != SYMBOL) {
-            return 0;
-        }
-        return tokenizer.getSymbol();
-    }
-
-    public void start() {
-        if (!ok() || kw() != CLASS) {
-            return;
-        }
-        compileClass();
-    }
-
     public void printXstr(String tag, String str) {
         printStream.println(String.format("<%s>%s</%s>", tag, str, tag));
     }
@@ -56,89 +27,121 @@ class CompilationEngine {
         printStream.println(String.format("<%s>%d</%s>", tag, n, tag));
     }
 
-    private void compileChar(char c, boolean test) {
-        if (!test || !ok()) {
-            return;
-        }
-        if (symbol() != c) {
-            return;
-        }
-        printCurrent(printStream, tokenizer);
+    public boolean start() {
+        return compileClass();
     }
 
-    private void compileKeyword(JackTokenizer.Keyword kw, boolean test) {
-        if (!test || !ok()) {
-            return;
+    private boolean compileSymbol(char c) {
+        if (!tokenizer.hasMoreTokens()) {
+            return false;
         }
-        if (kw() != kw) {
-            return;
+        if (tokenizer.getTokenType() != SYMBOL) {
+            return false;
+        }
+        if (tokenizer.getSymbol() != c) {
+            return false;
         }
         printCurrent(printStream, tokenizer);
+        tokenizer.advance();
+        return true;
     }
 
-    private void compileIdentifier(boolean test) {
-        if (!test || !ok()) {
-            return;
+    public boolean compileInt() {
+        if (!tokenizer.hasMoreTokens()) {
+            return false;
         }
-        if (type() != IDENTIFIER) {
-            return;
+        if (tokenizer.getTokenType() != INT_CONST) {
+            return false;
         }
         printCurrent(printStream, tokenizer);
+        tokenizer.advance();
+        return true;
+    }
 
+    public boolean compileStr() {
+        if (!tokenizer.hasMoreTokens()) {
+            return false;
+        }
+        if (tokenizer.getTokenType() != STRING_CONST) {
+            return false;
+        }
+        printCurrent(printStream, tokenizer);
+        tokenizer.advance();
+        return true;
+    }
 
+    private boolean compileKW(JackTokenizer.Keyword kw) {
+        if (!tokenizer.hasMoreTokens()) {
+            return false;
+        }
+        if (tokenizer.getTokenType() != KEYWORD) {
+            return false;
+        }
+        if (tokenizer.getKeyword() != kw) {
+            return false;
+        }
+        printCurrent(printStream, tokenizer);
+        tokenizer.advance();
+        return true;
+    }
+
+    private boolean compileIdentifier() {
+        if (!tokenizer.hasMoreTokens()) {
+            return false;
+        }
+        if (tokenizer.getTokenType() != IDENTIFIER) {
+            return false;
+        }
+        printCurrent(printStream, tokenizer);
+        tokenizer.advance();
+        return true;
     }
 
     /* class' className '{' classVarDec* subroutineDec* '}' */
-    public void compileClass() {
+    public boolean compileClass() {
         printStream.println("<class>");
-        /* identifier */
-        compileIdentifier(true);
-
-        /* '{' */
-        compileChar('{', true);
-
-        /* classVarDec* */
-        while (ok() && (kw() == STATIC || kw() == FIELD)) {
-            compileClassVarDec();
+        if (!compileIdentifier() || !compileSymbol('{')) {
+            return false;
         }
-
-        /* subroutineDec* */
-        if (kw() == CONSTRUCTOR || kw() == FUNCTION || kw() == METHOD) {
-            compileSubroutine();
+        while (compileClassVarDec());
+        while (compileSubroutine());
+        if (!compileSymbol('}')) {
+            return false;
         }
-        while (ok() && (kw() == CONSTRUCTOR || kw() == FUNCTION || kw() == METHOD)) {
-            compileSubroutine();
-        }
-
-        /* '}' */
-        compileChar('}', false);
         printStream.println("</class>");
+        return true;
     }
 
-    /* ('static' | 'field' ) */
-    public void compileClassVarDec() {
+    public boolean compileType() {
+        return compileKW(INT) || compileKW(BOOLEAN) ||compileKW(CHAR);
+    }
+
+    /* ('static' | 'field') type varName (',' varName)* */
+    public boolean compileClassVarDec() {
         printStream.println("<classVarDec>");
-
-        /* ('static' | 'field' ) */
-        compileKeyword(STATIC, true);
-        compileKeyword(FIELD, false);
-
-        /* type */
-        compileKeyword(INT, true);
-        compileKeyword(BOOLEAN, false);
-        compileKeyword(CHAR, false);
-
-        /* varName */
-        compileIdentifier(true);
-
-        /* (',' varName)* */
-        while (ok() && symbol() != ',') {
-            printCurrent(printStream, tokenizer);
-            compileIdentifier(true);
+        if (!compileKW(STATIC) && !compileKW(FIELD)) {
+            return false;
         }
-        /* ';' */
-        compileChar(';', true);
+        if (!compileType() || !compileIdentifier()) {
+            return false;
+        }
+        while (compileSymbol(',') && compileIdentifier());
+        if (!compileSymbol(';')) {
+            return false;
+        }
         printStream.println("</classVarDec>");
+        return true;
+    }
+
+    public boolean compileBody() {
+        if (!compileSymbol('{')) {
+            return false;
+        }
+        while (compileStatement());
+        if (!compileSymbol('}')) {
+            return false;
+        }
+        return true;
     }
 
     /* ('constructor' | 'function' | 'method')
@@ -146,86 +149,213 @@ class CompilationEngine {
      * subroutineName
      * '(' parameterList ')'
      *  subroutineBody */
-    public void compileSubroutine() {
+    public boolean compileSubroutine() {
         printStream.println("<subRoutine>");
-
-        /* ('constructor' | 'function' | 'method') */
-        compileKeyword(CONSTRUCTOR, true);
-        compileKeyword(FUNCTION, false);
-        compileKeyword(METHOD, false);
-
-        /* ('void' | type) */
-        compileKeyword(INT, true);
-        compileKeyword(BOOLEAN, false);
-        compileKeyword(CHAR, false);
-        compileKeyword(VOID, false);
-
-        /* subroutineName */
-        compileIdentifier(true);
-
-        /* '(' parameterList ')' */
-        compileChar('(', true);
-        compileParameterList();
-        compileChar(')', true);
-
-        /* subroutineBody */
-        compileStatements();
+        if (!compileKW(CONSTRUCTOR) && !compileKW(FUNCTION) && !compileKW(METHOD)
+            || !compileType() && !compileKW(VOID)) {
+            return false;
+        }
+        if (!compileIdentifier()) {
+            return false;
+        }
+        if (!compileSymbol('(') || !compileParameterList() || compileSymbol(')')) {
+            return false;
+        }
+        if (!compileBody()) {
+            return false;
+        }
         printStream.println("</subRoutine>");
+        return true;
     }
 
-    public void compileParameterList() {
+    /* ((type varName) ( ',' type varName)*)? */
+    public boolean compileParameterList() {
         printStream.println("<parameterList>");
+        if (compileType()) {
+            if (!compileIdentifier()) {
+                return false;
+            }
+            while (compileSymbol(',') && compileType() && compileIdentifier());
+        }
         printStream.println("</parameterList>");
+        return true;
     }
 
-    public void compileVarDec() {
+    /* 'var' type varName ( ',' varName)* ';' */
+    public boolean compileVarDec() {
         printStream.println("<varDec>");
+        if (!compileKW(VAR) || !compileType() || !compileIdentifier()) {
+            return false;
+        }
+        while (compileSymbol(',') && compileIdentifier());
+        if (!compileSymbol(';')) {
+            return false;
+        }
         printStream.println("</varDec>");
+        return true;
     }
 
-    public void compileStatements() {
-        printStream.println("<statements>");
-        printStream.println("</statements>");
+    /* letStatement | ifStatement | whileStatement
+     * | doStatement | returnStatement */
+    public boolean compileStatement() {
+        return compileLet() || compileIf() || compileWhile()
+            || compileDo() || compileReturn();
     }
 
-    public void compileDo() {
-        printStream.println("<do>");
-        printStream.println("</do>");
+    /* 'do' id ('.' id) ? '(' exprlst ')' ';' */
+    public boolean compileDo() {
+        printStream.println("<doStatement>");
+        if (!compileKW(DO)) {
+            return false;
+        }
+        if (compileSymbol('.')) {
+            if (!compileIdentifier()) {
+                return false;
+            }
+        }
+        if (!compileSymbol('(') || !compileExpressionList()
+         || !compileSymbol(')') || !compileSymbol(';')) {
+            return false;
+        }
+        printStream.println("</doStatement>");
+        return true;
     }
 
-    public void compileLet() {
-        printStream.println("<let>");
-        printStream.println("</let>");
+    /* 'let' varName ( '[' expression ']' )? '=' expression ';' */
+    public boolean compileLet() {
+        printStream.println("<letStatement>");
+        if (!compileKW(LET) || !compileIdentifier()) {
+            return false;
+        }
+        if (compileSymbol('[')) {
+            if (!compileExpression() || !compileSymbol(']')) {
+                return false;
+            }
+        }
+        if (!compileSymbol('=') || !compileExpression() || !compileSymbol(';')) {
+            return false;
+        }
+        printStream.println("</letStatement>");
+        return true;
     }
 
-    public void compileWhile() {
-        printStream.println("<while>");
-        printStream.println("</while>");
+    /* 'while' '(' expression ')' '{' statements '}' */
+    public boolean compileWhile() {
+        printStream.println("<whileStatement>");
+        if (!compileKW(WHILE)) {
+            return false;
+        }
+        if (!compileSymbol('(') || !compileExpression() || !compileSymbol(')')) {
+            return false;
+        }
+        if (!compileBody()) {
+            return false;
+        }
+        printStream.println("</whileStatement>");
+        return true;
     }
 
-    public void compileReturn() {
-        printStream.println("<return>");
-        printStream.println("</return>");
+    /* 'return' expression? ';' */
+    public boolean compileReturn() {
+        printStream.println("<returnStatement>");
+        if (!compileKW(RETURN)) {
+            return false;
+        }
+        compileExpression();
+        if (!compileSymbol(';')) {
+            return false;
+        }
+        printStream.println("</returnStatement>");
+        return true;
     }
 
-    public void compileIf() {
-        printStream.println("<if>");
-        printStream.println("</if>");
+    /* 'if' '(' expression ')' '{' statements '}'
+     * ( 'else' '{' statements '}' )? */
+    public boolean compileIf() {
+        printStream.println("<ifStatement>");
+        if (!compileKW(IF)
+          || !compileSymbol('(') || !compileExpression() || !compileSymbol(')')
+          || !compileBody()) {
+            return false;
+        }
+        if (compileKW(ELSE)) {
+            if (!compileBody()) {
+                return false;
+            }
+        }
+        printStream.println("</ifStatement>");
+        return true;
+    }
+
+    public boolean compileOp() {
+        return compileSymbol('+') || compileSymbol('-') || compileSymbol('*')
+          || compileSymbol('/') || compileSymbol('&') || compileSymbol('|')
+          || compileSymbol('<') || compileSymbol('>') || compileSymbol('=');
     }
     
-    public void compileExpression() {
+    /* term (op term)* */
+    public boolean compileExpression() {
         printStream.println("<expression>");
+        if (!compileTerm()) {
+            return false;
+        }
+        while (compileOp() && compileTerm());
         printStream.println("</expression>");
+        return true;
     }
 
-    public void compileTerm() {
+    /* integerConstant | stringConstant | keywordConstant
+     * | varName | varName '[' expression ']' | subroutineCall
+     * | '(' expression ')' | unaryOp term */
+    public boolean compileTerm() {
         printStream.println("<term>");
+        if (!compileInt() && !compileStr() && !compileKW(TRUE) && !compileKW(FALSE)
+          && !compileKW(NULL) && !compileKW(THIS)
+          && !((compileSymbol('-') || compileSymbol('~')) && compileTerm())
+          && !(compileSymbol('(') && compileExpression() && compileSymbol(')'))) {
+            if (!compileIdentifier()) {
+                return false;
+            }
+            /* id | id '[' expr ']' | id '(' list ')' | id '.' id ' (' list ')' */
+            if (tokenizer.hasMoreTokens() && tokenizer.getTokenType() == SYMBOL) {
+                switch (tokenizer.getSymbol()) {
+                case '[':
+                    if (!compileSymbol('[') && !compileExpression()
+                      && !compileSymbol(']')) {
+                        return false;
+                    }
+                    break;
+                case '(':
+                    if (!compileSymbol('(') && !compileExpression()
+                      && !compileSymbol(')')) {
+                        return false;
+                    }
+                    break;
+                case '.':
+                    if (!compileSymbol('.') && !compileIdentifier()
+                      && !compileSymbol('(')
+                      && !compileExpression() && !compileSymbol(')')) {
+                        return false;
+                    }
+                    break;
+                default:
+                    /* it's ok, there's nothing to do */
+                    break;
+                }
+            } /* else: nothing to do */
+        }
         printStream.println("</term>");
+        return true;
     }
 
-    public void compileExpressionList() {
+    /* (expression ( ',' expression)* )? */
+    public boolean compileExpressionList() {
         printStream.println("<expressionList>");
+        if (compileExpression()) {
+            while (compileSymbol(',') && compileExpression());
+        }
         printStream.println("</expressionList>");
+        return true;
     }
     
 }
