@@ -21,6 +21,7 @@ class JackTokenizer {
     private int intVal;
     private char symbol;
     private boolean finished;
+    private boolean valid;
     private TokenType tokenType;
     private Keyword keyword;
 
@@ -30,6 +31,8 @@ class JackTokenizer {
             this.file = file;
             fileReader = new FileReader(file);
             reader = new PushbackReader(fileReader);
+            finished = false;
+            valid = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,7 +44,11 @@ class JackTokenizer {
         if (finished) {
             return false;
         }
-        return readNext();
+        if (valid) {
+            return true;
+        }
+        valid = readNext();
+        return valid;
     }
 
     private static Keyword stringToKeyword(String s) {
@@ -241,11 +248,14 @@ class JackTokenizer {
     }
 
     public void advance() {
-        /* nothing to do */
+        valid = false;
     }
 
     /* read one token and return true if valid token */
     private boolean readNext() {
+        if (finished) {
+            return valid;
+        }
         try {
             int ch = reader.read();
             while (!finished) {
@@ -277,10 +287,8 @@ class JackTokenizer {
                     String str = readString(ch);
                     keyword = stringToKeyword(str);
                     if (keyword != null) {
-//                        System.out.println("STK: '" + str + "' is a " + keyword);
                         tokenType = TokenType.KEYWORD;
                     } else {
-//                        System.out.println("STK: '" + str  +"' is an identifier");
                         tokenType = TokenType.IDENTIFIER;
                         stringVal = str;
                     }
