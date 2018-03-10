@@ -194,14 +194,10 @@ class CompilationEngine {
     /* 'do' id ('.' id) ? '(' exprlst ')' ';' */
     public boolean compileDo() {
         printStream.println("<doStatement>");
-        if (!compileKW(DO)) {
-            return false;
-        }
-        if (compileSymbol('.') && !compileIdentifier()) {
-            return false;
-        }
-        if (!compileSymbol('(') || !compileExpressionList()
-         || !compileSymbol(')') || !compileSymbol(';')) {
+        if (!compileKW(DO)
+          || compileSymbol('.') && !compileIdentifier()
+          || !compileSymbol('(') || !compileExpressionList()
+          || !compileSymbol(')') || !compileSymbol(';')) {
             return false;
         }
         printStream.println("</doStatement>");
