@@ -12,19 +12,11 @@ class CompilationEngine {
 
     public CompilationEngine(File inFile, File outFile) {
         try {
-            JackTokenizer tokenizer = new JackTokenizer(inFile);
+            tokenizer = new JackTokenizer(inFile);
             printStream = new PrintStream(outFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void printXstr(String tag, String str) {
-        printStream.println(String.format("<%s>%s</%s>", tag, str, tag));
-    }
-
-    private void printXint(String tag, int n) {
-        printStream.println(String.format("<%s>%d</%s>", tag, n, tag));
     }
 
     public boolean start() {
@@ -70,7 +62,7 @@ class CompilationEngine {
         return true;
     }
 
-    private boolean compileKW(JackTokenizer.Keyword kw) {
+    private boolean compileKW(Keyword kw) {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
@@ -138,10 +130,7 @@ class CompilationEngine {
             return false;
         }
         while (compileStatement());
-        if (!compileSymbol('}')) {
-            return false;
-        }
-        return true;
+        return compileSymbol('}');
     }
 
     /* ('constructor' | 'function' | 'method')
@@ -227,10 +216,9 @@ class CompilationEngine {
         if (!compileKW(LET) || !compileIdentifier()) {
             return false;
         }
-        if (compileSymbol('[')) {
-            if (!compileExpression() || !compileSymbol(']')) {
-                return false;
-            }
+        if (compileSymbol('[')
+          && (!compileExpression() || !compileSymbol(']'))) {
+            return false;
         }
         if (!compileSymbol('=') || !compileExpression() || !compileSymbol(';')) {
             return false;
@@ -242,13 +230,9 @@ class CompilationEngine {
     /* 'while' '(' expression ')' '{' statements '}' */
     public boolean compileWhile() {
         printStream.println("<whileStatement>");
-        if (!compileKW(WHILE)) {
-            return false;
-        }
-        if (!compileSymbol('(') || !compileExpression() || !compileSymbol(')')) {
-            return false;
-        }
-        if (!compileBody()) {
+        if (!compileKW(WHILE)
+          || !compileSymbol('(') || !compileExpression() || !compileSymbol(')')
+          || !compileBody()) {
             return false;
         }
         printStream.println("</whileStatement>");
@@ -275,13 +259,9 @@ class CompilationEngine {
         printStream.println("<ifStatement>");
         if (!compileKW(IF)
           || !compileSymbol('(') || !compileExpression() || !compileSymbol(')')
-          || !compileBody()) {
+          || !compileBody()
+          || compileKW(ELSE) && !compileBody()) {
             return false;
-        }
-        if (compileKW(ELSE)) {
-            if (!compileBody()) {
-                return false;
-            }
         }
         printStream.println("</ifStatement>");
         return true;

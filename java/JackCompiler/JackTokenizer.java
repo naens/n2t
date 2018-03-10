@@ -205,7 +205,8 @@ class JackTokenizer {
     }
 
     /* read identifiers and keywords */
-    private String readString(int ch) {
+    private String readString(int chr) {
+        int ch = chr;
         StringBuffer result = new StringBuffer();
         result.append((char)ch);
         try {
@@ -225,7 +226,8 @@ class JackTokenizer {
         return result.toString();
     }
 
-    private int readInteger(int ch) {
+    private int readInteger(int chr) {
+        int ch = chr;
         int result = ch - '0';
         try {
             ch = reader.read();
@@ -367,16 +369,16 @@ class JackTokenizer {
 
     private String symbolToString(char symbol) {
         switch (symbol) {
-            case '<':
-                return "&lt;";
-            case '>':
-                return "&gt;";
-            case '"':
-                return "&quot;";
-            case '&':
-                return "&amp;";
-            default:
-                return Character.toString(symbol);
+        case '<':
+            return "&lt;";
+        case '>':
+            return "&gt;";
+        case '"':
+            return "&quot;";
+        case '&':
+            return "&amp;";
+        default:
+            return Character.toString(symbol);
         }
     }
 
