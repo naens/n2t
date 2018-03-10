@@ -14,7 +14,6 @@ class JackTokenizer {
         IF, ELSE, WHILE, RETURN, TRUE, FALSE, NULL, THIS
     }
 
-    private File file;
     private FileReader fileReader;
     private PushbackReader reader;
     private String stringVal;
@@ -28,7 +27,6 @@ class JackTokenizer {
     /* Open the input file and gets ready to tokenize it */
     public JackTokenizer(File file) {
         try {
-            this.file = file;
             fileReader = new FileReader(file);
             reader = new PushbackReader(fileReader);
             finished = false;
@@ -401,6 +399,7 @@ class JackTokenizer {
             break;
         default:
             printXstr(ps, "unknown", tokenizer.getTokenType().toString());
+            break;
         }
     }
 
