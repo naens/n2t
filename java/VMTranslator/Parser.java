@@ -1,15 +1,15 @@
+package jack.vmtranslator;
+
 import java.io.*;
 import java.util.regex.*;
 
 public class Parser {
 
-    private File file;
     private FileReader fileReader;
     private BufferedReader bufferedReader;
 
     public Parser(File file) {
         try {
-            this.file = file;
             fileReader = new FileReader(file);
             bufferedReader = new BufferedReader(fileReader);
         } catch (IOException e) {

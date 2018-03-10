@@ -1,8 +1,8 @@
+package jack.vmtranslator;
 import java.io.*;
 
 public class CodeWriter {
 
-    private File file;
     private String name;
     private PrintStream printStream;
     private String moduleName;
@@ -10,7 +10,6 @@ public class CodeWriter {
     private int n;
 
     public CodeWriter(File file) {
-        this.file = file;
         try {
             printStream = new PrintStream(file);
         } catch (IOException e) {

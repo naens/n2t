@@ -1,3 +1,5 @@
+package jack.vmtranslator;
+
 import java.io.*;
 
 public class VMTranslator {
@@ -53,7 +55,6 @@ public class VMTranslator {
             Parser parser = new Parser(f);
             String[] strs;
             while ((strs = parser.advance()) != null) {
-//                System.out.println(String.join("|||", strs));
                 doCmd(codeWriter, strs);
             }
             parser.close();
