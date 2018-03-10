@@ -1,9 +1,9 @@
-package jack;
+package jack.jackcompiler;
 
 import java.io.*;
-import static jack.JackTokenizer.*;
-import static jack.JackTokenizer.TokenType.*;
-import static jack.JackTokenizer.Keyword.*;
+import static jack.jackcompiler.JackTokenizer.*;
+import static jack.jackcompiler.JackTokenizer.TokenType.*;
+import static jack.jackcompiler.JackTokenizer.Keyword.*;
 
 class CompilationEngine {
 

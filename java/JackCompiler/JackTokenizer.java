@@ -1,4 +1,4 @@
-package jack;
+package jack.jackcompiler;
 
 import java.io.*;
 
