@@ -1,5 +1,3 @@
-package jack.jackcompiler;
-
 import java.io.*;
 
 class JackTokenizer {
