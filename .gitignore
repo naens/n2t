@@ -23,3 +23,5 @@ FunctionCalls
 
 *.class
 lang.txt
+.idea
+test
