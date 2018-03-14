@@ -1,28 +1,26 @@
 class SymbolTable {
 
-    public enum Kind {FIELD, STATIC, LOCAL, ARGUMENT}
-
     public SymbolTable() {
     }
 
     public void startSubroutine() {
     }
 
-    public void define() {
+    public void define(String name, String type, Kind kind) {
     }
 
-    public void varCount() {
+    public void varCount(Kind kind) {
     }
 
-    public Kind kindOf(String s) {
+    public Kind kindOf(String name) {
         return null;
     }
 
-    public String typeOf(String s) {
+    public String typeOf(String name) {
         return null;
     }
 
-    public int indexOf(String s) {
+    public int indexOf(String name) {
         return -1234;
     }
 }
