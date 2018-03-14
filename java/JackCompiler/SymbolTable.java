@@ -1,6 +1,6 @@
 class SymbolTable {
 
-    public enum Kind {FIELD, STATIC, LOCAL}
+    public enum Kind {FIELD, STATIC, LOCAL, ARGUMENT}
 
     public SymbolTable() {
     }

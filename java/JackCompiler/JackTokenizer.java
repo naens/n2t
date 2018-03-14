@@ -2,16 +2,6 @@ import java.io.*;
 
 class JackTokenizer {
 
-    public static enum TokenType {
-        KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST
-    }
-
-    public static enum Keyword {
-        CLASS, METHOD, FUNCTION, CONSTRUCTOR,
-        INT, BOOLEAN, CHAR, VOID, VAR, STATIC, FIELD, LET, DO,
-        IF, ELSE, WHILE, RETURN, TRUE, FALSE, NULL, THIS
-    }
-
     private FileReader fileReader;
     private PushbackReader reader;
     private String stringVal;

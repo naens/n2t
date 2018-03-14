@@ -2,29 +2,6 @@ import java.io.*;
 
 class CompilationEngine {
 
-    private final JackTokenizer.Keyword CLASS = JackTokenizer.Keyword.CLASS;
-    private final JackTokenizer.Keyword INT = JackTokenizer.Keyword.INT;
-    private final JackTokenizer.Keyword BOOLEAN = JackTokenizer.Keyword.BOOLEAN;
-    private final JackTokenizer.Keyword CHAR = JackTokenizer.Keyword.CHAR;
-    private final JackTokenizer.Keyword STATIC = JackTokenizer.Keyword.STATIC;
-    private final JackTokenizer.Keyword FIELD = JackTokenizer.Keyword.FIELD;
-    private final JackTokenizer.Keyword CONSTRUCTOR = JackTokenizer.Keyword.CONSTRUCTOR;
-    private final JackTokenizer.Keyword FUNCTION = JackTokenizer.Keyword.FUNCTION;
-    private final JackTokenizer.Keyword METHOD = JackTokenizer.Keyword.METHOD;
-    private final JackTokenizer.Keyword VOID = JackTokenizer.Keyword.VOID;
-    private final JackTokenizer.Keyword VAR = JackTokenizer.Keyword.VAR;
-    private final JackTokenizer.Keyword DO = JackTokenizer.Keyword.DO;
-    private final JackTokenizer.Keyword LET = JackTokenizer.Keyword.LET;
-    private final JackTokenizer.Keyword WHILE = JackTokenizer.Keyword.WHILE;
-    private final JackTokenizer.Keyword RETURN = JackTokenizer.Keyword.RETURN;
-    private final JackTokenizer.Keyword IF = JackTokenizer.Keyword.IF;
-    private final JackTokenizer.Keyword ELSE = JackTokenizer.Keyword.ELSE;
-    private final JackTokenizer.Keyword TRUE = JackTokenizer.Keyword.TRUE;
-    private final JackTokenizer.Keyword FALSE = JackTokenizer.Keyword.FALSE;
-    private final JackTokenizer.Keyword NULL = JackTokenizer.Keyword.NULL;
-    private final JackTokenizer.Keyword THIS = JackTokenizer.Keyword.THIS;
-    private final JackTokenizer.TokenType SYMBOL = JackTokenizer.TokenType.SYMBOL;
-
     private JackTokenizer tokenizer;
     private PrintStream printStream;
 
@@ -48,7 +25,7 @@ class CompilationEngine {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
-        if (tokenizer.getTokenType() != JackTokenizer.TokenType.SYMBOL) {
+        if (tokenizer.getTokenType() != TokenType.SYMBOL) {
             return false;
         }
         if (tokenizer.getSymbol() != c) {
@@ -63,7 +40,7 @@ class CompilationEngine {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
-        if (tokenizer.getTokenType() != JackTokenizer.TokenType.INT_CONST) {
+        if (tokenizer.getTokenType() != TokenType.INT_CONST) {
             return false;
         }
         JackTokenizer.printCurrent(printStream, tokenizer);
@@ -75,7 +52,7 @@ class CompilationEngine {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
-        if (tokenizer.getTokenType() != JackTokenizer.TokenType.STRING_CONST) {
+        if (tokenizer.getTokenType() != TokenType.STRING_CONST) {
             return false;
         }
         JackTokenizer.printCurrent(printStream, tokenizer);
@@ -83,11 +60,11 @@ class CompilationEngine {
         return true;
     }
 
-    private boolean compileKW(JackTokenizer.Keyword kw, String prefixTag) {
+    private boolean compileKW(Keyword kw, String prefixTag) {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
-        if (tokenizer.getTokenType() != JackTokenizer.TokenType.KEYWORD) {
+        if (tokenizer.getTokenType() != TokenType.KEYWORD) {
             return false;
         }
         if (tokenizer.getKeyword() != kw) {
@@ -99,11 +76,11 @@ class CompilationEngine {
         return true;
     }
 
-    private boolean compileKW(JackTokenizer.Keyword kw) {
+    private boolean compileKW(Keyword kw) {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
-        if (tokenizer.getTokenType() != JackTokenizer.TokenType.KEYWORD) {
+        if (tokenizer.getTokenType() != TokenType.KEYWORD) {
             return false;
         }
         if (tokenizer.getKeyword() != kw) {
@@ -118,7 +95,7 @@ class CompilationEngine {
         if (!tokenizer.hasMoreTokens()) {
             return false;
         }
-        if (tokenizer.getTokenType() != JackTokenizer.TokenType.IDENTIFIER) {
+        if (tokenizer.getTokenType() != TokenType.IDENTIFIER) {
             return false;
         }
         JackTokenizer.printCurrent(printStream, tokenizer);
@@ -127,13 +104,14 @@ class CompilationEngine {
     }
 
     private boolean testSymbol(char c) {
-        return tokenizer.hasMoreTokens() && tokenizer.getTokenType() == SYMBOL
-                && tokenizer.getSymbol() == c;
+        return tokenizer.hasMoreTokens()
+             && tokenizer.getTokenType() == TokenType.SYMBOL
+             && tokenizer.getSymbol() == c;
     }
 
     /* class' className '{' classVarDec* subroutineDec* '}' */
     public boolean compileClass() {
-        if (!compileKW(CLASS, "<class>") || !compileIdentifier()
+        if (!compileKW(Keyword.CLASS, "<class>") || !compileIdentifier()
                 || !compileSymbol('{')) {
             return false;
         }
@@ -147,12 +125,14 @@ class CompilationEngine {
     }
 
     public boolean compileType() {
-        return compileKW(INT) || compileKW(BOOLEAN) || compileKW(CHAR) || compileIdentifier();
+        return compileKW(Keyword.INT) || compileKW(Keyword.BOOLEAN)
+          || compileKW(Keyword.CHAR) || compileIdentifier();
     }
 
     /* ('static' | 'field') type varName (',' varName)* */
     public boolean compileClassVarDec() {
-        if (!compileKW(STATIC, "<classVarDec>") && !compileKW(FIELD, "<classVarDec>")) {
+        if (!compileKW(Keyword.STATIC, "<classVarDec>")
+          && !compileKW(Keyword.FIELD, "<classVarDec>")) {
             return false;
         }
         if (!compileType() || !compileIdentifier()) {
@@ -200,10 +180,10 @@ class CompilationEngine {
      * '(' parameterList ')'
      *  subroutineBody */
     public boolean compileSubroutine() {
-        if (!compileKW(CONSTRUCTOR, "<subroutineDec>")
-                && !compileKW(FUNCTION, "<subroutineDec>")
-                && !compileKW(METHOD, "<subroutineDec>")
-            || !compileType() && !compileKW(VOID)) {
+        if (!compileKW(Keyword.CONSTRUCTOR, "<subroutineDec>")
+                && !compileKW(Keyword.FUNCTION, "<subroutineDec>")
+                && !compileKW(Keyword.METHOD, "<subroutineDec>")
+            || !compileType() && !compileKW(Keyword.VOID)) {
             return false;
         }
         if (!compileIdentifier()) {
@@ -234,7 +214,7 @@ class CompilationEngine {
 
     /* 'var' type varName ( ',' varName)* ';' */
     public boolean compileVarDec() {
-        if (!compileKW(VAR, "<varDec>") || !compileType() || !compileIdentifier()) {
+        if (!compileKW(Keyword.VAR, "<varDec>") || !compileType() || !compileIdentifier()) {
             return false;
         }
         while (compileSymbol(',') && compileIdentifier());
@@ -254,7 +234,7 @@ class CompilationEngine {
 
     /* 'do' id ('.' id) ? '(' expressionlist ')' ';' */
     public boolean compileDo() {
-        if (!compileKW(DO, "<doStatement>")
+        if (!compileKW(Keyword.DO, "<doStatement>")
           || !compileIdentifier()
           || compileSymbol('.') && !compileIdentifier()
           || !compileSymbol('(') || !compileExpressionList()
@@ -267,7 +247,7 @@ class CompilationEngine {
 
     /* 'let' varName ( '[' expression ']' )? '=' expression ';' */
     public boolean compileLet() {
-        if (!compileKW(LET, "<letStatement>") || !compileIdentifier()) {
+        if (!compileKW(Keyword.LET, "<letStatement>") || !compileIdentifier()) {
             return false;
         }
         if (compileSymbol('[')
@@ -283,7 +263,7 @@ class CompilationEngine {
 
     /* 'while' '(' expression ')' '{' statements '}' */
     public boolean compileWhile() {
-        if (!compileKW(WHILE, "<whileStatement>")
+        if (!compileKW(Keyword.WHILE, "<whileStatement>")
           || !compileSymbol('(') || !compileExpression() || !compileSymbol(')')
           || !compileBody()) {
             return false;
@@ -294,7 +274,7 @@ class CompilationEngine {
 
     /* 'return' expression? ';' */
     public boolean compileReturn() {
-        if (!compileKW(RETURN, "<returnStatement>")) {
+        if (!compileKW(Keyword.RETURN, "<returnStatement>")) {
             return false;
         }
         if (!testSymbol(';')) {
@@ -310,10 +290,10 @@ class CompilationEngine {
     /* 'if' '(' expression ')' '{' statements '}'
      * ( 'else' '{' statements '}' )? */
     public boolean compileIf() {
-        if (!compileKW(IF, "<ifStatement>")
+        if (!compileKW(Keyword.IF, "<ifStatement>")
           || !compileSymbol('(') || !compileExpression() || !compileSymbol(')')
           || !compileBody()
-          || compileKW(ELSE) && !compileBody()) {
+          || compileKW(Keyword.ELSE) && !compileBody()) {
             return false;
         }
         printStream.println("</ifStatement>");
@@ -342,15 +322,17 @@ class CompilationEngine {
      * | '(' expression ')' | unaryOp term */
     public boolean compileTerm() {
         printStream.println("<term>");
-        if (!compileInt() && !compileStr() && !compileKW(TRUE) && !compileKW(FALSE)
-          && !compileKW(NULL) && !compileKW(THIS)
+        if (!compileInt() && !compileStr()
+          && !compileKW(Keyword.TRUE) && !compileKW(Keyword.FALSE)
+          && !compileKW(Keyword.NULL) && !compileKW(Keyword.THIS)
           && !((compileSymbol('-') || compileSymbol('~')) && compileTerm())
           && !(compileSymbol('(') && compileExpression() && compileSymbol(')'))) {
             if (!compileIdentifier()) {
                 return false;
             }
             /* id | id '[' expr ']' | id '(' list ')' | id '.' id ' (' list ')' */
-            if (tokenizer.hasMoreTokens() && tokenizer.getTokenType() == SYMBOL) {
+            if (tokenizer.hasMoreTokens()
+               && tokenizer.getTokenType() == TokenType.SYMBOL) {
                 switch (tokenizer.getSymbol()) {
                 case '[':
                     if (!compileSymbol('[') || !compileExpression()
