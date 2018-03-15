@@ -6,5 +6,10 @@ enum Command {
     LT,
     AND,
     OR,
-    NOT
+    NOT;
+
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase();
+    }
 }
