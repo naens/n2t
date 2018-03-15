@@ -4,6 +4,7 @@ class CompilationEngine {
 
     private JackTokenizer tokenizer;
     private PrintStream printStream;
+    private SymbolTable symbolTable;
 
     public CompilationEngine(File inFile, File outFile) {
         try {
@@ -111,6 +112,7 @@ class CompilationEngine {
 
     /* class' className '{' classVarDec* subroutineDec* '}' */
     public boolean compileClass() {
+        symbolTable = new SymbolTable();
         if (!compileKW(Keyword.CLASS, "<class>") || !compileIdentifier()
                 || !compileSymbol('{')) {
             return false;
@@ -129,16 +131,77 @@ class CompilationEngine {
           || compileKW(Keyword.CHAR) || compileIdentifier();
     }
 
+    private String getIdent() {
+        if (!tokenizer.hasMoreTokens()
+        || tokenizer.getTokenType() != TokenType.IDENTIFIER) {
+            return null;
+        }
+        return tokenizer.getIdentifier();
+    }
+
+    private Keyword getKW() {
+        if (!tokenizer.hasMoreTokens()
+        || tokenizer.getTokenType() != TokenType.KEYWORD) {
+            return null;
+        }
+        return tokenizer.getKeyword();
+    }
+
+    private Kind makeKind() {
+        switch (getKW()) {
+        case STATIC:
+            return Kind.STATIC;
+        case FIELD:
+            return Kind.FIELD;
+        default:
+            return null;
+        }
+    }
+
+    private String makeType() {
+        String ident = getIdent();
+        if (ident != null) {
+            return ident;
+        }
+        Keyword kw = getKW();
+        if (kw == null) {
+            return null;
+        }
+        switch (getKW()) {
+        case INT:
+            return "int";
+        case BOOLEAN:
+            return "boolean";
+        case CHAR:
+            return "char";
+        default:
+            return null;
+        }
+    }
+
     /* ('static' | 'field') type varName (',' varName)* */
     public boolean compileClassVarDec() {
+        Kind kind = makeKind();
         if (!compileKW(Keyword.STATIC, "<classVarDec>")
           && !compileKW(Keyword.FIELD, "<classVarDec>")) {
             return false;
         }
-        if (!compileType() || !compileIdentifier()) {
+        String type = makeType();
+        if (!compileType()) {
             return false;
         }
-        while (compileSymbol(',') && compileIdentifier());
+        String name = getIdent();
+        if (!compileIdentifier()) {
+            return false;
+        }
+        symbolTable.define(name, type, kind);
+        while (compileSymbol(',')) {
+            name = getIdent();
+            if (!compileIdentifier()) {
+                return false;
+            }
+            symbolTable.define(name, type, kind);
+        }
         if (!compileSymbol(';')) {
             return false;
         }
@@ -186,6 +249,7 @@ class CompilationEngine {
             || !compileType() && !compileKW(Keyword.VOID)) {
             return false;
         }
+        symbolTable.startSubroutine();
         if (!compileIdentifier()) {
             return false;
         }
@@ -202,11 +266,24 @@ class CompilationEngine {
     /* ((type varName) ( ',' type varName)*)? */
     public boolean compileParameterList() {
         printStream.println("<parameterList>");
+        String type = makeType();
         if (compileType()) {
+            String name = getIdent();
             if (!compileIdentifier()) {
                 return false;
             }
-            while (compileSymbol(',') && compileType() && compileIdentifier());
+            symbolTable.define(name, type, Kind.ARGUMENT);
+            while (compileSymbol(',')) {
+                type = makeType();
+                if (!compileType()) {
+                    return false;
+                }
+                name = getIdent();
+                if (!compileIdentifier()) {
+                    return false;
+                }
+                symbolTable.define(name, type, Kind.ARGUMENT);
+            }
         }
         printStream.println("</parameterList>");
         return true;
@@ -214,10 +291,25 @@ class CompilationEngine {
 
     /* 'var' type varName ( ',' varName)* ';' */
     public boolean compileVarDec() {
-        if (!compileKW(Keyword.VAR, "<varDec>") || !compileType() || !compileIdentifier()) {
+        if (!compileKW(Keyword.VAR, "<varDec>")) {
             return false;
         }
-        while (compileSymbol(',') && compileIdentifier());
+        String type = makeType();
+        if (!compileType()) {
+            return false;
+        }
+        String name = getIdent();
+        if (!compileIdentifier()) {
+            return false;
+        }
+        symbolTable.define(name, type, Kind.LOCAL);
+        while (compileSymbol(',')) {
+            name = getIdent();
+            if (!compileIdentifier()) {
+                return false;
+            }
+            symbolTable.define(name, type, Kind.LOCAL);
+        }
         if (!compileSymbol(';')) {
             return false;
         }
@@ -247,7 +339,12 @@ class CompilationEngine {
 
     /* 'let' varName ( '[' expression ']' )? '=' expression ';' */
     public boolean compileLet() {
-        if (!compileKW(Keyword.LET, "<letStatement>") || !compileIdentifier()) {
+        if (!compileKW(Keyword.LET, "<letStatement>")) {
+            return false;
+        }
+        String name = getIdent();
+        symbolTable.println(name);
+        if (!compileIdentifier()) {
             return false;
         }
         if (compileSymbol('[')
@@ -327,6 +424,7 @@ class CompilationEngine {
           && !compileKW(Keyword.NULL) && !compileKW(Keyword.THIS)
           && !((compileSymbol('-') || compileSymbol('~')) && compileTerm())
           && !(compileSymbol('(') && compileExpression() && compileSymbol(')'))) {
+            String ident = getIdent();
             if (!compileIdentifier()) {
                 return false;
             }
@@ -335,20 +433,26 @@ class CompilationEngine {
                && tokenizer.getTokenType() == TokenType.SYMBOL) {
                 switch (tokenizer.getSymbol()) {
                 case '[':
+                    symbolTable.println(ident);
                     if (!compileSymbol('[') || !compileExpression()
                       || !compileSymbol(']')) {
                         return false;
                     }
                     break;
                 case '(':
+                    symbolTable.println(ident);
                     if (!compileSymbol('(') || !compileExpressionList()
                       || !compileSymbol(')')) {
                         return false;
                     }
                     break;
                 case '.':
-                    if (!compileSymbol('.') || !compileIdentifier()
-                      || !compileSymbol('(')
+                    if (!compileSymbol('.')) {
+                        return false;
+                    }
+                    String subname = getIdent();
+                    System.out.println(String.format("extern: %s.%s", ident, subname));
+                    if (!compileIdentifier() || !compileSymbol('(')
                       || !compileExpressionList() || !compileSymbol(')')) {
                         return false;
                     }
