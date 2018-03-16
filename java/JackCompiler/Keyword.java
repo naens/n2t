@@ -19,5 +19,10 @@ enum Keyword {
     TRUE,
     FALSE,
     NULL,
-    THIS
+    THIS;
+
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase();
+    }
 }

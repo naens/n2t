@@ -28,28 +28,22 @@ class SymbolTable {
         return entry;
     }
 
-    public void define(String name, String type, Kind kind) {
+    public int define(String name, String type, Kind kind) {
+        int c = -1;
         System.out.println(String.format("def %s: %s, %s", name, type, kind));
         switch (kind) {
         case STATIC:
         case FIELD:
-            classMap.put(name, newEntry(type, kind, varCount(kind, classMap)));
+            c = varCount(kind, classMap);
+            classMap.put(name, newEntry(type, kind, c));
             break;
         case LOCAL:
         case ARGUMENT:
-            procMap.put(name, newEntry(type, kind, varCount(kind, procMap)));
+            c = varCount(kind, procMap);
+            procMap.put(name, newEntry(type, kind, c));
             break;
         }
-    }
-
-    public void println(String name) {
-        Entry entry = getEntry(name);
-        if (entry == null) {
-            System.out.println(String.format("ident: unknown %s", name));
-        } else {
-            System.out.println(String.format("ident: %s: %s, %s[%d]",
-                    name, entry.type, entry.kind, entry.index));
-        }
+        return c;
     }
 
     private int varCount(Kind kind, HashMap<String, Entry> map) {
@@ -65,6 +59,10 @@ class SymbolTable {
     private Entry getEntry(String name) {
         Entry entry = procMap.get(name);
         return entry != null ? entry : classMap.get(name);
+    }
+
+    public boolean isClass(String name) {
+        return getEntry(name) == null;
     }
 
     public Kind kindOf(String name) {

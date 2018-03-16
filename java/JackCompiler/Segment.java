@@ -8,6 +8,21 @@ enum Segment {
     POINTER,
     TEMP;
 
+    public static Segment fromKind(Kind kind) {
+        switch (kind) {
+        case LOCAL:
+            return LOCAL;
+        case ARGUMENT:
+            return ARG;
+        case FIELD:
+            return THIS;
+        case STATIC:
+            return STATIC;
+        default:
+            return null;
+        }
+    }
+
     @Override
     public String toString() {
         switch (this) {

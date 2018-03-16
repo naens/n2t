@@ -12,6 +12,16 @@ class VMWriter {
         }
     }
 
+    public void writeDefine(String name, String type, Kind kind, int index) {
+        ps.println(String.format("// define %s: %s, %s[%d]",
+                name, type, kind.toString(), index));
+    }
+
+    public void writeSubroutine(Keyword kw, String name, String type, int nArgs) {
+        ps.println(String.format("// %s %s: %s", kw.toString(), name, type));
+        ps.println(String.format("function %s %d", name, nArgs));
+    }
+
     public void writePush(Segment segment, int index) {
         ps.println(String.format("push %s %d", segment.toString(), index));
     }
@@ -40,7 +50,7 @@ class VMWriter {
         ps.println(String.format("call %s %d", name, nArgs));
     }
 
-    public void writReturn() {
+    public void writeReturn() {
         ps.println("return");
     }
 
@@ -48,5 +58,4 @@ class VMWriter {
     public void close() {
         ps.close();
     }
-
 }
