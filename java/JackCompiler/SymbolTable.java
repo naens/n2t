@@ -30,7 +30,6 @@ class SymbolTable {
 
     public int define(String name, String type, Kind kind) {
         int c = -1;
-        System.out.println(String.format("def %s: %s, %s", name, type, kind));
         switch (kind) {
         case STATIC:
         case FIELD:
@@ -44,6 +43,10 @@ class SymbolTable {
             break;
         }
         return c;
+    }
+
+    public int fields() {
+        return varCount(Kind.FIELD, classMap);
     }
 
     private int varCount(Kind kind, HashMap<String, Entry> map) {

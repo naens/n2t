@@ -3,21 +3,21 @@ import java.io.*;
 class CompilationEngine {
 
     private JackTokenizer tokenizer;
-    private PrintStream ps;
+//    private PrintStream ps;
     private VMWriter vmw;
     private SymbolTable symbolTable;
     private int labelNumber;
     private String className;
 
-    public CompilationEngine(File inFile, File xmlFile, File vmFile) {
-        try {
+    public CompilationEngine(File inFile, /*File xmlFile, */File vmFile) {
+//        try {
             tokenizer = new JackTokenizer(inFile);
-            ps = new PrintStream(xmlFile);
+//            ps = new PrintStream(xmlFile);
             vmw = new VMWriter(vmFile);
             labelNumber = 0;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private int getLabelNumber() {
@@ -28,7 +28,7 @@ class CompilationEngine {
         if (!compileClass()) {
             System.out.println("error");
         }
-        ps.close();
+//        ps.close();
         vmw.close();
     }
 
@@ -42,7 +42,7 @@ class CompilationEngine {
         if (tokenizer.getSymbol() != c) {
             return false;
         }
-        JackTokenizer.printCurrent(ps, tokenizer);
+//        JackTokenizer.printCurrent(ps, tokenizer);
         tokenizer.advance();
         return true;
     }
@@ -54,7 +54,7 @@ class CompilationEngine {
         if (tokenizer.getTokenType() != TokenType.INT_CONST) {
             return false;
         }
-        JackTokenizer.printCurrent(ps, tokenizer);
+//        JackTokenizer.printCurrent(ps, tokenizer);
         tokenizer.advance();
         return true;
     }
@@ -66,7 +66,7 @@ class CompilationEngine {
         if (tokenizer.getTokenType() != TokenType.STRING_CONST) {
             return false;
         }
-        JackTokenizer.printCurrent(ps, tokenizer);
+//        JackTokenizer.printCurrent(ps, tokenizer);
         tokenizer.advance();
         return true;
     }
@@ -81,8 +81,8 @@ class CompilationEngine {
         if (tokenizer.getKeyword() != kw) {
             return false;
         }
-        ps.println(prefixTag);
-        JackTokenizer.printCurrent(ps, tokenizer);
+//        ps.println(prefixTag);
+//        JackTokenizer.printCurrent(ps, tokenizer);
         tokenizer.advance();
         return true;
     }
@@ -97,7 +97,7 @@ class CompilationEngine {
         if (tokenizer.getKeyword() != kw) {
             return false;
         }
-        JackTokenizer.printCurrent(ps, tokenizer);
+//        JackTokenizer.printCurrent(ps, tokenizer);
         tokenizer.advance();
         return true;
     }
@@ -109,7 +109,7 @@ class CompilationEngine {
         if (tokenizer.getTokenType() != TokenType.IDENTIFIER) {
             return false;
         }
-        JackTokenizer.printCurrent(ps, tokenizer);
+//        JackTokenizer.printCurrent(ps, tokenizer);
         tokenizer.advance();
         return true;
     }
@@ -135,7 +135,7 @@ class CompilationEngine {
         if (!compileSymbol('}')) {
             return false;
         }
-        ps.println("</class>");
+//        ps.println("</class>");
         return true;
     }
 
@@ -261,27 +261,14 @@ class CompilationEngine {
         if (!compileSymbol(';')) {
             return false;
         }
-        ps.println("</classVarDec>");
+//        ps.println("</classVarDec>");
         return true;
     }
 
     public boolean compileStatements() {
-        ps.println("<statements>");
+//        ps.println("<statements>");
         while (compileStatement());
-        ps.println("</statements>");
-        return true;
-    }
-
-    public boolean compileBody(String tag) {
-        ps.println(String.format("<%s>", tag));
-        if (!compileSymbol('{')) {
-            return false;
-        }
-        while (compileVarDec());
-        if (!compileStatements() || !compileSymbol('}')) {
-            return false;
-        }
-        ps.println(String.format("</%s>", tag));
+//        ps.println("</statements>");
         return true;
     }
 
@@ -289,7 +276,6 @@ class CompilationEngine {
         if (!compileSymbol('{')) {
             return false;
         }
-        while (compileVarDec());
         return compileStatements() && compileSymbol('}');
     }
 
@@ -305,6 +291,7 @@ class CompilationEngine {
                 && !compileKW(Keyword.METHOD, "<subroutineDec>")) {
             return false;
         }
+        int index = 0;
         String type = makeType();
         if (!compileType()) {
             return false;
@@ -314,26 +301,45 @@ class CompilationEngine {
         if (!compileIdentifier()) {
             return false;
         }
-        int n = -1;
-        if (!compileSymbol('(') || (n = compileParameterList()) == -1 || !compileSymbol(')')) {
+        if (kw == Keyword.METHOD) {
+            symbolTable.define(".", ".", Kind.ARGUMENT);
+        }
+        if (!compileSymbol('(')
+                || compileParameterList() == -1
+                || !compileSymbol(')')) {
             return false;
         }
-        vmw.writeSubroutine(kw, String.format("%s.%s", className, name), type, n);
-        if (n > 0) {
-            vmw.writePush(Segment.CONST, n);
+//        ps.println(String.format("<%s>", "subroutineBody"));
+        if (!compileSymbol('{')) {
+            return false;
+        }
+        int vars = 0;
+        int n;
+        while ((n = compileVarDec()) != -1) {
+            vars += n;
+        }
+        int fields = symbolTable.fields();
+        vmw.writeSubroutine(kw, String.format("%s.%s", className, name), type, vars);
+        if (kw == Keyword.CONSTRUCTOR && fields > 0) {
+            vmw.writePush(Segment.CONST, fields);
             vmw.writeCall("Memory.alloc", 1);
-            vmw.writePop(Segment.TEMP, 2);
+            vmw.writePop(Segment.POINTER, 0);
         }
-        if (!compileBody("subroutineBody")) {
+        if (kw == Keyword.METHOD) {
+            vmw.writePush(Segment.ARG, 0);
+            vmw.writePop(Segment.POINTER, 0);
+        }
+        if (!compileStatements() || !compileSymbol('}')) {
             return false;
         }
-        ps.println("</subroutineDec>");
+//        ps.println(String.format("</%s>", "subroutineBody"));
+//        ps.println("</subroutineDec>");
         return true;
     }
 
     /* ((type varName) ( ',' type varName)*)? */
     public int compileParameterList() {
-        ps.println("<parameterList>");
+//        ps.println("<parameterList>");
         String type = makeType();
         int res = 0;
         if (compileType()) {
@@ -358,38 +364,41 @@ class CompilationEngine {
                 res++;
             }
         }
-        ps.println("</parameterList>");
+//        ps.println("</parameterList>");
         return res;
     }
 
     /* 'var' type varName ( ',' varName)* ';' */
-    public boolean compileVarDec() {
+    public int compileVarDec() {
+        int result = 0;
         if (!compileKW(Keyword.VAR, "<varDec>")) {
-            return false;
+            return -1;
         }
         String type = makeType();
         if (!compileType()) {
-            return false;
+            return -1;
         }
         String name = getIdent();
         if (!compileIdentifier()) {
-            return false;
+            return -1;
         }
+        result = 1;
         int index = symbolTable.define(name, type, Kind.LOCAL);
         vmw.writeDefine(name, type, Kind.LOCAL, index);
         while (compileSymbol(',')) {
             name = getIdent();
             if (!compileIdentifier()) {
-                return false;
+                return -1;
             }
             index = symbolTable.define(name, type, Kind.LOCAL);
             vmw.writeDefine(name, type, Kind.LOCAL, index);
+            result += 1;
         }
         if (!compileSymbol(';')) {
-            return false;
+            return -1;
         }
-        ps.println("</varDec>");
-        return true;
+//        ps.println("</varDec>");
+        return result;
     }
 
     /* letStatement | ifStatement | whileStatement
@@ -416,23 +425,26 @@ class CompilationEngine {
                 return false;
             }
         }
+        if (subMethod == null) {
+            vmw.writePush(Segment.POINTER, 0);
+        } else if (!symbolTable.isClass(ident)) {
+            Segment segment = Segment.fromKind(symbolTable.kindOf(ident));
+            vmw.writePush(segment, symbolTable.indexOf(ident));
+        }
         if (!compileSymbol('(') || (nArgs = compileExpressionList()) == -1
                 || !compileSymbol(')') || !compileSymbol(';')) {
             return false;
         }
         if (subMethod == null) {
-            vmw.writePush(Segment.POINTER, 0);
-            vmw.writeCall(ident, nArgs);
+            vmw.writeCall(String.format("%s.%s", className, ident), nArgs + 1);
         } else if (symbolTable.isClass(ident)) {
             vmw.writeCall(String.format("%s.%s", ident, subMethod), nArgs);
         } else {
             String otherClassName = symbolTable.typeOf(ident);
-            Segment segment = Segment.fromKind(symbolTable.kindOf(ident));
-            vmw.writePush(segment, symbolTable.indexOf(ident));
-            vmw.writeCall(String.format("%s.%s", otherClassName, subMethod), nArgs);
+            vmw.writeCall(String.format("%s.%s", otherClassName, subMethod), nArgs + 1);
         }
         vmw.writePop(Segment.TEMP, 0);
-        ps.println("</doStatement>");
+//        ps.println("</doStatement>");
         return true;
     }
 
@@ -472,7 +484,7 @@ class CompilationEngine {
             }
         }
         vmw.writePop(segment, index);
-        ps.println("</letStatement>");
+//        ps.println("</letStatement>");
         return true;
     }
 
@@ -487,14 +499,14 @@ class CompilationEngine {
         if (!compileSymbol('(') || !compileExpression() || !compileSymbol(')')) {
             return false;
         }
-        vmw.writeArithmetic(Command.NEG);
+        vmw.writeArithmetic(Command.NOT);
         vmw.writeIf(l2);
         if (!compileBody()) {
             return false;
         }
         vmw.writeGoto(l1);
         vmw.writeLabel(l2);
-        ps.println("</whileStatement>");
+//        ps.println("</whileStatement>");
         return true;
     }
 
@@ -512,7 +524,7 @@ class CompilationEngine {
         if (!compileSymbol(';')) {
             return false;
         }
-        ps.println("</returnStatement>");
+//        ps.println("</returnStatement>");
         return true;
     }
 
@@ -527,7 +539,7 @@ class CompilationEngine {
         if (!compileSymbol('(') || !compileExpression() || !compileSymbol(')')) {
             return false;
         }
-        vmw.writeArithmetic(Command.NEG);
+        vmw.writeArithmetic(Command.NOT);
         vmw.writeIf(l1);
         if (!compileBody()) {
             return false;
@@ -538,7 +550,7 @@ class CompilationEngine {
             return false;
         }
         vmw.writeLabel(l2);
-        ps.println("</ifStatement>");
+//        ps.println("</ifStatement>");
         return true;
     }
 
@@ -550,7 +562,7 @@ class CompilationEngine {
     
     /* term (op term)* */
     public boolean compileExpression() {
-        ps.println("<expression>");
+//        ps.println("<expression>");
         if (!compileTerm()) {
             return false;
         }
@@ -562,7 +574,7 @@ class CompilationEngine {
             vmw.writeArithmetic(cmd);
             cmd = getBinOp();
         }
-        ps.println("</expression>");
+//        ps.println("</expression>");
         return true;
     }
 
@@ -570,52 +582,64 @@ class CompilationEngine {
      * | varName | varName '[' expression ']' | subroutineCall
      * | '(' expression ')' | unaryOp term */
     public boolean compileTerm() {
-        ps.println("<term>");
+//        ps.println("<term>");
         int intVal = getInt();
         if (compileInt()) {
             vmw.writePush(Segment.CONST, intVal);
-            ps.println("</term>");
+//            ps.println("</term>");
             return true;
         }
         String strVal = getString();
         if (compileStr()) {
             vmw.writePush(Segment.CONST, strVal.length());
             vmw.writeCall("String.new", 1);
+            vmw.writePop(Segment.TEMP, 4);
             for (int i = 0; i < strVal.length(); i++) {
+                vmw.writePush(Segment.TEMP, 4);
                 vmw.writePush(Segment.CONST, strVal.charAt(i));
-                vmw.writeCall("String.appendChar", 1);
-                vmw.writePop(Segment.TEMP, 1);
+                vmw.writeCall("String.appendChar", 2);
+                vmw.writePop(Segment.TEMP, 5);
             }
-            vmw.writePop(Segment.TEMP, 1);
-            ps.println("</term>");
+            vmw.writePush(Segment.TEMP, 4);
+            //vmw.writePop(Segment.TEMP, 1);
+//            ps.println("</term>");
             return true;
         }
         Keyword kw = getKW();
         if (compileKW(Keyword.TRUE) || compileKW(Keyword.FALSE)
                 || compileKW(Keyword.NULL) || compileKW(Keyword.THIS)) {
             Segment segment = kw == Keyword.THIS ? Segment.POINTER : Segment.CONST;
-            int index = kw == Keyword.TRUE ? 0xFFFF : 0;
-            vmw.writePush(segment, index);
-            ps.println("</term>");
+            if (kw == Keyword.TRUE) {
+                vmw.writePush(Segment.CONST, 0);
+                vmw.writeArithmetic(Command.NOT);
+            } else {
+                int index = 0;
+                vmw.writePush(segment, index);
+            }
+//            ps.println("</term>");
             return true;
         }
         Command cmd = getUnOp();
         if (compileSymbol('-') || compileSymbol('~')) {
-            vmw.writeArithmetic(cmd);
             if (compileTerm()) {
-                ps.println("</term>");
+                vmw.writeArithmetic(cmd);
+//                ps.println("</term>");
                 return true;
             } else {
                 return false;
             }
         }
         if (compileSymbol('(') && compileExpression() && compileSymbol(')')) {
-            ps.println("</term>");
+//            ps.println("</term>");
             return true;
         }
         final String ident = getIdent();
-        Segment segment = Segment.fromKind(symbolTable.kindOf(ident));
-        int index = symbolTable.indexOf(ident);
+        Segment segment = null;
+        int index = -1;
+        if (!symbolTable.isClass(ident)) {
+            segment = Segment.fromKind(symbolTable.kindOf(ident));
+            index = symbolTable.indexOf(ident);
+        }
         if (!compileIdentifier()) {
             return false;
         }
@@ -641,14 +665,13 @@ class CompilationEngine {
                     return false;
                 }
                 vmw.writePush(Segment.POINTER, 0);
-                vmw.writeCall(ident, nArgs);
+                vmw.writeCall(String.format("%s.%s", className, ident), nArgs + 1);
                 break;
             case '.':
                 if (!compileSymbol('.')) {
                     return false;
                 }
                 String subname = getIdent();
-                System.out.println(String.format("extern: %s.%s", ident, subname));
                 if (!compileIdentifier()
                         || !compileSymbol('(')
                         || (nArgs = compileExpressionList()) == -1
@@ -660,7 +683,7 @@ class CompilationEngine {
                 } else {
                     String otherClassName = symbolTable.typeOf(ident);
                     vmw.writePush(segment, index);
-                    vmw.writeCall(String.format("%s.%s", otherClassName, subname), nArgs);
+                    vmw.writeCall(String.format("%s.%s", otherClassName, subname), nArgs + 1);
                 }
                 break;
             default:                /* variable */
@@ -668,16 +691,16 @@ class CompilationEngine {
                 break;
             }
         }
-        ps.println("</term>");
+//        ps.println("</term>");
         return true;
     }
 
     /* (expression ( ',' expression)* )? */
     public int compileExpressionList() {
         int n = 0;
-        ps.println("<expressionList>");
+//        ps.println("<expressionList>");
         if (testSymbol(')')) {
-            ps.println("</expressionList>");
+//            ps.println("</expressionList>");
             return n;
         }
         if (compileExpression()) {
@@ -689,7 +712,7 @@ class CompilationEngine {
                 n++;
             }
         }
-        ps.println("</expressionList>");
+//        ps.println("</expressionList>");
         return n;
     }
 }

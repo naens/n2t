@@ -37,11 +37,11 @@ public class JackAnalyzer {
         /* loop through files */
         for (File f : inFiles) {
             String name = JackTokenizer.getNoExtName(f);
-            String xmlName = name + ".xml";
+//            String xmlName = name + ".xml";
             String vmName = name + ".vm";
-            File xmlFile = new File(dir, xmlName);
+//            File xmlFile = new File(dir, xmlName);
             File vmFile = new File(dir, vmName);
-            CompilationEngine ce = new CompilationEngine(f, xmlFile, vmFile);
+            CompilationEngine ce = new CompilationEngine(f, /*xmlFile, */vmFile);
             ce.start();
         }
     }
