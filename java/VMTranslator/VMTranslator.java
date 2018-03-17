@@ -1,5 +1,3 @@
-package jack.vmtranslator;
-
 import java.io.*;
 
 public class VMTranslator {
