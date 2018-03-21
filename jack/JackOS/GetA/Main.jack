@@ -1,0 +1,23 @@
+class Main {
+
+    function void main() {
+        var Array ram;
+    	var integer start;
+    	var integer i;
+    	var integer step;
+    	var integer curr;
+    	let start = 16384;
+    	let step = 512 / 16;
+    	let curr = start;
+    	let ram = 0;
+    	do Output.printString("A");
+    	while (i < 11) {
+    		do Output.println();
+    		do Output.printInt(ram[curr]);
+    		let curr = curr + step;
+    		let i = i + 1;
+    	}
+        return;
+    }
+
+}

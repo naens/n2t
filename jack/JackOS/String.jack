@@ -1,0 +1,127 @@
+class String {
+
+    field integer len;
+    field integer maxlen;
+    field Array str;
+
+    constructor String new(integer maxLength) {
+        if (maxLength < 8) {
+            let maxLength = 8;
+        }
+        let str = Array.new(maxLength);
+        let maxlen = maxLength;
+        let len = 0;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(str);
+        return;
+    }
+
+    method integer length() {
+        return len;
+    }
+
+    method char charAt(integer j) {
+        return str[j];
+    }
+
+    method void setCharAt(integer j, char c) {
+        let str[j] = c;
+        return;
+    }
+
+    method String appendChar(char c) {
+        if (len < maxlen) {
+            let str[len] = c;
+            let len = len + 1;
+        }
+        return this;
+    }
+
+    method void eraseLastChar() {
+        if (len > 0) {
+            let len = len - 1;
+        }
+        return;
+    }
+
+    method integer intValue() {
+        var integer sum;
+        var integer i;
+        if (len = 0) {
+            return 0;
+        }
+        let sum = 0;
+        if (str[i] = 45) {
+            let i = 1;
+        } else {
+            let i = 0;
+        }
+        while (((str[i] > 47) & (str[i] < 58)) & (i < len)) {
+            let sum = (sum * 10) + (str[i] - 48);
+            let i = i + 1;
+        }
+        if (str[0] = 45) {
+            return -sum;
+        } else {
+            return sum;
+        }
+    }
+
+    method void setInt(integer val) {
+        var Array divmod;
+        var integer tmp;
+        var integer i;
+        var integer lim;
+        var integer tmp;
+        if (val = 0) {
+            let len = 1;
+            let str[0] = 48;
+            return;
+        }
+
+        /* write absolute value */     
+        let len = 0;   
+        if (val < 0) {
+            let tmp = -val;
+        } else {
+            let tmp = val;
+        }
+        let divmod = Array.new(2);
+        while (tmp > 0) {
+            do DivMod.setDivMod(divmod, tmp, 10);
+            do appendChar(divmod[1] + 48);
+            let tmp = divmod[0];
+        }
+        do divmod.dispose();
+
+        /* reverse and add sign */
+        if (val < 0) {
+            do appendChar(45);
+        }
+        let i = 0;
+        let lim = len / 2;
+        while (i < lim) {
+            let tmp = str[i];
+            let str[i] = str[(len - i) - 1];
+            let str[(len - i) - 1] = tmp;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function char newLine() {
+        return 128;
+    }
+
+    function char backSpace() {
+        return 129;
+    }
+
+    function char doubleQuote() {
+        return 34;
+    }
+
+}

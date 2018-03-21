@@ -1,0 +1,52 @@
+class DivMod {
+
+    function integer shr(integer x) {
+    	var integer mask1;
+    	var integer mask2;
+    	var integer res;
+    	var integer i;
+
+    	let mask1 = 1;
+    	let mask2 = 2;
+    	let i = 0;
+    	while (i < 15) {
+    	    if (~((x & mask2) = 0)) {
+    	    	let res = res | mask1;
+    	    }
+    	    let mask1 = mask2;
+    	    let mask2 = mask2 + mask2;
+    	    let i = i + 1;
+    	}
+
+	return res;
+    }
+
+    /* positive division */
+    function void setDivMod(Array divmod, integer n1, integer n2) {
+        var integer s;
+        var integer d;
+        var integer k;
+        var integer q;
+
+        let d = n1;
+        let s = n2;
+        while (s < d) {
+            let s = s + s;
+            let k = k + 1;
+        }
+        let q = 0;
+        while (k > 0) {
+            let s = DivMod.shr(s);
+            let q = q + q;
+            if (s - 1 < d) {
+                let d = d - s;
+                let q = q + 1;
+            }
+            let k = k - 1;
+        }
+        let divmod[0] = q;
+        let divmod[1] = d;
+        return;
+    }
+
+}

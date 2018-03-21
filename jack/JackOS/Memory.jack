@@ -1,0 +1,64 @@
+class Memory {
+
+    static Array ram;
+    static Array heap;
+    static Array freeList;
+
+    function void init() {
+        let ram = 0;
+        let heap = 2048;
+        let freeList = 2048;
+        let heap[0] = 0;
+        let heap[1] = 14335;
+        return;
+    }
+
+    function integer peek(integer address) {
+        return ram[address];
+    }
+
+    function void poke(integer address, integer value) {
+        let ram[address] = value;
+        return;
+    }
+
+    function Array findSegment(integer size) {
+        var Array segment;
+        let segment = freeList;
+        while (segment[1] < size) {
+            let segment = segment[0];
+        }
+        return segment;
+    }
+
+    function integer alloc(integer size) {
+        var Array segment;
+        var Array rest;
+        var integer restSize;
+        var integer xsize;
+
+        let xsize = size + 2;
+        let segment = Memory.findSegment(xsize);
+        if (segment = 0) {
+            do Sys.error("cannot find segment for alloc");
+            return -1;
+        }
+        let restSize = segment[1] - xsize;
+        if ((restSize > xsize) | (restSize > 10)) {
+            let rest = segment + xsize;
+            let rest[0] = freeList;
+            let rest[1] = restSize - 2;
+            let freeList = rest;
+            let segment[1] = size;
+        }
+        return segment + 2;
+    }
+
+    function void deAlloc(Array o) {
+        var Array segment;
+        let segment = o - 2;
+        let o[0] = freeList;
+        let freeList = o;
+        return;
+    }
+}

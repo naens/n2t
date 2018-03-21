@@ -1,0 +1,54 @@
+class Keyboard {
+
+    static Array kbd;
+
+    function void init() {
+        let kbd = 24576;
+        return;
+    }
+
+    function char keyPressed() {
+        return kbd[0];
+    }
+
+    function char readChar() {
+        var char result;
+        do Output.printChar(127);
+        do Output.backSpace();
+        while (kbd[0] = 0) {
+            do Sys.wait(10);
+        }
+        let result = kbd[0];
+        do Output.printChar(result);
+        while (kbd[0] = result) {
+            do Sys.wait(0);
+        }
+        return result;
+    }
+
+    function String readLine(String message) {
+        var String result;
+        var char ch;
+        do Output.printString(message);
+        let result = String.new(40);
+        let ch = Keyboard.readChar();
+        while (~(ch = String.newLine())) {
+            if (ch = String.backSpace()) {
+                if (result.length() > 0) {
+                    do result.eraseLastChar();
+                  //  do Output.backSpace();
+                }
+            } else {
+                do result.appendChar(ch);
+            }
+            let ch = Keyboard.readChar();
+        }
+        return result;
+    }
+
+    function integer readInt(String message) {
+        var String s;
+        let s = Keyboard.readLine(message);
+        return s.intValue();
+    }
+}

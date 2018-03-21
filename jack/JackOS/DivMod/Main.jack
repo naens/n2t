@@ -1,0 +1,21 @@
+class Main {
+
+    function void main() {
+        var integer i;
+        var Array divmod;
+        let divmod = Array.new(2);
+        while (i < 22) {
+            do DivMod.setDivMod(divmod, i, 7);
+            do Output.printInt(i);
+            do Output.printString("=");
+            do Output.printInt(divmod[0]);
+            do Output.printString("*7 + ");
+            do Output.printInt(divmod[1]);
+            do Output.println();
+            let i = i + 1;
+        }
+        do divmod.dispose();
+        return;
+    }
+
+}
