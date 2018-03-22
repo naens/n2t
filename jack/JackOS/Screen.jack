@@ -1,0 +1,280 @@
+class Screen {
+
+    static boolean color;
+    static Array SCREEN;
+    static integer HEIGHT;
+    static integer WIDTH;
+    static Array ram;
+
+    function void init() {
+        let color = true;
+        let SCREEN = 16384;
+        let WIDTH = 512 / 16;
+        let HEIGHT = 256;
+        return;
+    }
+
+    function void clearScreen() {
+        var integer i;
+        let i = 0;
+        while (i < (WIDTH * HEIGHT)) {
+            let SCREEN[i] = ~color;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void setColor(boolean b) {
+        let color = b;
+        return;
+    }
+
+    function integer setWordBit(integer word, integer bit, boolean b) {
+        var integer i;
+        var integer mask;
+        let i = 0;
+        let mask = 1;
+        while (i < bit) {
+            let mask = mask + mask;
+            let i = i + 1;
+        }
+        if (b) {
+            return word | mask;
+        } else {
+            return (~mask) & word;
+        }
+    }
+
+    function void drawPixel(integer x, integer y) {
+        var integer word;
+        var integer tmp;
+        var Array xx;
+        if ((x < 0) | (x > 512)) {
+            return;
+        }
+        if ((y < 0) | (y > 256)) {
+            return;
+        }
+        let xx = Array.new(2);
+        do DivMod.setDivMod(xx, x, 16);
+        let tmp = (y * WIDTH) + xx[0];
+        let word = SCREEN[tmp];
+        let word = Screen.setWordBit(word, xx[1], color);
+        let SCREEN[tmp] = word;
+        do xx.dispose();
+        return;
+    }
+
+    function void drawVerticalLine(integer x, integer ymin, integer ymax) {
+        var integer i;
+        var integer mask;
+        var integer yto;
+        var integer bit;
+        var integer word;
+        var integer curr;
+        var Array xx;
+        let xx = Array.new(2);
+        do DivMod.setDivMod(xx, x, 16);
+        let i = 0;
+        let mask = 1;
+        let bit = xx[1];
+        do xx.dispose();
+        while (i < xx[1]) {
+            let mask = mask + mask;
+            let i = i + 1;
+        }
+        let i = ymin;
+        let yto = ymax + 1;
+        let curr =  (ymin * WIDTH) + (x / 16);
+        while (i < yto) {
+            let word = SCREEN[curr];
+            if (color) {
+                let SCREEN[curr] = word | mask;
+            } else {
+                let SCREEN[curr] = (~mask) & word;
+            }
+            let i = i + 1;
+            let curr = curr + WIDTH;
+        }
+        return;
+    }
+
+    function void drawSmallHorizontalLine(integer wx, integer y,
+                                        integer bitfrom, integer bitto) {
+        var integer i;
+        var integer mask;
+        var integer word;
+        var integer address;
+        let i = 0;
+        let mask = 1;
+        let address = (y * WIDTH) + wx;
+        let word = SCREEN[address];
+        while (i < bitto) {
+            if (i > (bitfrom - 1)) {
+                if (color) {
+                    let word = word | mask;
+                } else {
+                    let word = (~mask) & word;
+                }
+            }
+            let mask = mask + mask;
+            let i = i + 1;
+        }
+        let SCREEN[address] = word;
+        return;
+    }
+
+    function void drawHorizontalLine(integer x1, integer x2, integer y) {
+        var Array xx1;
+        var Array xx2;
+        var integer xfrom;
+        var integer xto;
+        var integer from;
+        var integer to;
+        var integer curr;
+        let xx1 = Array.new(2);
+        let xx2 = Array.new(2);
+        do DivMod.setDivMod(xx1, x1, 16);
+        do DivMod.setDivMod(xx2, x2 + 1, 16);
+        if (xx1[0] = xx2[0]) {
+            do Screen.drawSmallHorizontalLine(xx1[0], y, xx1[1], xx2[1]);
+        } else {
+            if (xx1[1] = 0) {
+                let xfrom = xx1[0];
+            } else {
+                let xfrom = xx1[0] + 1;
+                do Screen.drawSmallHorizontalLine(xx1[0], y, xx1[1], 16);
+            }
+            let xto = xx2[0];
+            do Screen.drawSmallHorizontalLine(xx2[0], y, 0, xx2[1]);
+            let from = xfrom + (y * WIDTH);
+            let to = xto + (y * WIDTH);
+            let curr = from;
+            while (curr < to) {
+                let SCREEN[curr] = color;
+                let curr = curr + 1;
+            }
+        }
+        do xx1.dispose();
+        do xx2.dispose();
+        return;
+    }
+
+    function void drawLine(integer x1, integer y1, integer x2, integer y2) {
+        var integer i;
+        var integer xmin;
+        var integer xmax;
+        var integer ymin;
+        var integer ymax;
+        var integer a;
+        var integer b;
+        var integer diff;
+        var integer dx;
+        var integer dy;
+        if (    ( ((x1<0) | (x1>511))  |  ((x2<0) | (x2>511)) )
+            |   ( ((y1<0) | (y1>255))  |  ((y2<0) | (y2>255)) )    ) {
+            return;
+        }
+        if (x1 > x2) {
+            let xmin = x2;
+            let xmax = x1;
+        } else {
+            let xmin = x1;
+            let xmax = x2;
+        }
+        if (y1 > y2) {
+            let ymin = y2;
+            let ymax = y1;
+        } else {
+            let ymin = y1;
+            let ymax = y2;
+        }
+        if (y1 = y2) {
+            do Screen.drawHorizontalLine(xmin, xmax, y2);
+            return;
+        }
+        if (x1 = x2) {
+            do Screen.drawVerticalLine(x1, ymin, ymax);
+            return;
+        }
+        let a = 0;
+        let b = 0;
+        let dx = xmax - xmin;
+        let dy = ymax - ymin;
+        let diff = 0;
+        if (  ( (x1<x2)&(y1<y2) ) | ( (x2<x1)&(y2< y1) ) ) {
+            /* x increases, y increases */
+            while ((a + b) < ((dx + dy) + 1)) {
+                do Screen.drawPixel(xmin + a, ymin + b);
+                if (diff > 0) {
+                    let a = a + 1;
+                    let diff = diff - dy;
+                } else {
+                    let b = b + 1;
+                    let diff = diff + dx;
+                }
+            }
+        } else {
+            /* x increases, y decreases */
+            while ((a + b) < ((dx + dy) + 1)) {
+                do Screen.drawPixel(xmin + a, ymax - b);
+                if (diff > 0) {
+                    let a = a + 1;
+                    let diff = diff - dy;
+                } else {
+                    let b = b + 1;
+                    let diff = diff + dx;
+                }
+            }
+        }
+        return;
+    }
+
+    function void drawRectangle(integer x1, integer y1, integer x2, integer y2) {
+        var integer i;
+        var integer xmin;
+        var integer xmax;
+        var integer ymin;
+        var integer ymax;
+        if (x1 > x2) {
+            let xmin = x2;
+            let xmax = x1;
+        } else {
+            let xmin = x1;
+            let xmax = x2;
+        }
+        if (y1 > y2) {
+            let ymin = y2;
+            let ymax = y1;
+        } else {
+            let ymin = y1;
+            let ymax = y2;
+        }
+        let i = ymin;
+        while (i < (ymax + 1)) {
+            do Screen.drawLine(xmin, i, xmax, i);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void drawCircle(integer x, integer y, integer r) {
+        var integer i;
+        var integer x1;
+        var integer x2;
+        var integer tmp;
+        if ((r < 1) | (r > 180)) {
+            return;
+        }
+        let i = -r;
+        while (i < (r + 1)) {
+            let tmp = Math.sqrt((r*r) - (i*i));
+            let x1 = x - tmp;
+            let x2 = x + tmp;
+            do Screen.drawLine(x1, y + i, x2, y + i);
+            let i = i + 1;
+        }
+        return;
+    }
+
+}
