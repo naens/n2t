@@ -22,13 +22,13 @@ class DivMod {
     }
 
     function boolean lt(integer n1, integer n2) {
-        if ((n1 | n2) > 0) {
+        if ((n1 | n2) > (-1)) {
             return n1 < n2;
         }
-        if ((n1 < 0) & (n2 < 0)) {
-            return n2 < n1;
+        if ((n1 & n2) < 0) {
+            return n1 < n2;
         }
-        return n1 > -1;
+        return n1 > (-1);
     }
 
     /* positive division */
@@ -40,7 +40,7 @@ class DivMod {
 
         let d = n1;
         let s = n2;
-        while (DivMod.lt(s, d + 1)) {
+        while (DivMod.lt(s, d + 1)) {        
             let s = s + s;
             let k = k + 1;
         }
@@ -48,7 +48,7 @@ class DivMod {
         while (k > 0) {
             let s = DivMod.shr(s);
             let q = q + q;
-            if (s < (d + 1)) {
+            if (DivMod.lt(s, d + 1)) {
                 let d = d - s;
                 let q = q + 1;
             }
