@@ -1,0 +1,108 @@
+class Math {
+
+    function void init() {
+        return;
+    }
+
+    function integer abs(integer x) {
+        if (x > 0) {
+            return x;
+        }
+        return -x;
+    }
+
+    function integer multiply(integer a, integer b) {
+        var integer acc;
+        var integer mask;
+        var integer n;
+        if (b < 0) {
+            let b = -b;
+            let a = -a;
+        }
+        let acc = 0;
+        let n = 1;
+        let mask = 1;
+        while (~(b = 0)) {
+            if ((b&mask) = 0) {
+                let a = a + a;
+                let n = n + n;
+                let mask = (mask + mask) + 1;
+            } else {
+                let b = b - n;
+                let acc = acc + a;
+            }
+        }
+        return acc;
+    }
+
+    function integer divide(integer x, integer y) {
+        var Array a;
+        var integer result;
+        var integer sign;
+        if ( ( (x<0)&(y>0) ) | ( (x>0)&(y<0) )) {
+            let sign = -1;
+        } else {
+            let sign = 1;
+        }
+        let a = Array.new(2);
+        do DivMod.setDivMod(a, Math.abs(x), Math.abs(y));
+        let result = a[0];
+        do a.dispose();
+        if (sign = 1) {
+            return result;
+        } else {
+            return -result;
+        }
+    }
+
+    function integer expt(integer a, integer b) {
+        var integer result;
+        var integer i;
+        let i = 0;
+        let result = 1;
+        while (i < b) {
+            let result = a * result;
+            let i = i + 1;
+        }
+        return result;
+    }
+
+    function integer sqrt(integer x) {
+        var integer y;
+        var integer j;
+        var integer n;
+        var integer tj;
+        var integer y2j;
+        var integer y2j2;
+        let y = 0;
+        let n = 20;
+        let j = n / 2;
+//        let tj = Math.expt(2, j);
+        while ((j + 1) > 0) {
+            let tj = Math.expt(2, j);
+            let y2j = y + tj;
+            let y2j2 = y2j*y2j;
+            if (((y2j2-1) < x) & (y2j2 > 0)) {
+                let y = y2j;
+            }
+            let j = j - 1;
+//            let tj = tj / 2;
+        }
+        return y;
+    }
+
+    function integer max(integer a, integer b) {
+        if (a > b) {
+            return a;
+        }
+        return b;
+    }
+
+    function integer min(integer a, integer b) {
+        if (a < b) {
+            return a;
+        }
+        return b;
+    }
+
+}
