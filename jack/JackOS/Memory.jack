@@ -57,8 +57,9 @@ class Memory {
     function void deAlloc(Array o) {
         var Array segment;
         let segment = o - 2;
-        let o[0] = freeList;
-        let freeList = o;
+        let segment[0] = freeList;
+        let freeList = segment;
         return;
     }
 }
+

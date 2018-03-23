@@ -17,38 +17,16 @@ class Sys {
         let j = 1323;
         let i = j;
         while (i = j) {
-            let i = Sys.expt(j, j);
-            let j = Sys.expt(j, i);
-            let i = j;
+            let i = i + 1;
+            let j = j + 1;
         }
         return;
-    }
-
-    function integer mult(integer a, integer b) {
-        var integer result;
-        let result = 0;
-        while (~(a = 0)) {
-            let result = result + b;
-            let a = a - 1;
-        }
-        return result;
-    }
-
-    function integer expt(integer a, integer b) {
-        var integer result;
-        let result = 1;
-        while (~(b = 0)) {
-            let result = Sys.mult(result, b);
-            let b = b - 1;
-        }
-        return result;
     }
 
     function void wait(integer duration) {
         var integer i;
         let i = 0;
         while (i < duration) {
-            do Sys.expt(1, 1);
             let i = i - 1;
         }
         return;
@@ -62,3 +40,4 @@ class Sys {
     }
 
 }
+

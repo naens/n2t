@@ -16,10 +16,12 @@ class Keyboard {
         do Output.printChar(127);
         do Output.backSpace();
         while (kbd[0] = 0) {
-            do Sys.wait(10);
+            do Sys.wait(0);
         }
         let result = kbd[0];
-        do Output.printChar(result);
+        if ((result > 32) & (result < 127)) {
+            do Output.printChar(result);
+        }
         while (kbd[0] = result) {
             do Sys.wait(0);
         }
@@ -36,13 +38,17 @@ class Keyboard {
             if (ch = String.backSpace()) {
                 if (result.length() > 0) {
                     do result.eraseLastChar();
-                  //  do Output.backSpace();
+                    do Output.printc(32);
+                    do Output.backSpace();
                 }
             } else {
                 do result.appendChar(ch);
             }
             let ch = Keyboard.readChar();
         }
+        do Output.printc(32);
+        do Output.backSpace();
+        do Output.println();
         return result;
     }
 
