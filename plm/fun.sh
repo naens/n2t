@@ -1,5 +1,5 @@
 #!/bin/sh
-plmx="../plmx.zip"
+plmx="plmx/plmx.zip"
 addenv ()
 {
     unzip -oq $plmx
@@ -39,6 +39,7 @@ cleanfile()
 {
     if [ -f "$1" ]
     then
-        sed -i -e 's/\x1a//g' rect.hck
+        sed -i -e 's/\x1a//g' "$1"
     fi
 }
+
