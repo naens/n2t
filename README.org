@@ -59,4 +59,10 @@ The input file has the extension ~asm~ and the ouput is ~hck~ because CP/M
 doesn't like extensions with more than 3 characters.
 
 ** VM Translator
-/not done yet/
+Creates assembly code from ~.vm~ files.
+
+** JackCompiler
+Written in Java, generates ~.vm~ files from Jack files and projects.
+
+** JackOS
+Written in Jack, implements the basic functionality for Jack.
