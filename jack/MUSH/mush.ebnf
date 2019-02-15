@@ -22,9 +22,9 @@ doblock_stmt = "do"
 dowhile_stmt = "do" "while" expr
 doiter_stmt = "do" ident "=" expr "to" expr ["by" expr]
 
-rel_op = "<" | ">" | "<=" | ">=" | "<>" | "="
-log_expr = true | false | (arithm [ rel_op arithm ])
 expr = [not] log_expr { (and | or ) expr }
+log_expr = true | false | (arithm [ rel_op arithm ])
+rel_op = "<" | ">" | "<=" | ">=" | "<>" | "="
 arithm = term {( "+" | "-" ) term }
 term = factor { ( "*" | "/" | mod ) factor }
-factor= [ "-" ]  number | string | ident | ( "(" call | expr ")")
+factor= [ "-" ]  number | string | ident | ( "(" call | expr ")" )
